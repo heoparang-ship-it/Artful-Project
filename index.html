@@ -1,0 +1,2624 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#d97757">
+  <meta name="description" content="예술인의 포트폴리오 플랫폼 - Artful">
+  <title>Artful - 예술인의 포트폴리오 플랫폼</title>
+
+  <link rel="manifest" href="data:application/manifest+json,{%22name%22:%22Artful%22,%22short_name%22:%22Artful%22,%22start_url%22:%22/%22,%22display%22:%22standalone%22,%22theme_color%22:%22%23d97757%22,%22background_color%22:%22%23ffffff%22}">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%23d97757'/><text x='50' y='65' font-size='60' font-weight='bold' fill='white' text-anchor='middle' font-family='system-ui'>A</text></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+
+  <style>
+    * {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: #ffffff;
+      color: #141413;
+      overflow-x: hidden;
+      margin: 0;
+      padding: 0;
+    }
+
+    #app {
+      width: 100%;
+      max-width: 430px;
+      margin: 0 auto;
+      background-color: #ffffff;
+      position: relative;
+      min-height: 100vh;
+      box-shadow: 0 0 50px rgba(0, 0, 0, 0.05);
+    }
+
+    .page-content {
+      animation: fadeIn 0.3s ease-in;
+      padding-bottom: 80px;
+    }
+
+    .page-content.no-nav {
+      padding-bottom: 0;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    /* OnlyFans Bottom Nav (5 tabs) */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 430px;
+      height: 70px;
+      background: #ffffff;
+      border-top: 1px solid #e8e6dc;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 100;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      padding: 8px 12px;
+      font-size: 11px;
+      color: #b0aea5;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .nav-item.active {
+      color: #d97757;
+    }
+
+    .nav-icon {
+      font-size: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .nav-icon svg {
+      width: 24px;
+      height: 24px;
+      stroke-width: 1.5;
+    }
+
+    .nav-item-profile {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #d97757;
+      color: white;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    /* Top Header */
+    .top-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: #ffffff;
+      border-bottom: 1px solid #e8e6dc;
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .top-header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+    }
+
+    .top-header-title {
+      font-weight: 700;
+      font-size: 16px;
+      color: #141413;
+    }
+
+    .top-header-right {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .icon-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px;
+      color: #141413;
+      transition: all 0.3s ease;
+    }
+
+    .icon-btn svg {
+      width: 24px;
+      height: 24px;
+      stroke-width: 1.5;
+    }
+
+    .icon-btn:hover {
+      color: #d97757;
+    }
+
+    /* Sidebar Menu */
+    .sidebar-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 200;
+      display: none;
+    }
+
+    .sidebar-overlay.active {
+      display: block;
+    }
+
+    .sidebar-menu {
+      position: fixed;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: 300px;
+      background: #ffffff;
+      z-index: 201;
+      overflow-y: auto;
+      transform: translateX(300px);
+      transition: transform 0.3s ease;
+      box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .sidebar-menu.active {
+      transform: translateX(0);
+    }
+
+    .sidebar-header {
+      padding: 16px;
+      border-bottom: 1px solid #e8e6dc;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+    }
+
+    .sidebar-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: #d97757;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 18px;
+      position: relative;
+    }
+
+    .sidebar-avatar::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 12px;
+      height: 12px;
+      background: #10b981;
+      border-radius: 50%;
+      border: 2px solid white;
+    }
+
+    .sidebar-user-info {
+      flex: 1;
+    }
+
+    .sidebar-user-name {
+      font-weight: 700;
+      font-size: 14px;
+      color: #141413;
+    }
+
+    .sidebar-user-handle {
+      font-size: 13px;
+      color: #b0aea5;
+    }
+
+    .sidebar-chevron {
+      color: #b0aea5;
+    }
+
+    .sidebar-stats {
+      padding: 12px 16px;
+      display: flex;
+      gap: 24px;
+      border-bottom: 1px solid #e8e6dc;
+    }
+
+    .sidebar-stat {
+      text-align: center;
+    }
+
+    .sidebar-stat-value {
+      font-weight: 700;
+      font-size: 14px;
+      color: #141413;
+    }
+
+    .sidebar-stat-label {
+      font-size: 11px;
+      color: #b0aea5;
+      margin-top: 4px;
+    }
+
+    .sidebar-divider {
+      height: 1px;
+      background: #e8e6dc;
+      margin: 12px 0;
+    }
+
+    .sidebar-menu-item {
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      color: #141413;
+      transition: all 0.3s ease;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+      font-size: 14px;
+    }
+
+    .sidebar-menu-item:hover {
+      background: #f9f9f9;
+    }
+
+    .sidebar-menu-item svg {
+      width: 24px;
+      height: 24px;
+      stroke-width: 1.5;
+      color: #b0aea5;
+      flex-shrink: 0;
+    }
+
+    .sidebar-menu-item.toggle {
+      justify-content: space-between;
+    }
+
+    /* Feed Cards - OnlyFans Style */
+    .feed-card {
+      background: #ffffff;
+      border-bottom: 1px solid #e8e6dc;
+    }
+
+    .feed-card-header {
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      justify-content: space-between;
+    }
+
+    .feed-card-user {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+    }
+
+    .feed-card-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #d97757;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .feed-card-user-info {
+      flex: 1;
+    }
+
+    .feed-card-name {
+      font-weight: 700;
+      font-size: 14px;
+      color: #141413;
+    }
+
+    .feed-card-meta {
+      font-size: 12px;
+      color: #b0aea5;
+    }
+
+    .feed-card-menu {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 20px;
+      color: #b0aea5;
+      padding: 4px;
+    }
+
+    .feed-card-content {
+      padding: 0 16px 12px 16px;
+      color: #141413;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .feed-card-media {
+      width: 100%;
+      aspect-ratio: 1;
+      background: #f3f4f6;
+      object-fit: cover;
+      margin-bottom: 12px;
+    }
+
+    .feed-card-suggestions {
+      padding: 0 16px 12px 16px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .feed-card-suggestions::-webkit-scrollbar {
+      display: none;
+    }
+
+    .suggestions-scroll {
+      display: flex;
+      gap: 8px;
+    }
+
+    .suggestion-card {
+      flex-shrink: 0;
+      width: 100px;
+      aspect-ratio: 0.85;
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .suggestion-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .suggestion-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, transparent 40%, rgba(0, 0, 0, 0.6) 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 8px;
+      color: white;
+    }
+
+    .suggestion-name {
+      font-weight: 700;
+      font-size: 12px;
+      line-height: 1.2;
+    }
+
+    .suggestion-handle {
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .feed-card-actions {
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid #e8e6dc;
+    }
+
+    .action-icon-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      color: #b0aea5;
+      font-size: 12px;
+      transition: all 0.3s ease;
+      padding: 4px;
+    }
+
+    .action-icon-btn:hover {
+      color: #d97757;
+    }
+
+    .action-icon-btn svg {
+      width: 20px;
+      height: 20px;
+      stroke-width: 1.5;
+    }
+
+    .action-icon-btn.liked {
+      color: #d97757;
+    }
+
+    /* Filter Chips */
+    .filter-chips {
+      padding: 12px 16px;
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      border-bottom: 1px solid #e8e6dc;
+    }
+
+    .filter-chips::-webkit-scrollbar {
+      display: none;
+    }
+
+    .chip {
+      flex-shrink: 0;
+      padding: 6px 12px;
+      border-radius: 20px;
+      background: #f3f4f6;
+      border: 1px solid #e8e6dc;
+      cursor: pointer;
+      font-size: 13px;
+      color: #141413;
+      transition: all 0.3s ease;
+    }
+
+    .chip:hover {
+      background: #e8e6dc;
+    }
+
+    .chip.active {
+      background: #d97757;
+      color: white;
+      border-color: #d97757;
+    }
+
+    /* Buttons */
+    .btn {
+      padding: 12px 24px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      display: inline-block;
+      text-align: center;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background-color: #d97757;
+      color: white;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background-color: #c4633f;
+      transform: translateY(-1px);
+    }
+
+    .btn-primary:disabled {
+      background-color: #d4d4d8;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
+    .btn-secondary {
+      background-color: transparent;
+      color: #141413;
+      border: 1px solid #e8e6dc;
+    }
+
+    .btn-secondary:hover {
+      border-color: #d97757;
+      color: #d97757;
+    }
+
+    .btn-outline {
+      background-color: transparent;
+      color: #d97757;
+      border: 1px solid #d97757;
+    }
+
+    .btn-outline:hover {
+      background-color: rgba(217, 119, 87, 0.1);
+    }
+
+    .btn-small {
+      padding: 8px 16px;
+      font-size: 14px;
+    }
+
+    .btn-red {
+      background-color: #ef4444;
+      color: white;
+    }
+
+    .btn-red:hover {
+      background-color: #dc2626;
+    }
+
+    /* Input Fields */
+    .input-field {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #e8e6dc;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      color: #141413;
+      background: #ffffff;
+    }
+
+    .input-field:focus {
+      outline: none;
+      border-color: #d97757;
+      box-shadow: 0 0 0 3px rgba(217, 119, 87, 0.1);
+    }
+
+    .input-field.error {
+      border-color: #ef4444;
+    }
+
+    .error-message {
+      color: #ef4444;
+      font-size: 12px;
+      margin-top: 4px;
+    }
+
+    .success-message {
+      color: #10b981;
+      font-size: 12px;
+      margin-top: 4px;
+    }
+
+    /* Cards */
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 16px;
+      border: 1px solid #e8e6dc;
+      transition: all 0.3s ease;
+    }
+
+    .card:hover {
+      border-color: #d97757;
+    }
+
+    /* Genre Buttons */
+    .genre-btn {
+      padding: 12px 16px;
+      border: 1px solid #e8e6dc;
+      background: white;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      color: #141413;
+      transition: all 0.3s ease;
+    }
+
+    .genre-btn:hover {
+      border-color: #d97757;
+    }
+
+    .genre-btn.selected {
+      background-color: #d97757;
+      color: white;
+      border-color: #d97757;
+    }
+
+    /* Avatars */
+    .avatar {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .avatar:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 0 2px #d97757;
+    }
+
+    .profile-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid white;
+      margin-top: -40px;
+      cursor: pointer;
+    }
+
+    .upload-button {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: 2px dashed #d97757;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background-color: rgba(217, 119, 87, 0.05);
+      color: #d97757;
+    }
+
+    .upload-button:hover {
+      background-color: rgba(217, 119, 87, 0.1);
+      transform: scale(1.05);
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #141413;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      z-index: 1000;
+      animation: slideUp 0.3s ease-out;
+      max-width: 380px;
+    }
+
+    @keyframes slideUp {
+      from {
+        transform: translateX(-50%) translateY(20px);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+      }
+    }
+
+    /* Hero Section */
+    .hero-section {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 24px;
+      text-align: center;
+      background: #ffffff;
+    }
+
+    .hero-logo {
+      font-family: 'Poppins', -apple-system, sans-serif;
+      font-size: 56px;
+      font-weight: 800;
+      color: #d97757;
+      margin-bottom: 6px;
+      letter-spacing: -1px;
+    }
+
+    .hero-tagline {
+      font-size: 15px;
+      color: #b0aea5;
+      margin-bottom: 40px;
+      font-weight: 400;
+    }
+
+    .hero-form {
+      width: 100%;
+      max-width: 320px;
+      margin-bottom: 16px;
+    }
+
+    .hero-form .input-field {
+      background: #ffffff;
+      border: 1px solid #e8e6dc;
+      margin-bottom: 10px;
+      font-size: 15px;
+      padding: 14px 16px;
+      border-radius: 8px;
+    }
+
+    .hero-divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 20px 0;
+      width: 100%;
+      max-width: 320px;
+    }
+
+    .hero-divider::before,
+    .hero-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #e8e6dc;
+    }
+
+    .hero-divider span {
+      font-size: 12px;
+      color: #b0aea5;
+      white-space: nowrap;
+    }
+
+    .link-text {
+      color: #d97757;
+      cursor: pointer;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .link-text:hover {
+      text-decoration: underline;
+    }
+
+    /* Section Headers */
+    .section-header {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: #141413;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
+
+    .modal {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      max-width: 380px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      animation: slideUp 0.3s ease-out;
+    }
+
+    .modal-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: #141413;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .modal-buttons button {
+      flex: 1;
+    }
+
+    /* Portfolio & Analytics Styles */
+    .stat-item {
+      text-align: center;
+      padding: 12px;
+    }
+
+    .stat-number {
+      font-size: 24px;
+      font-weight: 700;
+      color: #141413;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: #b0aea5;
+      margin-top: 4px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .badge-orange {
+      background-color: rgba(217, 119, 87, 0.1);
+      color: #d97757;
+    }
+
+    .badge-red {
+      background-color: rgba(239, 68, 68, 0.1);
+      color: #ef4444;
+    }
+
+    .badge-green {
+      background-color: rgba(16, 185, 129, 0.1);
+      color: #10b981;
+    }
+
+    /* Heatmap */
+    .heatmap-bar {
+      height: 40px;
+      background: linear-gradient(90deg, #ef4444 0%, #d97757 50%, #10b981 100%);
+      border-radius: 6px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      color: white;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    /* QR Code */
+    .qr-container {
+      padding: 24px;
+      text-align: center;
+    }
+
+    .qr-display {
+      display: inline-block;
+      padding: 16px;
+      background: white;
+      border: 1px solid #e8e6dc;
+      border-radius: 12px;
+      margin-bottom: 16px;
+    }
+
+    .link-box {
+      background-color: #f3f4f6;
+      border-radius: 8px;
+      padding: 12px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      word-break: break-all;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .copy-btn {
+      flex-shrink: 0;
+      padding: 8px 12px;
+      background-color: #d97757;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .copy-btn:hover {
+      background-color: #c4633f;
+    }
+
+    /* Expandable Sections */
+    .expandable-section {
+      background: white;
+      border-radius: 12px;
+      margin-bottom: 12px;
+      border: 1px solid #e8e6dc;
+      overflow: hidden;
+    }
+
+    .section-title-bar {
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      background: #ffffff;
+      transition: all 0.3s ease;
+    }
+
+    .section-title-bar:hover {
+      background: #f9f9f9;
+    }
+
+    .section-expand-icon {
+      transition: transform 0.3s ease;
+      color: #b0aea5;
+    }
+
+    .section-expand-icon.expanded {
+      transform: rotate(180deg);
+    }
+
+    .section-content {
+      max-height: 1000px;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+      padding: 16px;
+      border-top: 1px solid #e8e6dc;
+      color: #141413;
+    }
+
+    .section-content.collapsed {
+      max-height: 0;
+      padding: 0 16px;
+      border: none;
+    }
+
+    /* Settings */
+    .setting-item {
+      padding: 16px 0;
+      border-bottom: 1px solid #e8e6dc;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .setting-item:last-child {
+      border-bottom: none;
+    }
+
+    .setting-label {
+      font-weight: 600;
+      color: #141413;
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 50px;
+      height: 28px;
+      background-color: #e8e6dc;
+      border-radius: 14px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .toggle-switch.active {
+      background-color: #d97757;
+    }
+
+    .toggle-knob {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 24px;
+      height: 24px;
+      background-color: white;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+    }
+
+    .toggle-switch.active .toggle-knob {
+      left: 24px;
+    }
+
+    .divider {
+      height: 1px;
+      background-color: #e8e6dc;
+      margin: 16px 0;
+    }
+
+    /* Timeline */
+    .timeline-item {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .timeline-marker {
+      width: 32px;
+      height: 32px;
+      background-color: #d97757;
+      border-radius: 50%;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .timeline-content {
+      flex: 1;
+    }
+
+    .timeline-title {
+      font-weight: 700;
+      color: #141413;
+      margin-bottom: 4px;
+    }
+
+    .timeline-year {
+      font-size: 13px;
+      color: #b0aea5;
+    }
+
+    /* Checkbox */
+    .checkbox-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      border-radius: 8px;
+      background-color: #f9f9f9;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .checkbox-container:hover {
+      background-color: #f3f4f6;
+    }
+
+    .checkbox {
+      width: 20px;
+      height: 20px;
+      border: 1px solid #e8e6dc;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .checkbox.checked {
+      background-color: #d97757;
+      border-color: #d97757;
+      color: white;
+    }
+
+    /* Gallery */
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .gallery-item {
+      aspect-ratio: 1;
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: 1px solid #e8e6dc;
+    }
+
+    .gallery-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .gallery-item-delete {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      opacity: 0;
+      transition: all 0.3s ease;
+    }
+
+    .gallery-item:hover .gallery-item-delete {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+
+  <script>
+    // ==================== STORE ====================
+    const Store = {
+      get(key) {
+        return JSON.parse(localStorage.getItem(key) || 'null');
+      },
+      set(key, value) {
+        localStorage.setItem(key, JSON.stringify(value));
+      },
+      remove(key) {
+        localStorage.removeItem(key);
+      }
+    };
+
+    // ==================== ROUTER ====================
+    class Router {
+      constructor() {
+        this.routes = {};
+        this.notFoundHandler = null;
+        window.addEventListener('hashchange', () => this.navigate());
+      }
+
+      register(path, handler) {
+        this.routes[path] = handler;
+      }
+
+      navigate() {
+        let hash = window.location.hash.slice(1) || 'landing';
+        const [path, ...params] = hash.split('/');
+
+        if (this.routes[path]) {
+          const html = this.routes[path](params);
+          document.getElementById('app').innerHTML = html;
+          window.scrollTo(0, 0);
+          this.setupEventListeners();
+          this.postRender(path);
+        } else {
+          window.location.hash = 'landing';
+        }
+      }
+
+      postRender(path) {
+        if (path === 'qr') {
+          setTimeout(() => {
+            const user = renderCurrentUser();
+            if (user) {
+              const shareLink = 'https://artful.app/profile/' + user.id;
+              const qr = qrcode(4, 'M');
+              qr.addData(shareLink);
+              qr.make();
+              const qrDiv = document.getElementById('qrDisplay');
+              if (qrDiv) {
+                qrDiv.innerHTML = qr.createImgTag();
+              }
+            }
+          }, 100);
+        }
+      }
+
+      go(path) {
+        window.location.hash = path;
+      }
+
+      setupEventListeners() {
+        const sidebarToggle = document.querySelector('[data-sidebar-toggle]');
+        if (sidebarToggle) {
+          sidebarToggle.addEventListener('click', () => {
+            const overlay = document.querySelector('.sidebar-overlay');
+            const sidebar = document.querySelector('.sidebar-menu');
+            if (overlay && sidebar) {
+              overlay.classList.toggle('active');
+              sidebar.classList.toggle('active');
+            }
+          });
+        }
+
+        const sidebarOverlay = document.querySelector('.sidebar-overlay');
+        if (sidebarOverlay) {
+          sidebarOverlay.addEventListener('click', () => {
+            sidebarOverlay.classList.remove('active');
+            document.querySelector('.sidebar-menu').classList.remove('active');
+          });
+        }
+      }
+    }
+
+    const router = new Router();
+
+    // ==================== TOAST NOTIFICATION ====================
+    function showToast(message, duration = 2000) {
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.textContent = message;
+      document.body.appendChild(toast);
+
+      setTimeout(() => {
+        toast.remove();
+      }, duration);
+    }
+
+    // ==================== VALIDATION ====================
+    function validateEmail(email) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    }
+
+    function validatePassword(password) {
+      return password.length >= 6;
+    }
+
+    // ==================== SVG ICONS ====================
+    const Icons = {
+      home: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
+      bell: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>',
+      plus: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 8v8M8 12h8"/></svg>',
+      message: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
+      user: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+      search: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>',
+      menu: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>',
+      back: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>',
+      chevron: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="15 18 9 12 15 6"/></svg>',
+      chevronDown: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="6 9 12 15 18 9"/></svg>',
+      heart: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>',
+      comment: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
+      share: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>',
+      bookmark: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2z"/><polyline points="17 3 17 13 12 10 7 13 7 3"/></svg>',
+      grid: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>',
+      settings: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
+      help: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>',
+      logout: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 8l4 4m-4 4l4-4M16 4v16"/></svg>',
+      moon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>',
+      analytics: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>',
+      briefcase: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>'
+    };
+
+    // ==================== COMPONENTS ====================
+    function bottomNav(active = 'home') {
+      const navItems = [
+        { id: 'home', icon: Icons.home, route: 'feed' },
+        { id: 'notifications', icon: Icons.bell, route: 'notifications' },
+        { id: 'create', icon: Icons.plus, route: 'create' },
+        { id: 'messages', icon: Icons.message, route: 'messages' },
+        { id: 'profile', custom: true }
+      ];
+
+      return `
+        <div class="bottom-nav">
+          ${navItems.map(item => {
+            if (item.custom) {
+              const user = renderCurrentUser();
+              const initial = user ? user.displayName.charAt(0).toUpperCase() : 'A';
+              return `
+                <div class="nav-item ${active === item.id ? 'active' : ''}" onclick="router.go('profile')" style="cursor: pointer;">
+                  <div class="nav-icon">
+                    <div class="nav-item-profile">${initial}</div>
+                  </div>
+                </div>
+              `;
+            }
+            return `
+              <div class="nav-item ${active === item.id ? 'active' : ''}" onclick="router.go('${item.route}')" style="cursor: pointer;">
+                <div class="nav-icon">${item.icon}</div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+    }
+
+    function renderCurrentUser() {
+      return Store.get('currentUser');
+    }
+
+    function isAuthenticated() {
+      return Store.get('currentUser') !== null;
+    }
+
+    function sidebarMenu() {
+      const user = renderCurrentUser();
+      if (!user) return '';
+
+      const initial = user.displayName.charAt(0).toUpperCase();
+      return `
+        <div class="sidebar-overlay"></div>
+        <div class="sidebar-menu">
+          <div class="sidebar-header" onclick="router.go('profile-edit')">
+            <div class="sidebar-avatar">${initial}</div>
+            <div class="sidebar-user-info">
+              <div class="sidebar-user-name">${user.displayName}</div>
+              <div class="sidebar-user-handle">@${user.email.split('@')[0]}</div>
+            </div>
+            <div class="sidebar-chevron">${Icons.chevron}</div>
+          </div>
+
+          <div class="sidebar-stats">
+            <div class="sidebar-stat">
+              <div class="sidebar-stat-value">2.5K</div>
+              <div class="sidebar-stat-label">팬</div>
+            </div>
+            <div class="sidebar-stat">
+              <div class="sidebar-stat-value">1.2K</div>
+              <div class="sidebar-stat-label">팔로잉</div>
+            </div>
+          </div>
+
+          <div style="padding: 0 16px;">
+            <button class="sidebar-menu-item" onclick="router.go('profile-edit')" style="width: 100%; padding-left: 0;">
+              ${Icons.user}
+              <span>내 프로필</span>
+            </button>
+            <button class="sidebar-menu-item" onclick="router.go('portfolio')" style="width: 100%; padding-left: 0;">
+              ${Icons.briefcase}
+              <span>포트폴리오</span>
+            </button>
+            <button class="sidebar-menu-item" onclick="router.go('analytics')" style="width: 100%; padding-left: 0;">
+              ${Icons.analytics}
+              <span>분석</span>
+            </button>
+            <button class="sidebar-menu-item" onclick="showToast('컬렉션 기능 준비 중')" style="width: 100%; padding-left: 0;">
+              ${Icons.bookmark}
+              <span>컬렉션</span>
+            </button>
+          </div>
+
+          <div class="sidebar-divider"></div>
+
+          <div style="padding: 0 16px;">
+            <button class="sidebar-menu-item" onclick="router.go('settings')" style="width: 100%; padding-left: 0;">
+              ${Icons.settings}
+              <span>설정</span>
+            </button>
+            <button class="sidebar-menu-item" onclick="showToast('도움말 페이지 준비 중')" style="width: 100%; padding-left: 0;">
+              ${Icons.help}
+              <span>도움말 및 지원</span>
+            </button>
+            <button class="sidebar-menu-item toggle" onclick="toggleDarkMode(this)">
+              ${Icons.moon}
+              <div class="toggle-switch" id="darkModeToggle">
+                <div class="toggle-knob"></div>
+              </div>
+            </button>
+            <button class="sidebar-menu-item" onclick="logout()" style="width: 100%; padding-left: 0; color: #ef4444;">
+              ${Icons.logout}
+              <span>로그아웃</span>
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    function toggleDarkMode(elem) {
+      const toggle = document.getElementById('darkModeToggle');
+      if (toggle) {
+        toggle.classList.toggle('active');
+      }
+    }
+
+    function logout() {
+      if (confirm('정말 로그아웃하시겠습니까?')) {
+        Store.remove('currentUser');
+        Store.remove('portfolios');
+        router.go('landing');
+      }
+    }
+
+    // ==================== PAGES ====================
+
+    // Landing Page
+    function landingPage() {
+      return `
+        <div class="page-content no-nav">
+          <div class="hero-section">
+            <div class="hero-logo">Artful</div>
+            <div class="hero-tagline">예술인의 포트폴리오 플랫폼</div>
+
+            <div class="hero-form">
+              <input type="email" class="input-field" id="landingEmail" placeholder="이메일">
+              <input type="password" class="input-field" id="landingPassword" placeholder="비밀번호">
+              <div class="error-message" id="landingError" style="margin-bottom: 8px;"></div>
+              <button class="btn btn-primary" style="width: 100%; cursor: pointer; padding: 14px; font-size: 16px; border-radius: 8px;" onclick="landingLogin()">
+                로그인
+              </button>
+            </div>
+
+            <div class="hero-divider"><span>또는</span></div>
+
+            <button class="btn btn-secondary" style="width: 100%; max-width: 320px; cursor: pointer; padding: 14px; font-size: 15px; border-radius: 8px; margin-bottom: 10px; background: #FEE500; color: #191919; border: none; font-weight: 600;" onclick="showToast('카카오 SDK 연동 예정')">
+              카카오로 시작하기
+            </button>
+
+            <button class="btn btn-secondary" style="width: 100%; max-width: 320px; cursor: pointer; padding: 14px; font-size: 15px; border-radius: 8px; background: #fff; color: #141413; border: 1px solid #e8e6dc; font-weight: 600;" onclick="router.go('signup-genre')">
+              회원가입
+            </button>
+
+            <p style="font-size: 12px; color: #b0aea5; margin-top: 32px; line-height: 1.6;">
+              가입 시 <span class="link-text" style="font-size: 12px;">이용약관</span> 및
+              <span class="link-text" style="font-size: 12px;">개인정보처리방침</span>에 동의합니다.
+            </p>
+          </div>
+        </div>
+      `;
+    }
+
+    function landingLogin() {
+      const email = document.getElementById('landingEmail').value;
+      const password = document.getElementById('landingPassword').value;
+      const errorEl = document.getElementById('landingError');
+
+      if (!email || !password) {
+        errorEl.textContent = '이메일과 비밀번호를 입력해주세요';
+        return;
+      }
+
+      const users = Store.get('users') || [];
+      const user = users.find(u => u.email === email && u.password === password);
+
+      if (user) {
+        Store.set('currentUser', user);
+        router.go('feed');
+      } else {
+        errorEl.textContent = '이메일 또는 비밀번호가 일치하지 않습니다';
+      }
+    }
+
+    // Signup Genre Page
+    function signupGenrePage() {
+      const selected = Store.get('signup_genres') || [];
+      const genres = ['회화', '조각', '사진', '영상', '미디어', '공예', '디지털 아트', '패션', '무용', '음악'];
+
+      return `
+        <div class="page-content no-nav">
+          <div style="padding: 24px 16px;">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
+              <button class="icon-btn" onclick="router.go('landing')">${Icons.back}</button>
+              <h1 class="top-header-title">관심 장르 선택</h1>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 24px;">
+              ${genres.map(genre => `
+                <button class="genre-btn ${selected.includes(genre) ? 'selected' : ''}"
+                  onclick="selectGenre('${genre}')">${genre}</button>
+              `).join('')}
+            </div>
+
+            <button class="btn btn-primary" style="width: 100%; cursor: pointer;" onclick="proceedToProfile()">
+              다음
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    function selectGenre(genre) {
+      let genres = Store.get('signup_genres') || [];
+      if (genres.includes(genre)) {
+        genres = genres.filter(g => g !== genre);
+      } else {
+        genres.push(genre);
+      }
+      Store.set('signup_genres', genres);
+      document.querySelector('#app').innerHTML = signupGenrePage();
+    }
+
+    function proceedToProfile() {
+      const genres = Store.get('signup_genres') || [];
+      if (genres.length === 0) {
+        showToast('최소 1개의 장르를 선택해주세요');
+        return;
+      }
+      router.go('signup-profile');
+    }
+
+    // Signup Profile Page
+    function signupProfilePage() {
+      const uploadedPhoto = Store.get('signup_photo') || '';
+      const tempProfile = Store.get('signup_profile') || {};
+
+      return `
+        <div class="page-content no-nav">
+          <div style="padding: 24px 16px;">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
+              <button class="icon-btn" onclick="router.go('signup-genre')">${Icons.back}</button>
+              <h1 class="top-header-title">프로필 설정</h1>
+            </div>
+
+            <div style="text-align: center; margin-bottom: 24px;">
+              ${uploadedPhoto ? `
+                <img src="${uploadedPhoto}" class="profile-avatar" style="margin-top: 0; margin-bottom: 16px;">
+              ` : `
+                <div class="upload-button" onclick="document.getElementById('photoInput').click();">+</div>
+              `}
+              <input type="file" id="photoInput" accept="image/*" style="display: none;" onchange="uploadPhoto(event)">
+            </div>
+
+            <div style="margin-bottom: 16px;">
+              <label style="font-weight: 600; display: block; margin-bottom: 8px; color: #141413;">활동명 *</label>
+              <input type="text" class="input-field" id="activityName"
+                placeholder="표시될 이름" value="${tempProfile.displayName || ''}"
+                onchange="updateProfile('displayName', this.value)">
+              <div class="error-message" id="activityNameError"></div>
+            </div>
+
+            <div style="margin-bottom: 16px;">
+              <label style="font-weight: 600; display: block; margin-bottom: 8px; color: #141413;">이메일 *</label>
+              <input type="email" class="input-field" id="email"
+                placeholder="example@email.com" value="${tempProfile.email || ''}"
+                onchange="validateEmailField(this)">
+              <div class="error-message" id="emailError"></div>
+            </div>
+
+            <div style="margin-bottom: 16px;">
+              <label style="font-weight: 600; display: block; margin-bottom: 8px; color: #141413;">비밀번호 *</label>
+              <input type="password" class="input-field" id="password"
+                placeholder="최소 6자 이상" value="${tempProfile.password || ''}"
+                onchange="validatePasswordField(this)">
+              <div class="error-message" id="passwordError"></div>
+            </div>
+
+            <div style="margin-bottom: 24px;">
+              <label style="font-weight: 600; display: block; margin-bottom: 8px; color: #141413;">소개글</label>
+              <textarea class="input-field" id="bio"
+                placeholder="나를 소개해주세요" style="min-height: 80px; resize: vertical;"
+                onchange="updateProfile('bio', this.value)">${tempProfile.bio || ''}</textarea>
+            </div>
+
+            <button class="btn btn-primary" style="width: 100%; cursor: pointer;" onclick="completeSignup()">
+              가입 완료
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    function uploadPhoto(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          Store.set('signup_photo', e.target.result);
+          document.querySelector('#app').innerHTML = signupProfilePage();
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function updateProfile(field, value) {
+      let profile = Store.get('signup_profile') || {};
+      profile[field] = value;
+      Store.set('signup_profile', profile);
+    }
+
+    function validateEmailField(input) {
+      const email = input.value;
+      const error = document.getElementById('emailError');
+      if (!email) {
+        error.textContent = '이메일을 입력해주세요';
+        input.classList.add('error');
+      } else if (!validateEmail(email)) {
+        error.textContent = '유효한 이메일을 입력해주세요';
+        input.classList.add('error');
+      } else {
+        error.textContent = '';
+        input.classList.remove('error');
+      }
+    }
+
+    function validatePasswordField(input) {
+      const password = input.value;
+      const error = document.getElementById('passwordError');
+      if (!password) {
+        error.textContent = '비밀번호를 입력해주세요';
+        input.classList.add('error');
+      } else if (!validatePassword(password)) {
+        error.textContent = '비밀번호는 최소 6자 이상이어야 합니다';
+        input.classList.add('error');
+      } else {
+        error.textContent = '';
+        input.classList.remove('error');
+      }
+    }
+
+    function completeSignup() {
+      const displayName = document.getElementById('activityName').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      if (!displayName) {
+        document.getElementById('activityNameError').textContent = '활동명을 입력해주세요';
+        return;
+      }
+      if (!validateEmail(email)) {
+        validateEmailField(document.getElementById('email'));
+        return;
+      }
+      if (!validatePassword(password)) {
+        validatePasswordField(document.getElementById('password'));
+        return;
+      }
+
+      const users = Store.get('users') || [];
+      if (users.find(u => u.email === email)) {
+        document.getElementById('emailError').textContent = '이미 사용중인 이메일입니다';
+        return;
+      }
+
+      const genres = Store.get('signup_genres') || [];
+      const photo = Store.get('signup_photo') || '';
+
+      const newUser = {
+        id: Date.now(),
+        displayName,
+        email,
+        password,
+        genres,
+        photo,
+        bio: document.getElementById('bio').value || ''
+      };
+
+      users.push(newUser);
+      Store.set('users', users);
+      Store.set('currentUser', newUser);
+
+      Store.remove('signup_genres');
+      Store.remove('signup_profile');
+      Store.remove('signup_photo');
+
+      router.go('feed');
+    }
+
+    // Feed Page
+    function feedPage() {
+      if (!isAuthenticated()) {
+        return landingPage();
+      }
+
+      const samplePosts = [
+        {
+          id: 1,
+          author: '허파',
+          handle: 'heopa',
+          image: 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22400%22%3E%3Crect fill=%22%23d97757%22 width=%22400%22 height=%22400%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22white%22 font-size=%2248%22 font-weight=%22bold%22%3EDigital Art%3C/text%3E%3C/svg%3E',
+          content: '새로운 디지털 아트 작품을 완성했습니다! 공유 기능을 통해 확인해보세요.',
+          likes: 342,
+          comments: 28,
+          likes_by_user: false
+        },
+        {
+          id: 2,
+          author: '김수미',
+          handle: 'kimsoomi',
+          image: 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22400%22%3E%3Crect fill=%2310b981%22 width=%22400%22 height=%22400%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22white%22 font-size=%2248%22 font-weight=%22bold%22%3EPhotography%3C/text%3E%3C/svg%3E',
+          content: '서울의 야경을 담아봤습니다 📸',
+          likes: 521,
+          comments: 45,
+          likes_by_user: false
+        }
+      ];
+
+      const user = renderCurrentUser();
+      return `
+        ${sidebarMenu()}
+        <div class="top-header">
+          <div class="top-header-left">
+            <h1 class="top-header-title">홈</h1>
+          </div>
+          <div class="top-header-right">
+            <button class="icon-btn" onclick="router.go('search')">${Icons.search}</button>
+            <button class="icon-btn" data-sidebar-toggle>${Icons.menu}</button>
+          </div>
+        </div>
+
+        <div class="filter-chips">
+          <div class="chip active">모두</div>
+          <div class="chip">태그</div>
+          <div class="chip">댓글</div>
+          <div class="chip">멘션</div>
+          <div class="chip">구독</div>
+          <div class="chip">프로모션</div>
+        </div>
+
+        <div class="page-content">
+          ${samplePosts.map(post => `
+            <div class="feed-card">
+              <div class="feed-card-header">
+                <div class="feed-card-user">
+                  <div class="feed-card-avatar">${post.author.charAt(0)}</div>
+                  <div class="feed-card-user-info">
+                    <div class="feed-card-name">${post.author}</div>
+                    <div class="feed-card-meta">@${post.handle} · 2시간 전</div>
+                  </div>
+                </div>
+                <button class="feed-card-menu" onclick="showToast('메뉴 기능 준비 중')">${Icons.menu}</button>
+              </div>
+
+              <div class="feed-card-content">
+                ${post.content}
+              </div>
+
+              <img src="${post.image}" class="feed-card-media" style="cursor: pointer; margin: 0 0 12px 0;">
+
+              <div class="feed-card-suggestions">
+                <div class="suggestions-scroll">
+                  <div class="suggestion-card">
+                    <img src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22120%22%3E%3Crect fill=%22%23d97757%22 width=%22100%22 height=%22120%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22white%22 font-size=%2216%22%3EP%3C/text%3E%3C/svg%3E" alt="">
+                    <div class="suggestion-overlay">
+                      <div class="suggestion-name">박민준</div>
+                      <div class="suggestion-handle">@parkmin</div>
+                    </div>
+                  </div>
+                  <div class="suggestion-card">
+                    <img src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22120%22%3E%3Crect fill=%2310b981%22 width=%22100%22 height=%22120%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22white%22 font-size=%2216%22%3EI%3C/text%3E%3C/svg%3E" alt="">
+                    <div class="suggestion-overlay">
+                      <div class="suggestion-name">이은미</div>
+                      <div class="suggestion-handle">@eunmi</div>
+                    </div>
+                  </div>
+                  <div class="suggestion-card">
+                    <img src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22120%22%3E%3Crect fill=%22%236366f1%22 width=%22100%22 height=%22120%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22white%22 font-size=%2216%22%3EJ%3C/text%3E%3C/svg%3E" alt="">
+                    <div class="suggestion-overlay">
+                      <div class="suggestion-name">정현준</div>
+                      <div class="suggestion-handle">@junghyun</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="feed-card-actions">
+                <button class="action-icon-btn" onclick="toggleLike(this, ${post.id})">
+                  ${Icons.heart}
+                  <span>${post.likes}</span>
+                </button>
+                <button class="action-icon-btn" onclick="showToast('댓글 기능 준비 중')">
+                  ${Icons.comment}
+                  <span>${post.comments}</span>
+                </button>
+                <button class="action-icon-btn" onclick="showToast('팁 기능 준비 중')">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width: 20px; height: 20px; stroke-width: 1.5;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/></svg>
+                  <span>$</span>
+                </button>
+                <button class="action-icon-btn" onclick="showToast('북마크 기능 준비 중')">
+                  ${Icons.bookmark}
+                </button>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+
+        ${bottomNav('home')}
+      `;
+    }
+
+    function toggleLike(button, postId) {
+      button.classList.toggle('liked');
+    }
+
+    // Portfolio Page
+    function portfolioPage() {
+      if (!isAuthenticated()) {
+        return landingPage();
+      }
+
+      const portfolios = Store.get('portfolios') || [];
+
+      return `
+        ${sidebarMenu()}
+        <div class="top-header">
+          <div class="top-header-left">
+            <button class="icon-btn" onclick="router.go('feed')">${Icons.back}</button>
+            <h1 class="top-header-title">포트폴리오</h1>
+          </div>
+          <div class="top-header-right">
+            <button class="icon-btn" onclick="router.go('portfolio-create')" title="새 포트폴리오">${Icons.plus}</button>
+            <button class="icon-btn" data-sidebar-toggle>${Icons.menu}</button>
+          </div>
+        </div>
+
+        <div class="page-content">
+          <div style="padding: 16px;">
+            ${portfolios.length === 0 ? `
+              <div style="text-align: center; padding: 40px 20px; color: #b0aea5;">
+                <div style="font-size: 48px; margin-bottom: 16px;">📁</div>
+                <p>아직 포트폴리오가 없습니다</p>
+                <button class="btn btn-primary" style="margin-top: 16px;" onclick="router.go('portfolio-create')">
+                  포트폴리오 추가
+                </button>
+              </div>
+            ` : `
+              ${portfolios.map((p, idx) => `
+                <div class="card" style="margin-bottom: 12px; cursor: pointer;" onclick="router.go('portfolio-view/${idx}')">
+                  <div style="font-weight: 700; margin-bottom: 8px; color: #141413;">${p.title}</div>
+                  ${p.images && p.images.length > 0 ? `
+                    <div class="gallery-grid">
+                      ${p.images.slice(0, 2).map(img => `
+                        <img src="${img}" style="border-radius: 8px; width: 100%; height: 100%; object-fit: cover;">
+                      `).join('')}
+                    </div>
+                  ` : ''}
+                  <div style="font-size: 13px; color: #b0aea5;">${p.description || '설명 없음'}</div>
+                </div>
+              `).join('')}
+            `}
+          </div>
+        </div>
+
+        ${bottomNav('portfolio')}
+      `;
+    }
+
+    function portfolioCreatePage() {
+      return `
+        <div class="top-header">
+          <div class="top-header-left">
+            <button class="icon-btn" onclick="router.go('portfolio')">${Icons.back}</button>
+            <h1 class="top-header-title">새 포트폴리오</h1>
+          </div>
+        </div>
+
+        <div class="page-content">
+          <div style="padding: 16px;">
+            <div style="margin-bottom: 16px;">
+              <label style="font-weight: 600; display: block; margin-bottom: 8px; color: #141413;">제목 *</label>
+              <input type="text" class="input-field" id="portTitle" placeholder="포트폴리오 제목">
+            </div>
+
+            <div style="margin-bottom: 16px;">
+              <label style="font-weight: 600; display: block; margin-bottom: 8px; color: #141413;">설명</label>
+              <textarea class="input-field" id="portDesc" placeholder="이 작품에 대해 설명해주세요" style="min-height: 100px; resize: vertical;"></textarea>
+            </div>
+
+            <div style="margin-bottom: 24px;">
+              <label style="font-weight: 600; display: block; margin-bottom: 8px; color: #141413;">이미지</label>
+              <div style="border: 2px dashed #e8e6dc; border-radius: 8px; padding: 24px; text-align: center; cursor: pointer;" onclick="document.getElementById('portImages').click()">
+                <div style="font-size: 32px; margin-bottom: 8px;">📸</div>
+                <p style="color: #b0aea5; font-size: 14px;">이미지를 클릭하여 추가하세요</p>
+              </div>
+              <input type="file" id="portImages" multiple accept="image/*" style="display: none;" onchange="handlePortfolioImages(event)">
+              <div class="gallery-grid" id="portGallery" style="margin-top: 12px;"></div>
+            </div>
+
+            <button class="btn btn-primary" style="width: 100%;" onclick="savePortfolio()">
+              저장
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    function handlePortfolioImages(event) {
+      const files = Array.from(event.target.files);
+      const gallery = document.getElementById('portGallery');
+      gallery.innerHTML = '';
+
+      files.forEach((file, idx) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = document.createElement('img');
+          img.src = e.target.result;
+          img.style.borderRadius = '8px';
+          img.style.width = '100%';
+          img.style.height = '100%';
+          img.style.objectFit = 'cover';
+
+          const container = document.createElement('div');
+          container.className = 'gallery-item';
+          container.appendChild(img);
+
+          const deleteBtn = document.createElement('button');
+          deleteBtn.className = 'gallery-item-delete';
+          deleteBtn.innerHTML = '✕';
+          deleteBtn.onclick = () => container.remove();
+          container.appendChild(deleteBtn);
+
+          gallery.appendChild(container);
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function savePortfolio() {
+      const title = document.getElementById('portTitle').value;
+      const desc = document.getElementById('portDesc').value;
+      const images = [];
+
+      document.querySelectorAll('#portGallery img').forEach(img => {
+        images.push(img.src);
+      });
+
+      if (!title) {
+        showToast('제목을 입력해주세요');
+        return;
+      }
+
+      let portfolios = Store.get('portfolios') || [];
+      portfolios.push({
+        title,
+        description: desc,
+        images,
+        createdAt: new Date().toISOString()
+      });
+
+      Store.set('portfolios', portfolios);
+      router.go('portfolio');
+    }
+
+    // Analytics Page
+    function analyticsPage() {
+      if (!isAuthenticated()) {
+        return landingPage();
+      }
+
+      return `
+        ${sidebarMenu()}
+        <div class="top-header">
+          <div class="top-header-left">
+            <button class="icon-btn" onclick="router.go('feed')">${Icons.back}</button>
+            <h1 class="top-header-title">분석</h1>
+          </div>
+          <div class="top-header-right">
+            <button class="icon-btn" data-sidebar-toggle>${Icons.menu}</button>
+          </div>
+        </div>
+
+        <div class="page-content">
+          <div style="padding: 16px;">
+            <div class="card" style="margin-bottom: 16px;">
+              <div style="font-weight: 700; margin-bottom: 16px; color: #141413;">주간 통계</div>
+              <div style="display: flex; gap: 16px;">
+                <div class="stat-item">
+                  <div class="stat-number">12.5K</div>
+                  <div class="stat-label">조회수</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-number">892</div>
+                  <div class="stat-label">팬</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-number">3.2K</div>
+                  <div class="stat-label">좋아요</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card" style="margin-bottom: 16px;">
+              <div style="font-weight: 700; margin-bottom: 16px; color: #141413;">스크롤 깊이 히트맵</div>
+              <div class="heatmap-bar" style="width: 100%;">홈피드: 76% 도달</div>
+              <div class="heatmap-bar" style="width: 90%;">포트폴리오: 65% 도달</div>
+              <div class="heatmap-bar" style="width: 75%;">분석: 45% 도달</div>
+            </div>
+
+            <div class="card" style="margin-bottom: 16px;">
+              <div style="font-weight: 700; margin-bottom: 16px; color: #141413;">AI 코칭</div>
+              <div style="background: rgba(217, 119, 87, 0.1); border: 1px solid #d97757; border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+                <div style="font-weight: 600; color: #d97757; margin-bottom: 8px;">💡 추천</div>
+                <p style="font-size: 13px; color: #141413; margin: 0;">
+                  지난주 가장 많은 조회수를 얻은 포스트는 "디지털 아트 튜토리얼"입니다. 유사한 콘텐츠를 더 제작하면 팬 증가에 도움이 될 것입니다.
+                </p>
+              </div>
+
+              <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; border-radius: 8px; padding: 12px;">
+                <div style="font-weight: 600; color: #10b981; margin-bottom: 8px;">✨ 성공 사례</div>
+                <p style="font-size: 13px; color: #141413; margin: 0;">
+                  화요일과 목요일 저녁 7시에 올린 포스트의 조회수가 35% 더 높습니다. 이 시간대를 활용해보세요!
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        ${bottomNav('analytics')}
+      `;
+    }
+
+    // Profile Page
+    function profilePage() {
+      if (!isAuthenticated()) {
+        return landingPage();
+      }
+
+      const user = renderCurrentUser();
+      const initial = user.displayName.charAt(0).toUpperCase();
+
+      return `
+        ${sidebarMenu()}
+        <div class="top-header">
+          <div class="top-header-left">
+            <button class="icon-btn" onclick="router.go('feed')">${Icons.back}</button>
+            <h1 class="top-header-title">프로필</h1>
+          </div>
+          <div class="top-header-right">
+            <button class="icon-btn" onclick="router.go('profile-edit')">${Icons.settings}</button>
+            <button class="icon-btn" data-sidebar-toggle>${Icons.menu}</button>
+          </div>
+        </div>
+
+        <div class="page-content">
+          <div style="padding: 16px;">
+            <div style="text-align: center; margin-bottom: 24px;">
+              <div style="display: flex; align-items: center; justify-content: center; width: 80px; height: 80px; border-radius: 50%; background: #d97757; color: white; font-weight: 700; font-size: 32px; margin: 0 auto 16px; border: 3px solid white; box-shadow: 0 0 0 1px #e8e6dc;">
+                ${initial}
+              </div>
+              <h2 style="font-size: 20px; font-weight: 700; color: #141413; margin: 0 0 4px 0;">${user.displayName}</h2>
+              <p style="color: #b0aea5; margin: 0 0 16px 0;">@${user.email.split('@')[0]}</p>
+              <button class="btn btn-primary" onclick="showToast('공유 기능 준비 중')" style="margin-right: 8px;">공유</button>
+              <button class="btn btn-secondary" onclick="router.go('qr')">QR 코드</button>
+            </div>
+
+            <div class="card" style="margin-bottom: 16px;">
+              <div style="display: flex; gap: 16px; text-align: center;">
+                <div class="stat-item" style="flex: 1;">
+                  <div class="stat-number">12</div>
+                  <div class="stat-label">포트폴리오</div>
+                </div>
+                <div class="stat-item" style="flex: 1;">
+                  <div class="stat-number">2.5K</div>
+                  <div class="stat-label">팬</div>
+                </div>
+                <div class="stat-item" style="flex: 1;">
+                  <div class="stat-number">1.2K</div>
+                  <div class="stat-label">팔로잉</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div style="font-weight: 700; color: #141413; margin-bottom: 8px;">소개</div>
+              <p style="color: #141413; margin: 0; font-size: 14px; line-height: 1.5;">
+                ${user.bio || '소개 정보가 없습니다'}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        ${bottomNav('profile')}
+      `;
+    }
+
+    // Profile Edit Page
+    function profileEditPage() {
+      if (!isAuthenticated()) {
+        return landingPage();
+      }
+
+      const user = renderCurrentUser();
+
+      return `
+        <div class="top-header">
+          <div class="top-header-left">
+            <button class="icon-btn" onclick="router.go('profile')">${Icons.back}</button>
+            <h1 class="top-header-title">프로필 편집</h1>
+          </div>
+        </div>
+
+        <div class="page-content">
+          <div style="padding: 16px;">
+            <div style="margin-bottom: 24px;">
+              <label style="font-weight: 600; display: block; margin-bottom: 8px; color: #141413;">활동명</label>
+              <input type="text" class="input-field" id="editDisplayName" value="${user.displayName}">
+            </div>
+
+            <div style="margin-bottom: 24px;">
+              <label style="font-weight: 600; display: block; margin-bottom: 8px; color: #141413;">소개</label>
+              <textarea class="input-field" id="editBio" style="min-height: 100px; resize: vertical;">${user.bio || ''}</textarea>
+            </div>
+
+            <div style="margin-bottom: 24px;">
+              <label style="font-weight: 600; display: block; margin-bottom: 8px; color: #141413;">이메일</label>
+              <input type="email" class="input-field" value="${user.email}" disabled style="opacity: 0.7;">
+              <p style="font-size: 12px; color: #b0aea5; margin-top: 8px;">이메일 변경은 설정에서 진행하세요</p>
+            </div>
+
+            <button class="btn btn-primary" style="width: 100%;" onclick="saveProfileEdit()">
+              저장
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    function saveProfileEdit() {
+      const user = renderCurrentUser();
+      user.displayName = document.getElementById('editDisplayName').value;
+      user.bio = document.getElementById('editBio').value;
+
+      if (!user.displayName) {
+        showToast('활동명을 입력해주세요');
+        return;
+      }
+
+      Store.set('currentUser', user);
+      showToast('프로필이 저장되었습니다');
+      router.go('profile');
+    }
+
+    // QR Code Page
+    function qrCodePage() {
+      if (!isAuthenticated()) {
+        return landingPage();
+      }
+
+      const user = renderCurrentUser();
+      const shareLink = `https://artful.app/profile/${user.id}`;
+
+      return `
+        <div class="top-header">
+          <div class="top-header-left">
+            <button class="icon-btn" onclick="router.go('profile')">${Icons.back}</button>
+            <h1 class="top-header-title">QR 코드</h1>
+          </div>
+        </div>
+
+        <div class="page-content">
+          <div class="qr-container">
+            <div style="font-weight: 700; margin-bottom: 24px; color: #141413;">프로필 QR 코드</div>
+
+            <div class="qr-display" id="qrDisplay"></div>
+
+            <div class="link-box">
+              <span style="word-break: break-all;">${shareLink}</span>
+              <button class="copy-btn" onclick="copyToClipboard('${shareLink}')">복사</button>
+            </div>
+
+            <button class="btn btn-secondary" style="width: 100%; margin-bottom: 12px;" onclick="downloadQR()">
+              QR 코드 다운로드
+            </button>
+
+            <button class="btn btn-secondary" style="width: 100%;" onclick="shareQR('${shareLink}')">
+              공유하기
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('링크가 복사되었습니다');
+      });
+    }
+
+    function downloadQR() {
+      showToast('QR 코드 다운로드 기능 준비 중');
+    }
+
+    function shareQR(link) {
+      if (navigator.share) {
+        navigator.share({
+          title: 'Artful 프로필',
+          text: '내 포트폴리오를 확인해보세요!',
+          url: link
+        });
+      } else {
+        showToast('공유 기능을 지원하지 않는 브라우저입니다');
+      }
+    }
+
+    // Settings Page
+    function settingsPage() {
+      if (!isAuthenticated()) {
+        return landingPage();
+      }
+
+      const user = renderCurrentUser();
+
+      return `
+        ${sidebarMenu()}
+        <div class="top-header">
+          <div class="top-header-left">
+            <button class="icon-btn" onclick="router.go('profile')">${Icons.back}</button>
+            <h1 class="top-header-title">설정</h1>
+          </div>
+        </div>
+
+        <div class="page-content">
+          <div style="padding: 16px;">
+            <div class="card" style="margin-bottom: 12px;">
+              <div style="font-weight: 700; margin-bottom: 16px; color: #141413;">계정</div>
+              <div class="setting-item">
+                <span class="setting-label">이메일</span>
+                <span style="font-size: 14px; color: #b0aea5;">${user.email}</span>
+              </div>
+              <div class="setting-item">
+                <span class="setting-label">비밀번호 변경</span>
+                <button class="btn btn-small btn-secondary" onclick="showToast('비밀번호 변경 기능 준비 중')">변경</button>
+              </div>
+              <div class="setting-item">
+                <span class="setting-label">계정 삭제</span>
+                <button class="btn btn-small btn-red" onclick="showToast('계정 삭제 기능 준비 중')">삭제</button>
+              </div>
+            </div>
+
+            <div class="card" style="margin-bottom: 12px;">
+              <div style="font-weight: 700; margin-bottom: 16px; color: #141413;">알림</div>
+              <div class="setting-item">
+                <span class="setting-label">새 팬 알림</span>
+                <div class="toggle-switch active">
+                  <div class="toggle-knob"></div>
+                </div>
+              </div>
+              <div class="setting-item">
+                <span class="setting-label">댓글 알림</span>
+                <div class="toggle-switch active">
+                  <div class="toggle-knob"></div>
+                </div>
+              </div>
+              <div class="setting-item">
+                <span class="setting-label">팁 알림</span>
+                <div class="toggle-switch active">
+                  <div class="toggle-knob"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card" style="margin-bottom: 12px;">
+              <div style="font-weight: 700; margin-bottom: 16px; color: #141413;">기타</div>
+              <div class="setting-item">
+                <span class="setting-label">개인정보 정책</span>
+                <button class="icon-btn" onclick="showToast('개인정보 정책 페이지')">${Icons.chevron}</button>
+              </div>
+              <div class="setting-item">
+                <span class="setting-label">이용약관</span>
+                <button class="icon-btn" onclick="showToast('이용약관 페이지')">${Icons.chevron}</button>
+              </div>
+              <div class="setting-item">
+                <span class="setting-label">버전</span>
+                <span style="font-size: 14px; color: #b0aea5;">1.0.0</span>
+              </div>
+            </div>
+
+            <button class="btn btn-red" style="width: 100%; margin-top: 16px;" onclick="logout()">
+              로그아웃
+            </button>
+          </div>
+        </div>
+
+        ${bottomNav('settings')}
+      `;
+    }
+
+    // Messages/Share Page
+    function messagesPage() {
+      if (!isAuthenticated()) {
+        return landingPage();
+      }
+
+      return `
+        ${sidebarMenu()}
+        <div class="top-header">
+          <div class="top-header-left">
+            <button class="icon-btn" onclick="router.go('feed')">${Icons.back}</button>
+            <h1 class="top-header-title">메시지</h1>
+          </div>
+          <div class="top-header-right">
+            <button class="icon-btn" onclick="router.go('qr')">${Icons.share}</button>
+            <button class="icon-btn" data-sidebar-toggle>${Icons.menu}</button>
+          </div>
+        </div>
+
+        <div class="page-content">
+          <div style="text-align: center; padding: 40px 20px; color: #b0aea5;">
+            <div style="font-size: 48px; margin-bottom: 16px;">💬</div>
+            <p>메시지 기능은 준비 중입니다</p>
+            <p style="font-size: 13px; margin-top: 12px;">곧 팬들과 소통할 수 있게 될 예정입니다</p>
+          </div>
+        </div>
+
+        ${bottomNav('messages')}
+      `;
+    }
+
+    // Notifications Page
+    function notificationsPage() {
+      if (!isAuthenticated()) {
+        return landingPage();
+      }
+
+      return `
+        ${sidebarMenu()}
+        <div class="top-header">
+          <div class="top-header-left">
+            <button class="icon-btn" onclick="router.go('feed')">${Icons.back}</button>
+            <h1 class="top-header-title">알림</h1>
+          </div>
+          <div class="top-header-right">
+            <button class="icon-btn" data-sidebar-toggle>${Icons.menu}</button>
+          </div>
+        </div>
+
+        <div class="filter-chips">
+          <div class="chip active">모두</div>
+          <div class="chip">태그</div>
+          <div class="chip">댓글</div>
+          <div class="chip">멘션</div>
+          <div class="chip">구독</div>
+          <div class="chip">프로모션</div>
+        </div>
+
+        <div class="page-content">
+          <div style="text-align: center; padding: 40px 20px; color: #b0aea5;">
+            <div style="font-size: 48px; margin-bottom: 16px;">🔔</div>
+            <p>아직 알림이 없습니다</p>
+          </div>
+        </div>
+
+        ${bottomNav('notifications')}
+      `;
+    }
+
+    // Create Page
+    function createPage() {
+      if (!isAuthenticated()) {
+        return landingPage();
+      }
+
+      return `
+        <div class="top-header">
+          <div class="top-header-left">
+            <button class="icon-btn" onclick="router.go('feed')">${Icons.back}</button>
+            <h1 class="top-header-title">새 포스트</h1>
+          </div>
+        </div>
+
+        <div class="page-content">
+          <div style="padding: 16px;">
+            <div style="margin-bottom: 16px;">
+              <label style="font-weight: 600; display: block; margin-bottom: 8px; color: #141413;">내용</label>
+              <textarea class="input-field" id="createContent" placeholder="무엇을 공유하시겠습니까?" style="min-height: 120px; resize: vertical;"></textarea>
+            </div>
+
+            <div style="margin-bottom: 24px;">
+              <label style="font-weight: 600; display: block; margin-bottom: 8px; color: #141413;">이미지/영상</label>
+              <div style="border: 2px dashed #e8e6dc; border-radius: 8px; padding: 24px; text-align: center; cursor: pointer;" onclick="document.getElementById('createMedia').click()">
+                <div style="font-size: 32px; margin-bottom: 8px;">📸</div>
+                <p style="color: #b0aea5; font-size: 14px;">이미지 또는 영상을 추가하세요</p>
+              </div>
+              <input type="file" id="createMedia" accept="image/*,video/*" style="display: none;">
+            </div>
+
+            <button class="btn btn-primary" style="width: 100%; margin-bottom: 12px;" onclick="publishPost()">
+              포스트 공개
+            </button>
+
+            <button class="btn btn-secondary" style="width: 100%;" onclick="router.go('feed')">
+              취소
+            </button>
+          </div>
+        </div>
+
+        ${bottomNav('create')}
+      `;
+    }
+
+    function publishPost() {
+      const content = document.getElementById('createContent').value;
+      if (!content.trim()) {
+        showToast('내용을 입력해주세요');
+        return;
+      }
+      showToast('포스트가 공개되었습니다!');
+      router.go('feed');
+    }
+
+    // Search Page
+    function searchPage() {
+      return `
+        <div class="top-header">
+          <div class="top-header-left">
+            <button class="icon-btn" onclick="router.go('feed')">${Icons.back}</button>
+            <input type="text" class="input-field" placeholder="검색..." style="flex: 1; margin-left: 8px;">
+          </div>
+        </div>
+
+        <div class="page-content">
+          <div style="text-align: center; padding: 40px 20px; color: #b0aea5;">
+            <div style="font-size: 48px; margin-bottom: 16px;">🔍</div>
+            <p>검색 기능은 준비 중입니다</p>
+          </div>
+        </div>
+      `;
+    }
+
+    // Portfolio View Page
+    function portfolioViewPage(params) {
+      const idx = params[0];
+      const portfolios = Store.get('portfolios') || [];
+      const portfolio = portfolios[idx];
+
+      if (!portfolio) {
+        return `
+          <div class="top-header">
+            <button class="icon-btn" onclick="router.go('portfolio')">${Icons.back}</button>
+          </div>
+          <div style="text-align: center; padding: 40px 20px; color: #b0aea5;">포트폴리오를 찾을 수 없습니다</div>
+        `;
+      }
+
+      return `
+        <div class="top-header">
+          <div class="top-header-left">
+            <button class="icon-btn" onclick="router.go('portfolio')">${Icons.back}</button>
+            <h1 class="top-header-title">${portfolio.title}</h1>
+          </div>
+          <div class="top-header-right">
+            <button class="icon-btn" onclick="router.go('portfolio-edit/${idx}')">${Icons.settings}</button>
+          </div>
+        </div>
+
+        <div class="page-content">
+          <div style="padding: 16px;">
+            <div class="gallery-grid">
+              ${portfolio.images.map(img => `
+                <img src="${img}" style="border-radius: 8px; width: 100%; height: 100%; object-fit: cover;">
+              `).join('')}
+            </div>
+
+            <div class="card">
+              <div style="font-weight: 700; color: #141413; margin-bottom: 8px;">설명</div>
+              <p style="color: #141413; font-size: 14px; margin: 0;">${portfolio.description || '설명이 없습니다'}</p>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Portfolio Edit Page
+    function portfolioEditPage(params) {
+      if (!isAuthenticated()) return landingPage();
+      const idx = params[0];
+      const portfolios = Store.get('portfolios') || [];
+      const portfolio = portfolios[idx];
+
+      if (!portfolio) {
+        return `
+          <div class="top-header">
+            <button class="icon-btn" onclick="router.go('portfolio')">${Icons.back}</button>
+          </div>
+          <div style="text-align: center; padding: 40px 20px; color: #b0aea5;">포트폴리오를 찾을 수 없습니다</div>
+        `;
+      }
+
+      return `
+        <div class="top-header">
+          <div class="top-header-left">
+            <button class="icon-btn" onclick="router.go('portfolio-view/${idx}')">${Icons.back}</button>
+            <h1 class="top-header-title">포트폴리오 편집</h1>
+          </div>
+        </div>
+
+        <div class="page-content">
+          <div style="padding: 16px;">
+            <div style="margin-bottom: 16px;">
+              <label style="font-weight: 600; display: block; margin-bottom: 8px; color: #141413;">제목 *</label>
+              <input type="text" class="input-field" id="editPortTitle" value="${portfolio.title}">
+            </div>
+
+            <div style="margin-bottom: 24px;">
+              <label style="font-weight: 600; display: block; margin-bottom: 8px; color: #141413;">설명</label>
+              <textarea class="input-field" id="editPortDesc" style="min-height: 100px; resize: vertical;">${portfolio.description || ''}</textarea>
+            </div>
+
+            <div style="display: flex; gap: 12px;">
+              <button class="btn btn-primary" style="flex: 1;" onclick="savePortfolioEdit(${idx})">저장</button>
+              <button class="btn btn-red" style="flex: 1;" onclick="deletePortfolio(${idx})">삭제</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function savePortfolioEdit(idx) {
+      const title = document.getElementById('editPortTitle').value;
+      const desc = document.getElementById('editPortDesc').value;
+      if (!title) { showToast('제목을 입력해주세요'); return; }
+      let portfolios = Store.get('portfolios') || [];
+      portfolios[idx].title = title;
+      portfolios[idx].description = desc;
+      Store.set('portfolios', portfolios);
+      showToast('저장되었습니다');
+      router.go('portfolio-view/' + idx);
+    }
+
+    function deletePortfolio(idx) {
+      if (confirm('포트폴리오를 삭제하시겠습니까?')) {
+        let portfolios = Store.get('portfolios') || [];
+        portfolios.splice(idx, 1);
+        Store.set('portfolios', portfolios);
+        router.go('portfolio');
+      }
+    }
+
+    // Initialize routes
+    router.register('landing', (params) => landingPage());
+    router.register('signup-genre', (params) => signupGenrePage());
+    router.register('signup-profile', (params) => signupProfilePage());
+    router.register('feed', (params) => feedPage());
+    router.register('portfolio', (params) => portfolioPage());
+    router.register('portfolio-create', (params) => portfolioCreatePage());
+    router.register('portfolio-view', (params) => portfolioViewPage(params));
+    router.register('portfolio-edit', (params) => portfolioEditPage(params));
+    router.register('analytics', (params) => analyticsPage());
+    router.register('profile', (params) => profilePage());
+    router.register('profile-edit', (params) => profileEditPage());
+    router.register('qr', (params) => qrCodePage());
+    router.register('settings', (params) => settingsPage());
+    router.register('messages', (params) => messagesPage());
+    router.register('notifications', (params) => notificationsPage());
+    router.register('create', (params) => createPage());
+    router.register('search', (params) => searchPage());
+
+    // Demo data
+    function initializeDemoData() {
+      const demoAccounts = [
+        {
+          id: 1,
+          displayName: '허파',
+          email: 'heopa@artful.com',
+          password: '123456',
+          genres: ['디지털 아트', '미디어'],
+          photo: 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2264%22 height=%2264%22%3E%3Ccircle cx=%2232%22 cy=%2232%22 r=%2232%22 fill=%22%23d97757%22/%3E%3C/svg%3E',
+          bio: '디지털 아트와 미디어를 통해 창의성을 표현합니다'
+        },
+        {
+          id: 2,
+          displayName: 'XCOM',
+          email: 'xcom@artful.com',
+          password: '123456',
+          genres: ['디지털 아트'],
+          photo: '',
+          bio: '테스트 계정입니다'
+        }
+      ];
+
+      let users = Store.get('users') || [];
+      let changed = false;
+      demoAccounts.forEach(demo => {
+        if (!users.find(u => u.email === demo.email)) {
+          users.push(demo);
+          changed = true;
+        }
+      });
+      if (changed) {
+        Store.set('users', users);
+      }
+    }
+
+    // Initialize
+    initializeDemoData();
+    router.navigate();
+  </script>
+</body>
+</html>
