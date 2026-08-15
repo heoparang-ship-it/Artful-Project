@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>최종_진짜최종: D-7 (MVP)</title>
+<style>
+:root{
+  --bg:#14161a; --panel:#1d2026; --panel2:#23262d; --line:#33363e;
+  --ink:#e8e6df; --dim:#9a9890; --accent:#e8b34b; --rec:#e2493b;
+  --ok:#7bc47f; --bad:#e07a6a; --night:#7d6ee0; --mono:'Courier New',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif;font-size:15px;line-height:1.55;overflow:hidden}
+#app{max-width:860px;margin:0 auto;height:100vh;height:100dvh;display:flex;flex-direction:column}
+.screen{display:none;flex:1;flex-direction:column;padding:14px;overflow-y:auto}
+.screen.on{display:flex}
+h1{font-size:22px;letter-spacing:1px}
+h2{font-size:17px;margin-bottom:8px;color:var(--accent)}
+.mono{font-family:var(--mono)}
+.dim{color:var(--dim)} .sm{font-size:12.5px}
+button{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:10px 14px;font-size:14.5px;cursor:pointer;font-family:inherit;text-align:left}
+button:hover{border-color:var(--accent)}
+button:disabled{opacity:.4;cursor:default}
+button.primary{background:var(--accent);color:#191203;font-weight:700;text-align:center}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px;margin-bottom:10px}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.col{display:flex;flex-direction:column;gap:8px}
+canvas{background:#101215;border:1px solid var(--line);border-radius:6px;width:100%;touch-action:none}
+/* HUD */
+#hud{display:none;background:var(--panel);border-bottom:1px solid var(--line);padding:6px 14px;font-size:12.5px;gap:12px;flex-wrap:wrap}
+#hud.on{display:flex}
+#hud b{color:var(--accent)}
+.tracks{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:8px 0}
+.trk{background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:6px 8px;font-size:12px}
+.bar{height:6px;background:#0d0f12;border-radius:3px;margin-top:4px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent)}
+.bar i.g{background:var(--ok)}
+/* title */
+#title{justify-content:center;align-items:center;text-align:center}
+.timeline{font-family:var(--mono);font-size:12px;color:var(--dim);margin:14px 0;white-space:pre}
+/* dialog */
+.say{margin-bottom:10px}
+.say b{color:var(--accent)}
+/* board */
+.slotgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.slot{background:var(--panel);border:1px dashed var(--line);border-radius:8px;padding:8px;min-height:74px;cursor:pointer;font-size:12.5px}
+.slot.sel{border-color:var(--accent);border-style:solid}
+.slot .who{color:var(--accent);font-weight:700}
+.chip{display:inline-block;background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:4px 10px;margin:0 6px 6px 0;cursor:pointer;font-size:13px}
+.chip.sel{border-color:var(--accent);color:var(--accent)}
+.chip.used{opacity:.35;pointer-events:none}
+.chip .st{font-size:11px;color:var(--dim)}
+/* event card */
+.evcard{border-left:3px solid var(--accent)}
+.evcard.ghost{border-left-color:var(--night)}
+.fx{font-size:12.5px;color:var(--dim);margin-top:3px}
+/* night */
+body.night{background:#0b0a12}
+body.night #hud{background:#141224}
+.glitch{animation:gl .8s infinite}
+@keyframes gl{0%,100%{opacity:1}45%{opacity:1}50%{opacity:.55;transform:translateX(1px)}55%{opacity:1}}
+body.noflash .glitch{animation:none}
+/* transition overlay */
+#ovl{position:fixed;inset:0;background:#000;display:none;flex-direction:column;justify-content:center;align-items:center;z-index:50;font-family:var(--mono)}
+#ovl.on{display:flex}
+#ovl .tc{font-size:34px;letter-spacing:3px}
+#ovl .sub{color:var(--rec);margin-top:12px;font-size:14px}
+table{width:100%;border-collapse:collapse;font-size:13px;margin:6px 0}
+td,th{border-bottom:1px solid var(--line);padding:4px 6px;text-align:left}
+.rec{color:var(--rec);font-weight:700}
+.nt{color:var(--night)}
+#dpad{display:none;position:fixed;bottom:12px;left:12px;z-index:40;user-select:none}
+#dpad div{display:grid;grid-template-columns:repeat(3,46px);gap:4px}
+#dpad button{padding:12px 0;text-align:center;font-size:16px;opacity:.85}
+@media (pointer:coarse){#dpad.on{display:block}}
+</style>
+</head>
+<body>
+<div id="ovl"><div class="tc mono" id="ovlTc">21:57:00:00</div><div class="sub" id="ovlSub"></div></div>
+<div id="dpad"><div>
+<span></span><button data-d="up">▲</button><span></span>
+<button data-d="left">◀</button><button data-d="down">▼</button><button data-d="right">▶</button>
+</div></div>
+<div id="app">
+<div id="hud"></div>
+
+<div class="screen" id="title">
+  <h1>최종_진짜최종<span class="rec">: D-7</span></h1>
+  <div class="dim sm">FINAL_FINAL: D-7 — MVP 수직절단 v0.1</div>
+  <div class="timeline" id="tlArt"></div>
+  <div class="col" style="width:min(340px,90%)">
+    <button class="primary" onclick="G.newRun()">프로젝트 열기 (새 런)</button>
+    <button onclick="G.showMeta()">리테이크 노트 <span class="dim" id="rtHave"></span></button>
+    <label class="sm dim" style="padding:4px"><input type="checkbox" id="optFlash"> 플래시·점멸 감소</label>
+    <label class="sm dim" style="padding:4px"><input type="checkbox" id="optSlow"> 스크램블 90초 보조 모드</label>
+  </div>
+  <div class="dim sm" style="margin-top:14px">"프로젝트 납품까지 7일. 준비까지 60초.<br>그리고 밤 9시 57분, 삭제한 파일이 작업 화면으로 돌아온다."</div>
+</div>
+
+<div class="screen" id="dialog"><div id="dlgBody" style="flex:1"></div><button class="primary" id="dlgBtn">▶</button></div>
+
+<div class="screen" id="scramble">
+  <div class="row" style="justify-content:space-between;align-items:center;margin-bottom:6px">
+    <b>60초 준비 스크램블</b><b class="mono" id="scTimer" style="font-size:20px">60.0</b>
+  </div>
+  <div class="sm dim" id="scHint">방향키/WASD 이동 · 아이템에 닿으면 획득 · 오늘 필요한 것을 챙기세요. 전부는 가져갈 수 없습니다.</div>
+  <canvas id="scCv" width="720" height="430"></canvas>
+  <div class="sm" id="scInv" style="margin-top:6px"></div>
+  <button class="primary" style="margin-top:6px" onclick="G.endScramble()">준비 끝내기 (조기 출발)</button>
+</div>
+
+<div class="screen" id="board">
+  <h2 id="bdDay"></h2>
+  <div class="tracks" id="bdTracks"></div>
+  <div class="sm" style="margin-bottom:6px">인물을 누른 뒤, 배치할 업무 슬롯을 누르세요. <span class="dim">(슬롯당 최대 2명)</span></div>
+  <div id="bdChars" style="margin-bottom:8px"></div>
+  <div class="slotgrid" id="bdSlots"></div>
+  <div class="sm dim" id="bdNote" style="margin:8px 0"></div>
+  <button class="primary" id="bdGo" onclick="G.runDay()">하루 시작 (09:00 → 18:00)</button>
+</div>
+
+<div class="screen" id="event"><div id="evBody" style="flex:1"></div></div>
+
+<div class="screen" id="overtime">
+  <h2>20:00 — 야근하시겠습니까?</h2>
+  <div class="card sm" id="otInfo"></div>
+  <div class="col">
+    <button onclick="G.overtime(true)">야근한다 — 업무 1회 추가(산출 ×0.65), 참여자 집중 -8 / 체력 -10, 커피 소모<br><span class="dim sm">밤 9시 57분… 이면 조우 확률이 있다</span></button>
+    <button onclick="G.overtime(false)">정시에 가깝게 퇴근한다 — 전원 집중 +5</button>
+  </div>
+</div>
+
+<div class="screen" id="night">
+  <h2 class="nt glitch">이면 스튜디오 — 21:57</h2>
+  <div class="sm dim">내 책상의 [프로젝트 종료] 버튼까지 돌아가세요. 무언가가 켜져 있습니다.</div>
+  <canvas id="ntCv" width="720" height="430"></canvas>
+</div>
+
+<div class="screen" id="log">
+  <h2 id="lgTitle">제작일보</h2>
+  <div id="lgBody" style="flex:1"></div>
+  <button class="primary" onclick="G.nextDay()" id="lgBtn">다음 날로</button>
+</div>
+
+<div class="screen" id="ending">
+  <div id="edBody" style="flex:1"></div>
+  <button class="primary" onclick="G.toRetake()">리테이크 노트 정산</button>
+</div>
+
+<div class="screen" id="retake">
+  <h2>리테이크 노트</h2>
+  <div class="card sm" id="rtGain"></div>
+  <div class="sm" style="margin:4px 0 8px">다음 루프의 제작 시스템을 개선합니다. <span class="dim">(제작 모듈 — 영구 적용)</span></div>
+  <div id="rtShop" class="col" style="margin-bottom:10px"></div>
+  <button class="primary" onclick="G.restore()">D-7_MASTER.backup 복원 (다시 D-7 아침으로)</button>
+  <button onclick="G.toTitle()" style="margin-top:6px">타이틀로</button>
+</div>
+</div>
+
+<script>
+"use strict";
+/* ================= RNG (결정적, 스트림 분리) ================= */
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+let SEED=0, R={};
+function initRng(seed){SEED=seed;R={scramble:mulberry32(seed^0xA1),production:mulberry32(seed^0xB2),reality:mulberry32(seed^0xC3),backstudio:mulberry32(seed^0xD4)};}
+const pct=(s,p)=>R[s]()*100<p;
+
+/* ================= 데이터 (GDD v4.0 발췌 — MVP 범위) ================= */
+const CHARS={
+  HP:{n:'허파랑',t:'대표 / CP',stat:{기획:9,연출:10,관리:7,후반:6},F:90,S:80,line:'"핵심부터 보자. 이 장면이 왜 있어야 하지?"'},
+  YL:{n:'이영림',t:'콘텐츠 기획',stat:{기획:10,연출:9,관리:7,후반:5},F:85,S:75,line:'"관객이 딱 하나만 기억한다면 뭘까요?"'},
+  HM:{n:'이혜미',t:'제작 PM',stat:{기획:7,연출:6,관리:10,후반:8},F:90,S:80,line:'"좋은 장면도 찾을 수 없으면 없는 장면입니다."'},
+  MR:{n:'손미림',t:'비주얼 디렉터',stat:{기획:6,연출:9,관리:8,후반:10},F:80,S:75,line:'"설명하지 않아도 보이는 한 컷을 만들면 돼요."'},
+  PL:{n:'나(신입 AP)',t:'제작 코디네이터',stat:{기획:6,연출:6,관리:6,후반:6},F:85,S:90,line:'"제가 이어볼게요."'},
+};
+const SLOTS={
+  기획:{name:'기획·구성',stat:'기획',trk:'story',fc:6,sc:3},
+  프리:{name:'프리프로덕션',stat:'관리',trk:'story',fc:5,sc:4,integ:2},
+  촬영:{name:'촬영·현장',stat:'연출',trk:'footage',fc:7,sc:9,needCam:true},
+  편집:{name:'편집·모션',stat:'후반',trk:'post',fc:8,sc:6,req:['footage',15]},
+  QC:{name:'최종 납품 QC',stat:'후반',trk:'master',fc:7,sc:5,req:['post',20]},
+  휴식:{name:'정리·회복',stat:null,trk:null,fc:-14,sc:-10},
+};
+const ITEMS=[ // [id,이름,칸,설명,효과키]
+ ['IT01','프로젝트 브리프 원본',1,'상충 피드백 1회 무효','brief'],
+ ['IT02','한 문장 기획안',1,'기획·서사 +4','story4'],
+ ['IT05','콜시트',1,'일정 충돌 1회 방지','callsheet'],
+ ['IT07','출연 동의서 묶음',1,'촬영 권리 누락 방지','consent'],
+ ['IT09','카메라 바디',3,'촬영 업무 필수, 산출 +10%','camera'],
+ ['IT11','완충 배터리 4개',1,'배터리 사고 무효','battery'],
+ ['IT12','포맷 완료 메모리카드',1,'촬영 분량 +8','card'],
+ ['IT14','삼각대',2,'인터뷰·고정컷 성공률 +20%p','tripod'],
+ ['IT16','무선 마이크',1,'인터뷰 음향 산출 +20%','mic'],
+ ['IT18','슬레이트',1,'원본 무결성 +5','slate'],
+ ['IT20','백업 SSD',2,'원본 분실 1회 무효','ssd'],
+ ['IT22','룩 LUT 파일',1,'색보정 산출 +15%','lut'],
+ ['IT26','납품 규격서',1,'규격 오류 사전 표시','spec'],
+ ['IT27','체크섬 리포트',1,'원본 야간 변조 감지','checksum'],
+ ['IT28','믹스커피 박스',1,'커피 +5','coffee'],
+ ['IT30','이름 없는 미니DV 테이프',1,'…재생 장비가 없다','dv'],
+];
+const ROOMS=[ // 6구역 (x,y,w,h는 셀 좌표: 12x7 그리드)
+ {n:'기획 회의실',x:0,y:0,w:4,h:3},{n:'공용 데스크',x:4,y:0,w:4,h:3},{n:'편집실',x:8,y:0,w:4,h:3},
+ {n:'미니 스튜디오',x:0,y:4,w:4,h:3},{n:'장비실',x:4,y:4,w:4,h:3},{n:'탕비실·아카이브',x:8,y:4,w:4,h:3},
+];
+const EVENTS=[
+ {id:'OF-01',n:'조금 더 감성적으로',txt:'클라이언트 메시지: "전체적으로 너무 좋습니다. 다만 조금 더 감성적으로 부탁드립니다."\n허파랑: "감성이 정확히 몇 프레임이지?"',day:[7],force:true,ch:[
+  ['전면 재편집한다',{post:-4,trust:8,debt:6},'후반 -4 · 신뢰 +8 · 수정부채 +6'],
+  ['구체 기준을 되묻는다',{trust:-3,flag:'peek'},'신뢰 -3 · 다음 이벤트 결과 미리보기'],
+  ['이영림이 3개 기준으로 번역한다',{focus:['YL',-8],debt:-4},'이영림 집중 -8 · 수정부채 -4']]},
+ {id:'OF-02',n:'브리프가 두 개',txt:'메일 첨부본과 메신저 본문의 요구가 다르다.',day:[6,5],ch:[
+  ['최신 시간 기준으로 간다',{roll:['production',50,{story:4},{debt:5}]},'50% 확률로 정답'],
+  ['공식 확인을 요청한다',{integ:5,story:-1},'하루 일부 지연 · 무결성 +5'],
+  ['허파랑이 목적 기준으로 고른다',{story:5,rollBad:['production',30,{trust:-8}]},'기획 +5 · 30% 신뢰 -8']]},
+ {id:'OF-05',n:'비 예보 90%',txt:'야외 촬영일에 폭우가 온다.',day:[6,5,4],ch:[
+  ['강행한다',{roll:['production',40,{footage:12},{footage:3,hp:['MR',-10]}]},'40% 좋은 컷(원본 +12) / 실패 시 손미림 체력 -10'],
+  ['실내로 전환한다',{story:-2,footage:5},'기획 -2 · 원본 +5'],
+  ['비를 작품에 편입한다',{footage:8,reso:4},'원본 +8 · 관객 공감 +4']]},
+ {id:'OF-06',n:'배터리 8%',txt:'인터뷰 중 카메라가 꺼질 위기다.',day:[6,5,4],ch:[
+  ['보조 카메라로 전환한다',{footage:4,debt:2},'화질 불일치 · 원본 +4, 부채 +2'],
+  ['질문을 마지막 하나로 압축한다',{reso:5,footage:2},'공감 +5'],
+  ['촬영을 중단하고 교체한다',{footage:1},'안전 · 원본 +1'] ],itemFix:['battery','완충 배터리가 있다 — 사고 무효, 촬영 계속.',{footage:6}]},
+ {id:'OF-10',n:'동의서 한 장',txt:'최고의 인터뷰 컷에 서명이 없다.',day:[4,3,2],ch:[
+  ['사용을 보류한다',{footage:-7,integ:8},'원본 -7 · 무결성 +8'],
+  ['긴급 연락을 돌린다',{roll:['production',70,{integ:4},{flag:'missing_consent'}]},'70% 해결 / 실패 시 치명 누락'],
+  ['얼굴·음성을 변형한다',{post:-3,reso:-2},'후반 -3 · 공감 -2'] ],itemFix:['consent','동의서 묶음에 이미 서명이 있었다.',{integ:5}]},
+ {id:'OF-11',n:'추가 버전도 오늘',txt:'납품 항목이 갑자기 하나 늘어난다.',day:[3,2],ch:[
+  ['수락한다',{trust:5,debt:8},'신뢰 +5 · 수정부채 +8'],
+  ['별도 일정을 제시한다',{trust:-3,flag:'scope_lock'},'신뢰 -3 · 범위 잠금'],
+  ['기존 최종본에서 파생한다',{post:-2,master:4},'후반 -2 · 마스터 +4']]},
+ {id:'OF-15',n:'자막 한 글자',txt:'인물 이름의 받침이 틀렸다.',day:[2,1],ch:[
+  ['즉시 전체 재렌더한다',{post:-3,master:3},'후반 -3 · 마스터 +3'],
+  ['부분 교체한다',{roll:['production',90,{master:2},{debt:6}]},'10% 싱크 사고'],
+  ['이혜미가 전수검수한다',{focus:['HM',-8],master:4,integ:3},'이혜미 집중 -8 · 치명 오류 제거']]},
+ {id:'OF-16',n:'렌더 99%',txt:'마감 전 렌더가 멈췄다.',day:[2,1],ch:[
+  ['강제 종료 후 재시작한다',{roll:['production',60,{post:6},{post:-4}]},'60% 성공'],
+  ['캐시를 지운다',{post:-2,master:2},'후반 일부 손실'],
+  ['프록시 마스터로 간다',{master:5,debt:3},'화질 점수 하락 · 납품 가능']]},
+];
+const GHOSTS=[
+ {id:'GH-01',n:'삭제된 테이크',txt:'어제 삭제한 인터뷰 컷이 휴지통에서 복원된다. 매번 2초씩 길어지고, 마지막 2초에는 촬영자 뒤에 누군가 서 있다.',first:true,ch:[
+  ['영구 삭제한다',{fear:5},'공포 +5 · 내일 더 긴 버전이 돌아온다'],
+  ['끝까지 본다',{focus:['PL',-8],meta:1},'집중 -8 · 메타데이터 조각 획득'],
+  ['출처를 추적한다',{needItem:'checksum',integ:5,meta:1},'체크섬 리포트 필요 · 무결성 +5']]},
+ {id:'GH-03',n:'최종_진짜최종',txt:'같은 마스터가 57개 생성된다. 파일명만 다르고 체크섬은 모두 다르다.',ch:[
+  ['가장 최신 파일을 고른다',{roll:['backstudio',80,{},{flag:'fatal_codec'}]},'20% 치명 오류'],
+  ['가장 오래된 파일을 고른다',{integ:3},'무결성 +3'],
+  ['밤새 버전을 비교한다',{hp:['PL',-8],debt:-8},'체력 -8 · 수정부채 -8']]},
+ {id:'GH-04',n:'다섯 번째 목소리',txt:'네 명만 있던 회의 녹음에 다섯 번째 사람이 말한다.\n"그 장면은 내 거예요."',ch:[
+  ['노이즈로 지운다',{master:3,fear:8},'마스터 +3 · 공포 +8'],
+  ['답변을 녹음한다',{fear:10,meta:1,ledger:1},'공포 +10 · 크레딧 장부 조각'],
+  ['룸톤을 재생한다',{needItem:'mic',fear:-5,integ:3},'무선 마이크 필요 · 안전하게 분리']]},
+ {id:'GH-08',n:'4층 로케이션',txt:'3층짜리 건물의 엘리베이터에 4층 버튼이 생긴다. 문이 열리면 같은 사무실 — 책상마다 다른 시대의 편집 장비.',need:'dv',ch:[
+  ['진입해 원본 로그를 찾는다',{brave:true,meta:2,fear:10},'담력 판정 · 원본 로그 +2'],
+  ['버튼을 제거한다',{fear:-5},'괴이 격퇴 · 공포 -5'],
+  ['미니DV를 태그에 꽂는다',{flag:'chain_open',fear:5},'…무언가 열렸다']]},
+ {id:'GH-09',n:'SOURCE_0000',txt:'NAS 사용자 목록에 다섯 명 외 계정이 로그인한다. 채팅창이 열린다.\n"사용할 거면 이름을 남겨주세요."',late:true,ch:[
+  ['강제 로그아웃한다',{fear:15},'공포 +15'],
+  ['누구인지 묻는다',{ledger:1,fear:5,meta:1},'크레딧 장부 조각'],
+  ['프로젝트 소유권을 공유한다',{integ:8,flag:'shared'},'무결성 +8 · 야간 오염 증가']]},
+];
+const MODULES=[
+ ['PK-01','아침 장비 체크',40,'그날 필수 아이템 2개가 금색으로 표시된다'],
+ ['PK-02','큰 장비가방',60,'인벤토리 +2칸'],
+ ['PK-03','예비 배터리',50,'배터리 사고 첫 1회 무효'],
+ ['PK-07','3-2-1 백업',100,'원본 무결성이 40 밑으로 떨어지지 않는다 (런당 1회)'],
+ ['PK-13','무야근 캘린더',150,'야근 0회로 하루를 마치면 전원 집중 +3 추가'],
+ ['PK-16','소스 감사',220,'SOURCE_0000 체인의 다음 조건이 표시된다'],
+];
+
+/* ================= 상태 ================= */
+let S=null; // run state
+let META={notes:0,mods:[],codex:[],endings:[]};
+try{const m=localStorage.getItem('ffd7_meta');if(m)META=JSON.parse(m);}catch(e){}
+function saveMeta(){try{localStorage.setItem('ffd7_meta',JSON.stringify(META))}catch(e){}}
+const hasMod=id=>META.mods.includes(id);
+
+function newState(){
+  const ch={};for(const k in CHARS)ch[k]={F:CHARS[k].F,S:CHARS[k].S};
+  return {day:7,tracks:{story:12,footage:0,post:0,master:0},
+    res:{trust:50,integ:75,budget:300,debt:0,coffee:6,snack:4,fear:0,reso:0},
+    ch,inv:[],flags:{},usedEv:[],usedGh:[],overtimes:0,otStreak:0,ledger:0,metaFrag:0,
+    logLines:[],assign:{}};
+}
+const T={story:'기획·서사',footage:'촬영·원본',post:'편집·후반',master:'마스터·납품'};
+const GATE={story:80,footage:85,post:80,master:75};
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const hasItem=k=>S.inv.some(i=>i[4]===k);
+
+/* ================= 화면 유틸 ================= */
+const $=id=>document.getElementById(id);
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));$(id).classList.add('on');
+  $('hud').classList.toggle('on',!['title','dialog'].includes(id));renderHud();window.scrollTo(0,0);}
+function renderHud(){if(!S)return;
+  $('hud').innerHTML=`<span>D-<b>${S.day}</b></span>
+  <span>신뢰 <b>${S.res.trust}</b></span><span>무결성 <b>${S.res.integ}</b></span>
+  <span>수정부채 <b>${S.res.debt}</b></span><span>커피 <b>${S.res.coffee}</b> 간식 <b>${S.res.snack}</b></span>
+  <span class="nt">공포 <b>${S.res.fear}</b></span><span>공감 <b>${S.res.reso}</b></span>`;}
+function trackBars(){return '<div class="tracks">'+Object.keys(T).map(k=>{
+  const v=Math.round(S.tracks[k]),g=GATE[k];
+  return `<div class="trk">${T[k]} <b>${v}</b><span class="dim">/${g}</span><div class="bar"><i class="${v>=g?'g':''}" style="width:${clamp(v/g*100,0,100)}%"></i></div></div>`}).join('')+'</div>';}
+function dialog(lines,then){show('dialog');let i=0;const body=$('dlgBody');body.innerHTML='';
+  const step=()=>{if(i<lines.length){const L=lines[i++];body.insertAdjacentHTML('beforeend',
+    L[0]?`<div class="say"><b>${L[0]}</b><br>${L[1]}</div>`:`<div class="say dim">${L[1]}</div>`);body.scrollTop=1e9;}
+    else{$('dlgBtn').onclick=null;then();}};
+  $('dlgBtn').onclick=step;step();}
+
+/* ================= 게임 흐름 ================= */
+const G={};
+G.toTitle=()=>{document.body.classList.remove('night');$('rtHave').textContent=`(보유 ${META.notes})`;show('title');};
+G.showMeta=()=>{G.lastEnd=null;$('rtGain').innerHTML=`보유 리테이크 노트: <b>${META.notes}</b> · 등록 도감 ${META.codex.length}종 · 본 엔딩 ${META.endings.length}종`;renderShop();show('retake');};
+G.newRun=()=>{
+  initRng(Date.now()%2147483647);
+  S=newState();
+  if(hasMod('PK-02'))S.invMax=10;else S.invMax=8;
+  document.body.classList.toggle('noflash',$('optFlash').checked);
+  dialog([
+   ['허파랑','"7일 뒤, 이 프로젝트를 우리가 납품해야 해."'],
+   ['이영림','"그럼 먼저 한 문장부터 정해야죠. 뭘 보여줄지가 아니라, 왜 보여주는지."'],
+   ['이혜미','"한 문장 전에 허가서부터요. 오늘 촬영 장소 답 아직 안 왔습니다."'],
+   ['손미림','"카메라는 있습니다. 카드리더가 없습니다."'],
+   ['허파랑','"좋아. 60초 뒤 출발."'],
+   ['',(S.day===7?'인수받은 프로젝트 폴더에는 이름 없는 파일들이 섞여 있다. 어젯밤, NAS에 없던 계정이 생성됐다.<div class="mono sm nt" style="margin-top:6px">USER: SOURCE_0000<br>FOLDER: /PROJECT/DO_NOT_CREDIT/<br>LAST_LOGIN: 21:57</div>':'')],
+  ],()=>startScramble());
+};
+
+/* ---------- 스크램블 ---------- */
+let SC=null;
+function startScramble(){
+  show('scramble');
+  const need=pickDayItems();
+  SC={t:($('optSlow').checked?90:60),px:6,py:3.5,items:need,done:false,keys:{}};
+  drawInv();
+  const cv=$('scCv'),ctx=cv.getContext('2d');
+  const CW=cv.width/12,CH=cv.height/7;
+  let last=performance.now();
+  function loop(now){
+    if(!SC||SC.done)return;
+    const dt=(now-last)/1000;last=now;
+    SC.t-=dt;if(SC.t<=0){G.endScramble();return;}
+    const sp=4.2*(S.inv.reduce((a,i)=>a+i[2],0)>=4?0.9:1);
+    let dx=0,dy=0;
+    if(SC.keys.left)dx-=1;if(SC.keys.right)dx+=1;if(SC.keys.up)dy-=1;if(SC.keys.down)dy+=1;
+    SC.px=clamp(SC.px+dx*sp*dt,0.3,11.7);SC.py=clamp(SC.py+dy*sp*dt,0.3,6.7);
+    // pickup
+    SC.items=SC.items.filter(it=>{
+      if(Math.abs(it.x-SC.px)<0.45&&Math.abs(it.y-SC.py)<0.45){
+        const used=S.inv.reduce((a,i)=>a+i[2],0);
+        if(used+it.d[2]<=S.invMax){S.inv.push(it.d);drawInv();return false;}
+      }return true;});
+    // draw
+    ctx.clearRect(0,0,cv.width,cv.height);
+    ROOMS.forEach(r=>{ctx.strokeStyle='#2c2f37';ctx.strokeRect(r.x*CW+2,r.y*CH+2,r.w*CW-4,r.h*CH-4);
+      ctx.fillStyle='#565a64';ctx.font='11px sans-serif';ctx.fillText(r.n,r.x*CW+8,r.y*CH+16);});
+    ctx.fillStyle='#3a3f4a';ctx.fillRect(0,3*CH+2,cv.width,CH-4); // 복도
+    SC.items.forEach(it=>{
+      ctx.fillStyle=it.key?'#e8b34b':'#8f95a3';
+      ctx.beginPath();ctx.arc(it.x*CW,it.y*CH,7,0,7);ctx.fill();
+      ctx.fillStyle='#c9c7bf';ctx.font='10px sans-serif';
+      ctx.fillText(it.d[1],it.x*CW-18,it.y*CH+18);});
+    ctx.fillStyle='#e8e6df';ctx.fillRect(SC.px*CW-8,SC.py*CH-11,16,22);
+    ctx.fillStyle='#14161a';ctx.fillRect(SC.px*CW-5,SC.py*CH-8,10,5);
+    $('scTimer').textContent=SC.t.toFixed(1);
+    $('scTimer').style.color=SC.t<10?'var(--rec)':'';
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+}
+function pickDayItems(){
+  const pool=[...ITEMS];const out=[];
+  const ess=hasMod('PK-01')?essentialToday():[];
+  pool.forEach(d=>{
+    if(d[0]==='IT30'&&S.day>6)return; // DV는 D-6부터
+    const r=ROOMS[Math.floor(R.scramble()*6)];
+    if(R.scramble()<0.8)out.push({d,x:r.x+0.6+R.scramble()*(r.w-1.2),y:r.y+0.8+R.scramble()*(r.h-1.4),key:ess.includes(d[4])});
+  });
+  return out;
+}
+function essentialToday(){ if(S.day>=5)return['camera','battery'];if(S.day>=3)return['consent','ssd'];return['spec','lut'];}
+function drawInv(){const used=S.inv.reduce((a,i)=>a+i[2],0);
+  $('scInv').innerHTML=`가방 <b>${used}</b>/${S.invMax}칸 — `+(S.inv.map(i=>i[1]).join(' · ')||'<span class="dim">비어 있음</span>');}
+G.endScramble=()=>{if(!SC)return;SC.done=true;SC=null;
+  if(hasItem('coffee')){S.res.coffee+=5;note('믹스커피 박스: 커피 +5');}
+  startBoard();};
+addEventListener('keydown',e=>{if(!SC)return;const m={ArrowLeft:'left',a:'left',ArrowRight:'right',d:'right',ArrowUp:'up',w:'up',ArrowDown:'down',s:'down'};if(m[e.key]){SC.keys[m[e.key]]=1;e.preventDefault();}});
+addEventListener('keyup',e=>{if(!SC)return;const m={ArrowLeft:'left',a:'left',ArrowRight:'right',d:'right',ArrowUp:'up',w:'up',ArrowDown:'down',s:'down'};if(m[e.key])SC.keys[m[e.key]]=0;});
+document.querySelectorAll('#dpad button').forEach(b=>{
+  const d=b.dataset.d;
+  b.addEventListener('touchstart',e=>{e.preventDefault();if(SC)SC.keys[d]=1;NT&&(NT.keys[d]=1);},{passive:false});
+  b.addEventListener('touchend',e=>{e.preventDefault();if(SC)SC.keys[d]=0;NT&&(NT.keys[d]=0);},{passive:false});
+});
+
+/* ---------- 업무 배치 ---------- */
+let selChar=null;
+function startBoard(){
+  document.getElementById('dpad').classList.remove('on');
+  S.assign={};selChar=null;
+  $('bdDay').textContent=`D-${S.day} · 09:00 업무 배치`;
+  renderBoard();show('board');
+}
+function renderBoard(){
+  $('bdTracks').outerHTML='<div class="tracks" id="bdTracks">'+trackBars().slice(21);
+  const usedIn={};Object.entries(S.assign).forEach(([c,s])=>{usedIn[s]=(usedIn[s]||[]).concat(c)});
+  $('bdChars').innerHTML=Object.keys(CHARS).map(k=>{
+    const c=CHARS[k],st=S.ch[k];
+    const used=S.assign[k]!==undefined;
+    return `<span class="chip ${selChar===k?'sel':''} ${used?'used':''}" onclick="G.selCh('${k}')">${c.n} <span class="st">집중 ${st.F} · 체력 ${st.S}</span></span>`;
+  }).join('');
+  $('bdSlots').innerHTML=Object.keys(SLOTS).map(sk=>{
+    const s=SLOTS[sk],who=(usedIn[sk]||[]).map(k=>CHARS[k].n).join(', ');
+    let warn='';
+    if(s.needCam&&!hasItem('camera'))warn='<div class="sm" style="color:var(--bad)">카메라 없음 — 산출 절반·사고 위험</div>';
+    if(s.req&&S.tracks[s.req[0]]<s.req[1])warn=`<div class="sm dim">요구: ${T[s.req[0]]} ${s.req[1]}+</div>`;
+    return `<div class="slot ${''}" onclick="G.selSlot('${sk}')"><b>${s.name}</b>${s.trk?`<span class="dim sm"> → ${T[s.trk]}</span>`:'<span class="dim sm"> 회복</span>'}
+    <div class="who">${who||'<span class="dim">—</span>'}</div>${warn}</div>`;
+  }).join('');
+  const n=Object.keys(S.assign).length;
+  $('bdGo').disabled=n<5;
+  $('bdNote').textContent=n<5?`전원 배치까지 ${5-n}명 남음 (휴식도 배치입니다)`:'준비 완료.';
+}
+G.selCh=k=>{selChar=(selChar===k?null:k);delete S.assign[k];renderBoard();};
+G.selSlot=sk=>{if(!selChar)return;
+  const cnt=Object.values(S.assign).filter(v=>v===sk).length;
+  if(cnt>=2)return;
+  S.assign[selChar]=sk;selChar=null;renderBoard();};
+
+G.runDay=()=>{
+  const out={story:0,footage:0,post:0,master:0};const lines=[];
+  for(const[ck,sk]of Object.entries(S.assign)){
+    const c=CHARS[ck],st=S.ch[ck],slot=SLOTS[sk];
+    if(sk==='휴식'){st.F=clamp(st.F+14,0,CHARS[ck].F);st.S=clamp(st.S+10,0,CHARS[ck].S);
+      if(S.res.snack>0){S.res.snack--;st.S=clamp(st.S+4,0,CHARS[ck].S);}
+      if(ck==='PL')S.res.fear=clamp(S.res.fear-8,0,100);
+      lines.push(`${c.n} — 정리·회복 (+집중/체력)`);continue;}
+    const cond=0.5+0.005*Math.min(st.F,st.S);
+    let v=c.stat[slot.stat]*cond;
+    let mod=1;
+    if(sk==='촬영'){if(!hasItem('camera')){mod*=0.5;}else mod*=1.1;
+      if(hasItem('card'))out.footage+=2;}
+    if(sk==='편집'&&hasItem('lut'))mod*=1.15;
+    if(sk==='QC'&&hasItem('spec'))mod*=1.1;
+    if(sk==='촬영'&&hasItem('mic'))mod*=1.1;
+    if(slot.req&&S.tracks[slot.req[0]]<slot.req[1])mod*=0.4;
+    v*=mod;
+    // 실수 판정 5% + 컨디션 저하
+    let miss=5;if(Math.min(st.F,st.S)<40)miss+=10;if(Math.min(st.F,st.S)<25)miss+=10;
+    if(sk==='촬영'&&!hasItem('camera'))miss+=15;
+    if(pct('production',miss)){v*=0.4;lines.push(`<span style="color:var(--bad)">${c.n} — ${slot.name}: 제작사고 (산출 급감)</span>`);}
+    else if(pct('production',10)){v*=1.5;lines.push(`${c.n} — ${slot.name}: <span style="color:var(--ok)">크리티컬</span> +${(v).toFixed(1)}`);}
+    else lines.push(`${c.n} — ${slot.name}: +${v.toFixed(1)}`);
+    out[slot.trk]+=v;
+    if(slot.integ)S.res.integ=clamp(S.res.integ+slot.integ,0,100);
+    st.F=clamp(st.F-slot.fc,0,CHARS[ck].F);st.S=clamp(st.S-slot.sc,0,CHARS[ck].S);
+  }
+  for(const k in out)S.tracks[k]=clamp(S.tracks[k]+out[k],0,100);
+  S.dayLines=lines;S.dayOut=out;
+  startEvent();
+};
+
+/* ---------- 현실 이벤트 ---------- */
+function startEvent(){
+  const cand=EVENTS.filter(e=>!S.usedEv.includes(e.id)&&e.day.includes(S.day));
+  let ev=cand.find(e=>e.force)||null;
+  if(!ev&&cand.length&&pct('reality',75))ev=cand[Math.floor(R.reality()*cand.length)];
+  if(!ev){startConfirm();return;}
+  S.usedEv.push(ev.id);
+  show('event');
+  let html=`<div class="card evcard"><b>18:00 — ${ev.n}</b><div class="sm" style="white-space:pre-line;margin:6px 0">${ev.txt}</div></div><div class="col">`;
+  if(ev.itemFix&&hasItem(ev.itemFix[0])){
+    html+=`<div class="card sm" style="border-color:var(--ok)">${ev.itemFix[1]}</div><button class="primary" onclick="G.evFix('${ev.id}')">다행이다</button></div>`;
+    $('evBody').innerHTML=html;G._ev=ev;return;
+  }
+  ev.ch.forEach((c,i)=>{html+=`<button onclick="G.evPick('${ev.id}',${i})">${c[0]}<div class="fx">${c[2]}${S.flags_peek?'':''}</div></button>`;});
+  $('evBody').innerHTML=html+'</div>';G._ev=ev;
+}
+G.evFix=id=>{applyFx(G._ev.itemFix[2]);startConfirm();};
+G.evPick=(id,i)=>{applyFx(G._ev.ch[i][1]);startConfirm();};
+function applyFx(fx){
+  if(!fx)return;
+  const r=S.res,t=S.tracks;
+  const map={trust:'trust',integ:'integ',debt:'debt',fear:'fear',reso:'reso',coffee:'coffee',snack:'snack',budget:'budget'};
+  for(const k in fx){
+    if(k in map){r[map[k]]=clamp(r[map[k]]+fx[k],k==='budget'?-100:0,k==='budget'?700:(k==='debt'?60:100));}
+    else if(k in t){t[k]=clamp(t[k]+fx[k],0,100);}
+    else if(k==='story4'){t.story=clamp(t.story+4,0,100);}
+    else if(k==='focus'){const[c,v]=fx[k];S.ch[c].F=clamp(S.ch[c].F+v,0,CHARS[c].F);}
+    else if(k==='hp'){const[c,v]=fx[k];S.ch[c].S=clamp(S.ch[c].S+v,0,CHARS[c].S);}
+    else if(k==='flag'){S.flags[fx[k]]=true;}
+    else if(k==='ledger'){S.ledger++;}
+    else if(k==='meta'){S.metaFrag+=fx[k];}
+    else if(k==='roll'){const[st,p,ok,bad]=fx[k];applyFx(pct(st,p)?ok:(bad||{}));}
+    else if(k==='rollBad'){const[st,p,bad]=fx[k];if(pct(st,p))applyFx(bad);}
+  }
+  renderHud();
+}
+function note(s){S.logLines.push(s);}
+
+/* ---------- 컨펌 (D-6부터) ---------- */
+function startConfirm(){
+  if(S.day===7){startOvertimeAsk();return;}
+  let p=55+S.tracks.story/4+(S.res.trust-50)*0.4-S.res.debt/2;
+  p=clamp(p,5,95);
+  const ok=pct('reality',p);
+  if(ok){S.res.trust=clamp(S.res.trust+3,0,100);S.confirmMsg=`19:00 컨펌 — <span style="color:var(--ok)">통과</span> (성공률 ${p.toFixed(0)}%) · 신뢰 +3`;S.confStreak=0;}
+  else{S.res.debt=clamp(S.res.debt+4,0,60);S.res.trust=clamp(S.res.trust-3,0,100);
+    S.confirmMsg=`19:00 컨펌 — <span style="color:var(--bad)">반려</span> (성공률 ${p.toFixed(0)}%) · 수정부채 +4, 신뢰 -3`;}
+  startOvertimeAsk();
+}
+
+/* ---------- 야근 ---------- */
+function startOvertimeAsk(){
+  if(S.day===7){ // 첫날 강제 야근 (FTUE)
+    $('otInfo').innerHTML='구본… 아니, <b>손미림</b>: "러프컷만 걸어두고 가요. 렌더는 컴퓨터가 하니까."<br><span class="dim">신입은 원래 남는 법이다. 오늘은 선택지가 없다.</span>';
+    show('overtime');
+    document.querySelectorAll('#overtime button')[1].disabled=true;
+    return;
+  }
+  document.querySelectorAll('#overtime button')[1].disabled=false;
+  const enc=encounterChance();
+  $('otInfo').innerHTML=(S.confirmMsg?S.confirmMsg+'<br>':'')+
+   `야근 시 이면 조우 확률: <b class="nt">${enc}%</b> · 커피 잔량 ${S.res.coffee}`+
+   (S.res.coffee<1?'<br><span style="color:var(--bad)">커피가 없다 — 야근 불가</span>':'');
+  show('overtime');
+  document.querySelectorAll('#overtime button')[0].disabled=S.res.coffee<1;
+}
+function encounterChance(){
+  let p=30+7; // 기본 30 + 야근 인원(플레이어 1명 기준 최소)
+  const avgF=Object.values(S.ch).reduce((a,c)=>a+c.F,0)/5;
+  if(avgF<40)p+=15;
+  p+=Math.floor(S.res.debt/10)*4;
+  if(S.day<=4)p+=(5-S.day)*5;
+  if(S.res.integ>=80)p-=10;
+  return clamp(Math.round(p),5,95);
+}
+G.overtime=(yes)=>{
+  if(S.day===7)yes=true;
+  if(yes){
+    S.overtimes++;S.otStreak++;
+    S.res.coffee=Math.max(0,S.res.coffee-1);
+    // 추가 업무: 가장 낮은 게이트 트랙에 자동 투입 (플레이어+최고 적합자)
+    const k=Object.keys(GATE).sort((a,b)=>(S.tracks[a]/GATE[a])-(S.tracks[b]/GATE[b]))[0];
+    const gain=6*0.65;
+    S.tracks[k]=clamp(S.tracks[k]+gain,0,100);
+    S.ch.PL.F=clamp(S.ch.PL.F-8,0,85);S.ch.PL.S=clamp(S.ch.PL.S-10,0,90);
+    note(`야근 — ${T[k]} +${gain.toFixed(1)}`);
+    if(S.otStreak>=3){note('<span style="color:var(--bad)">3일 연속 야근 — 프레임 드롭 (내일 산출 -35%)</span>');}
+    const enc=S.day===7?100:encounterChance();
+    if(pct('backstudio',enc)){transition2157(()=>startNight());return;}
+    transition2157(()=>showLog());return;
+  }
+  S.otStreak=0;
+  for(const k in S.ch)S.ch[k].F=clamp(S.ch[k].F+5,0,CHARS[k].F);
+  if(hasMod('PK-13'))for(const k in S.ch)S.ch[k].F=clamp(S.ch[k].F+3,0,CHARS[k].F);
+  showLog();
+};
+
+/* ---------- 21:57 전환 ---------- */
+function transition2157(then){
+  const noflash=$('optFlash').checked;
+  $('ovl').classList.add('on');
+  const tc=$('ovlTc'),sub=$('ovlSub');
+  const seq=[['21:56:57:12',''],['21:56:59:23',''],['21:56:58:02','재생헤드가 뒤로 움직인다'],['21:57:00:00','REC ●'],['21:57:00:00','FINAL → FIN_AL   CUT → 끝   CREDIT → (공백)']];
+  let i=0;
+  const step=()=>{if(i<seq.length){tc.textContent=seq[i][0];sub.textContent=seq[i][1];
+      if(!noflash&&i===3){document.body.style.background='#1a0505';setTimeout(()=>document.body.style.background='',90);}
+      i++;setTimeout(step,noflash?700:600);}
+    else{$('ovl').classList.remove('on');document.body.classList.add('night');then();}};
+  step();
+}
+
+/* ---------- 이면 스튜디오 ---------- */
+let NT=null;
+function startNight(){
+  show('night');document.getElementById('dpad').classList.add('on');
+  NT={px:10.5,py:5.5,gx:9,gy:1.2,keys:{},done:false,met:false};
+  const cv=$('ntCv'),ctx=cv.getContext('2d');
+  const CW=cv.width/12,CH=cv.height/7;
+  // 괴이 선택
+  const pool=GHOSTS.filter(g=>!S.usedGh.includes(g.id)&&(!g.need||hasItem(g.need))&&(!g.late||S.day<=4));
+  NT.ghost=(S.day===7?GHOSTS[0]:(pool.length?pool[Math.floor(R.backstudio()*pool.length)]:null));
+  NT.gpos={x:2+R.backstudio()*8,y:1+R.backstudio()*5};
+  let last=performance.now();
+  function loop(now){
+    if(!NT||NT.done)return;
+    const dt=(now-last)/1000;last=now;
+    let dx=0,dy=0;
+    if(NT.keys.left)dx-=1;if(NT.keys.right)dx+=1;if(NT.keys.up)dy-=1;if(NT.keys.down)dy+=1;
+    NT.px=clamp(NT.px+dx*3.6*dt,0.3,11.7);NT.py=clamp(NT.py+dy*3.6*dt,0.3,6.7);
+    ctx.clearRect(0,0,cv.width,cv.height);
+    ctx.fillStyle='#0d0b16';ctx.fillRect(0,0,cv.width,cv.height);
+    ROOMS.forEach(r=>{ctx.strokeStyle='#2b2542';ctx.strokeRect(r.x*CW+2,r.y*CH+2,r.w*CW-4,r.h*CH-4);});
+    // 노이즈
+    if(!$('optFlash').checked){ctx.fillStyle='rgba(125,110,224,0.05)';
+      for(let i=0;i<8;i++)ctx.fillRect(R.backstudio()*cv.width,R.backstudio()*cv.height,40,2);}
+    // 목표 (내 책상)
+    ctx.fillStyle='#e8b34b';ctx.fillRect(NT.gx*CW-10,NT.gy*CH-8,20,16);
+    ctx.fillStyle='#9a9890';ctx.font='11px sans-serif';ctx.fillText('내 책상 [종료]',NT.gx*CW-28,NT.gy*CH-14);
+    // 괴이
+    if(NT.ghost&&!NT.met){
+      ctx.fillStyle='rgba(125,110,224,0.8)';
+      ctx.fillRect(NT.gpos.x*CW-9,NT.gpos.y*CH-14,18,28);
+      ctx.fillStyle='#0d0b16';ctx.fillRect(NT.gpos.x*CW-5,NT.gpos.y*CH-9,4,4);ctx.fillRect(NT.gpos.x*CW+2,NT.gpos.y*CH-9,4,4);
+      if(Math.abs(NT.gpos.x-NT.px)<0.7&&Math.abs(NT.gpos.y-NT.py)<0.7){NT.met=true;ghostCard(NT.ghost);return;}
+    }
+    // 플레이어
+    ctx.fillStyle='#cfcdc6';ctx.fillRect(NT.px*CW-8,NT.py*CH-11,16,22);
+    if(Math.abs(NT.gx-NT.px)<0.6&&Math.abs(NT.gy-NT.py)<0.6){
+      if(NT.ghost&&!NT.met){S.res.fear=clamp(S.res.fear+3,0,100);note('무언가를 못 본 척했다. 공포 +3');}
+      NT.done=true;NT=null;showLog();return;}
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+}
+addEventListener('keydown',e=>{if(!NT)return;const m={ArrowLeft:'left',a:'left',ArrowRight:'right',d:'right',ArrowUp:'up',w:'up',ArrowDown:'down',s:'down'};if(m[e.key]){NT.keys[m[e.key]]=1;e.preventDefault();}});
+addEventListener('keyup',e=>{if(!NT)return;const m={ArrowLeft:'left',a:'left',ArrowRight:'right',d:'right',ArrowUp:'up',w:'up',ArrowDown:'down',s:'down'};if(m[e.key])NT.keys[m[e.key]]=0;});
+
+function ghostCard(g){
+  S.usedGh.push(g.id);
+  if(!META.codex.includes(g.id)){META.codex.push(g.id);saveMeta();}
+  show('night');
+  const wrap=document.createElement('div');wrap.id='gcard';
+  wrap.innerHTML=`<div class="card evcard ghost"><b class="nt glitch">${g.id} — ${g.n}</b>
+   <div class="sm" style="white-space:pre-line;margin:6px 0">${g.txt}</div></div><div class="col" id="gch"></div>`;
+  $('night').appendChild(wrap);
+  $('ntCv').style.display='none';
+  const box=wrap.querySelector('#gch');
+  g.ch.forEach((c,i)=>{
+    const b=document.createElement('button');
+    b.innerHTML=`${c[0]}<div class="fx">${c[2]}</div>`;
+    if(c[1].needItem&&!hasItem(c[1].needItem)){b.disabled=true;}
+    b.onclick=()=>{
+      let fx={...c[1]};
+      if(fx.brave){ // 담력 판정
+        let p=65+(S.ch.PL.F-50)/5-(S.res.fear/4)-(S.res.debt/3);
+        if(META.codex.includes(g.id))p+=15;
+        if(S.res.integ>=80)p+=10;if(S.res.integ<40)p-=10;
+        p=clamp(p,5,95);
+        if(!pct('backstudio',p)){fx={fear:15};note(`<span class="nt">${g.n} — 담력 판정 실패 (${p.toFixed(0)}%)… 공포 +15</span>`);}
+        else note(`<span class="nt">${g.n} — 담력 판정 성공 (${p.toFixed(0)}%)</span>`);
+        delete fx.brave;
+      }
+      applyFx(fx);
+      note(`<span class="nt">이면 조우: ${g.n}</span>`);
+      wrap.remove();$('ntCv').style.display='';
+      if(NT){NT.met=true;NT.done=false;requestAnimationFrame(()=>{});}
+      // 조우 후 바로 결산 (MVP 단순화)
+      NT=null;showLog();
+    };
+    box.appendChild(b);
+  });
+}
+
+/* ---------- 제작일보 ---------- */
+function showLog(){
+  document.getElementById('dpad').classList.remove('on');
+  if(S.res.fear>=100){return ending('ED-09');}
+  const broken=Object.entries(S.ch).filter(([k,c])=>c.F<=0).length;
+  if(broken>=3)return ending('ED-10');
+  if(S.res.integ<=0)return ending('ED-05');
+  $('lgTitle').textContent=`제작일보 — D-${S.day}`;
+  let h=trackBars();
+  h+='<table>';
+  (S.dayLines||[]).forEach(l=>h+=`<tr><td>${l}</td></tr>`);
+  if(S.confirmMsg)h+=`<tr><td>${S.confirmMsg}</td></tr>`;
+  (S.logLines||[]).forEach(l=>h+=`<tr><td>${l}</td></tr>`);
+  h+='</table>';
+  if(S.ledger>0||S.metaFrag>0)h+=`<div class="sm nt">크레딧 장부 조각 ${S.ledger}/3 · 메타데이터 조각 ${S.metaFrag}</div>`;
+  if(hasMod('PK-16'))h+=`<div class="sm dim">소스 감사: 다음 단서 — ${S.ledger<3?'크레딧 장부 조각 수집':'원본·권리 목록 완성'}</div>`;
+  $('lgBody').innerHTML=h;
+  S.logLines=[];S.confirmMsg=null;S.dayLines=null;
+  $('lgBtn').textContent=S.day<=1?'D-0 — 납품 판정으로':'다음 날로';
+  show('log');
+}
+G.nextDay=()=>{
+  document.body.classList.remove('night');
+  if(S.day<=1)return finalJudge();
+  S.day--;
+  if(S.otStreak>=3){S.flags.framedrop=true;S.otStreak=0;}
+  if(hasMod('PK-07')&&S.res.integ<40&&!S.flags.pk07){S.res.integ=40;S.flags.pk07=true;}
+  startScramble();
+};
+
+/* ---------- D-0 판정 & 엔딩 ---------- */
+function finalJudge(){
+  const t=S.tracks,r=S.res;
+  const gateFail=Object.keys(GATE).filter(k=>t[k]<GATE[k]);
+  if(r.integ<65)gateFail.push('integ');
+  if(r.trust<45)gateFail.push('trust');
+  if(S.flags.missing_consent)gateFail.push('consent');
+  if(gateFail.length)return ending('ED-04',gateFail);
+  let score=t.story*0.20+t.footage*0.25+t.post*0.25+t.master*0.15+r.integ*0.10+r.trust*0.05-r.debt*0.35;
+  if(r.reso>=60)score+=3;
+  score=Math.round(score*100)/100;
+  S.score=score;
+  if(score<75)return ending('ED-04',['score']);
+  if(S.ledger>=3&&S.flags.chain_open&&score>=85)return ending('ED-11');
+  if(score>=95&&r.integ>=90&&S.overtimes<=2)return ending('ED-03');
+  if(score>=85)return ending('ED-02');
+  return ending('ED-01');
+}
+const ENDINGS={
+ 'ED-01':['납품은 됐다','최종 파일은 전달된다. 다섯 사람은 완료 메일보다 오류 로그를 먼저 본다.',60],
+ 'ED-02':['다음 프로젝트도 함께','클라이언트가 후속 프로젝트를 제안한다. 이번에는 첫 회의부터 엑스컴이 기준을 쓴다.',70],
+ 'ED-03':['스튜디오의 이름으로','작품과 제작 방식 모두 대표 사례가 된다.',80],
+ 'ED-04':['납품 보류','발주처에는 "최종 확인 중"이라는 메시지만 남고, 완료 파일은 끝내 전송되지 않는다.',30],
+ 'ED-05':['원본이 없습니다','프로젝트 폴더는 남았지만 재생 가능한 원본은 없다.',25],
+ 'ED-09':['SOURCE_0000','다음 프로젝트의 원본 작성자 칸에, 당신이 0000으로 표시된다.',20],
+ 'ED-10':['전원 오프라인','단체방에는 "죄송합니다"가 네 번 남고, 타임라인만 재생된다.',25],
+ 'ED-11':['모든 장면에는 만든 사람이 있다','이름 없는 원본이 제자리를 찾고, 21:57이 오지 않는다.',150],
+};
+function ending(id,detail){
+  document.body.classList.remove('night');
+  const[name,ep,reward]=ENDINGS[id];
+  const isTrue=id==='ED-11';
+  let h=`<h2 class="${isTrue?'nt':''}">${isTrue?'진엔딩 — ':''}${name}</h2>`;
+  if(S.score!==undefined&&!['ED-05','ED-09','ED-10'].includes(id))h+=`<div class="card">최종 납품 점수: <b style="font-size:22px">${S.score??'—'}</b><div class="sm dim">기획 ${Math.round(S.tracks.story)} · 원본 ${Math.round(S.tracks.footage)} · 후반 ${Math.round(S.tracks.post)} · 마스터 ${Math.round(S.tracks.master)} · 무결성 ${S.res.integ} · 수정부채 ${S.res.debt}</div></div>`;
+  if(detail&&detail.length)h+=`<div class="card sm" style="border-color:var(--bad)">게이트 미달: ${detail.map(k=>T[k]||{integ:'원본 무결성',trust:'클라이언트 신뢰',consent:'치명 누락(미동의 출연자)',score:'납품 점수 75 미만'}[k]).join(', ')}</div>`;
+  h+=`<div class="card sm">${ep}</div>`;
+  if(isTrue)h+=`<div class="mono sm nt">SOURCE_0000 → SOURCE MANIFEST COMPLETE<br>편집실 시계가 21:56에서 21:58로 넘어간다.</div><div class="say" style="margin-top:8px"><b>허파랑</b><br>"끝난 게 아니라, 제대로 넘긴 거야."</div>`;
+  else if(id==='ED-04')h+=`<div class="sm dim">골드… 아니, 탕비실의 낡은 NAS가 깜빡인다.<span class="mono nt"> RESTORE POINT FOUND: D-7_MASTER.backup</span></div>`;
+  $('edBody').innerHTML=h;
+  // 정산 준비
+  S.endReward=reward;S.endId=id;
+  if(!META.endings.includes(id)){META.endings.push(id);S.newEnd=true;}
+  show('ending');
+}
+G.toRetake=()=>{
+  const dayReached=8-S.day;
+  let gain=(8-S.day)*8+Math.round(S.score||0)+(S.newEnd?40:0)+Math.round(S.res.integ/2);
+  gain+=S.endReward||0;
+  META.notes+=gain;saveMeta();
+  G.lastEnd=S.endId;
+  $('rtGain').innerHTML=`이번 루프의 기록 — 도달 D-${S.day} · 점수 ${S.score??'—'} · 도감 ${META.codex.length}종<br>획득 리테이크 노트: <b style="color:var(--accent)">+${gain}</b> (보유 ${META.notes})`;
+  renderShop();show('retake');
+};
+function renderShop(){
+  $('rtShop').innerHTML=MODULES.map(m=>{
+    const owned=hasMod(m[0]);
+    return `<button ${owned||META.notes<m[2]?'disabled':''} onclick="G.buy('${m[0]}',${m[2]})">
+      <b>${m[0]} ${m[1]}</b> — ${m[3]} <span class="dim">${owned?'보유 중':m[2]+' 노트'}</span></button>`;
+  }).join('');
+}
+G.buy=(id,cost)=>{if(META.notes<cost||hasMod(id))return;META.notes-=cost;META.mods.push(id);saveMeta();renderShop();$('rtGain').innerHTML+=` <span class="dim">— ${id} 장착</span>`;};
+G.restore=()=>{
+  dialog([['', '<span class="mono nt">RESTORE POINT FOUND<br>D-7_MASTER.backup<br>복원하시겠습니까?</span>'],['','당신은 기억한다. 다른 네 사람은, 설명할 수 없는 익숙함만 남는다.']],()=>G.newRun());
+};
+
+/* ---------- 타이틀 아트 ---------- */
+$('tlArt').textContent=
+`V1  [D-7][D-6][D-5][D-4][D-3][D-2][D-1][D-0]
+A1  ────────────────────────────────
+      프로젝트 열기 · 리테이크 노트 · 설정`;
+G.toTitle();
+</script>
+</body>
+</html>
