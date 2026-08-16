@@ -59,7 +59,7 @@
 
 | 상태 | 파일 | 내용 |
 |---|---|---|
-| 대체본 | `07_leeyeonglim_influencer_fixed/ch_leeyeonglim_sheet_influencer_fixed.png` | 장발·화려한 피트니스 운동복·짧은 불투명 레깅스 전신 시트 |
+| 대체본 | `07_leeyeonglim_influencer_fixed/ch_leeyeonglim_sheet_influencer_fixed.png` | 장발·활동복·재킷·백팩·링라이트 전신 시트 (게임 반영본) |
 | 대체본 | `07_leeyeonglim_influencer_fixed/ch_leeyeonglim_expression_influencer_fixed.png` | 같은 운동복 스타일의 3×2 표정 시트 |
 | 대체본 | `07_leeyeonglim_influencer_fixed/ch_leeyeonglim_night_influencer_fixed.png` | 같은 운동복 스타일의 별도 밤 버전 |
 | 대체본 | `07_leeyeonglim_influencer_fixed/ch_lineup_influencer_fixed.png` | 이영림 변경을 반영한 5인 라인업·실루엣 |
@@ -67,7 +67,7 @@
 
 ## 이영림 최신 규칙 변경본
 
-아래 5개를 `07_leeyeonglim_influencer_fixed`보다 우선 사용한다. 이영림은 휴대폰 1개와 조명 1개만 들고 다니며, 다른 소지품과 목·허리 장착물은 없다. 성인 운동복의 어깨·소량 복부 노출은 허용했다.
+아래 5개를 `07_leeyeonglim_influencer_fixed`보다 우선 사용한다. 이영림은 휴대폰 1개와 조명 1개만 들고 다니며, 다른 소지품과 목·허리 장착물은 없다. 의상은 활동복 계열로 하되 신체를 강조하는 서술을 사양에 두지 않는다(ART-RFP 2.5-5).
 
 | 상태 | 파일 | 크기 | 핵심 판정 |
 |---|---|---:|---|
@@ -79,11 +79,11 @@
 
 ## 손미림 최신 의상·신장 변경본
 
-아래 5개를 기존 손미림 캐릭터 시트·표정·밤·라인업·SD보다 우선 사용한다. 손미림은 성인 150cm의 작고 컴팩트한 실루엣이며, 일본식 통 넓은 와이드 팬츠와 타이트한 셔츠를 넣어 입은 조합으로 고정한다.
+아래 5개를 기존 손미림 캐릭터 시트·표정·밤·라인업·SD보다 우선 사용한다. 손미림은 5인 중 가장 작고 둥근 컴팩트한 실루엣이며, 일본식 통 넓은 와이드 팬츠와 몸에 맞는 셔츠를 넣어 입은 조합으로 고정한다.
 
 | 상태 | 파일 | 크기 | 핵심 판정 |
 |---|---|---:|---|
-| 최신 대체본 | `09_sonmirim_widepants_fixed/ch_sonmirim_widepants_fixed.png` | 1536×1024 | 150cm 성인·타이트한 셔츠·일본식 통 넓은 바지 |
+| 최신 대체본 | `09_sonmirim_widepants_fixed/ch_sonmirim_widepants_fixed.png` | 1536×1024 | 컴팩트한 실루엣·몸에 맞는 셔츠·일본식 통 넓은 바지 |
 | 최신 대체본 | `09_sonmirim_widepants_fixed/ch_sonmirim_expression_widepants_fixed.png` | 1536×1024 | 동일 얼굴·칼라와 숨은 밴드 티 슬리버 |
 | 최신 대체본 | `09_sonmirim_widepants_fixed/ch_sonmirim_night_widepants_fixed.png` | 1536×1024 | 별도 밤 작화·와이드 하의 실루엣 |
 | 최신 대체본 | `09_sonmirim_widepants_fixed/ch_lineup_sonmirim_widepants_fixed.png` | 1149×1369 | 5인 구분·짧고 넓은 손미림 순흑 실루엣 |
