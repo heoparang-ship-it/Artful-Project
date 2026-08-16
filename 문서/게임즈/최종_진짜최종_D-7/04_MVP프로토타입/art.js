@@ -174,85 +174,170 @@ const ART = (() => {
     cx.restore();
   }
 
-  /* ---- 인물 실루엣 (SD 2.5등신) ----
-     캐논 ① 실루엣 채널을 형태로 옮긴다. 순흑으로 칠해도 서로 구분되어야 한다. */
+  /* ---- 인물 ----
+     한 벌의 파츠(다리·몸통·팔·머리·머리카락·얼굴·소품)를 색 팔레트로 그린다.
+     팔레트 전체를 한 색으로 주면 순흑 실루엣 판정 모드가 되고(AC-CHR-03),
+     u가 크면 얼굴 표식까지 그린다 — 무표정 규격(작화 지시서 §3.3):
+     가는 눈·작고 평평한 동공·캐치라이트 없음·눈 밑 그늘·입은 단선 1획. */
+  const SKIN = '#d8bda6', SKIN_S = '#b2907f', INK = '#241f1c';
+
+  function face(cx, u, P, opt) {
+    if (u < 15 || P.flat) return;                       // 작을 땐 생략, 실루엣 모드는 그리지 않는다
+    const e = opt.eyeY == null ? -0.15 * u : opt.eyeY;
+    cx.fillStyle = INK;
+    cx.fillRect(-0.42 * u, e, 0.26 * u, 0.09 * u);      // 왼눈 — 가로로 긴 단선
+    cx.fillRect(0.16 * u, e, 0.26 * u, 0.09 * u);       // 오른눈
+    cx.fillStyle = SKIN_S;
+    cx.fillRect(-0.42 * u, e + 0.16 * u, 0.26 * u, 0.05 * u);  // 눈 밑 그늘
+    cx.fillRect(0.16 * u, e + 0.16 * u, 0.26 * u, 0.05 * u);
+    cx.fillStyle = INK;
+    if (opt.brow) {                                      // 눈썹 각도 = 그 인물의 기본값
+      cx.save(); cx.translate(-0.29 * u, e - 0.16 * u); cx.rotate(opt.brow);
+      cx.fillRect(-0.15 * u, 0, 0.3 * u, 0.06 * u); cx.restore();
+      cx.save(); cx.translate(0.29 * u, e - 0.16 * u); cx.rotate(-opt.brow);
+      cx.fillRect(-0.15 * u, 0, 0.3 * u, 0.06 * u); cx.restore();
+    }
+    cx.fillRect(-0.1 * u, e + 0.42 * u, 0.2 * u, 0.055 * u);   // 입 — 단선 1획
+  }
+
+  /* 공통 몸체. opt로 실루엣 폭을 인물별로 바꾼다 */
+  function body(cx, u, P, o) {
+    const tw = o.torsoW, th = o.torsoH, lw = o.legW, ll = o.legLen;
+    cx.fillStyle = P.cloth2;                                   // 하의
+    if (o.wide) {                                              // 통 넓은 바지
+      cx.beginPath();
+      cx.moveTo(-tw / 2, th * 0); cx.lineTo(tw / 2, 0);
+      cx.lineTo(tw * .92, ll); cx.lineTo(-tw * .92, ll); cx.closePath(); cx.fill();
+    } else {
+      cx.fillRect(-tw / 2 + .05 * u, 0, lw, ll);
+      cx.fillRect(tw / 2 - lw - .05 * u, 0, lw, ll);
+    }
+    cx.fillStyle = INK;                                        // 신발
+    cx.fillRect(-tw / 2 + .02 * u, ll - .12 * u, lw + .1 * u, .16 * u);
+    cx.fillRect(tw / 2 - lw - .12 * u, ll - .12 * u, lw + .1 * u, .16 * u);
+    cx.fillStyle = P.cloth;                                    // 상의
+    cx.fillRect(-tw / 2, -th, tw, th);
+    cx.fillStyle = P.skin;                                     // 머리
+    cx.beginPath(); cx.arc(0, -th - .82 * u, .78 * u, 0, 7); cx.fill();
+    cx.fillStyle = P.cloth; cx.fillRect(-.22 * u, -th - .3 * u, .44 * u, .3 * u); // 목
+  }
+
   const CREW = {
-    heo: { // 허파랑 — 한 손엔 항상 화면, 다른 손은 넓은 제스처
-      tone: '#a8b088', h: 1.0,
-      draw(cx, u, col) {
-        cx.fillStyle = col;
-        cx.fillRect(-1.7 * u, -1.4 * u, 3.4 * u, 2.1 * u);              // 몸
-        cx.beginPath(); cx.arc(0, -2.1 * u, .95 * u, 0, 7); cx.fill();   // 머리
-        cx.fillRect(-2.9 * u, -1.9 * u, 1.3 * u, .45 * u);              // 든 팔
-        cx.fillRect(-3.6 * u, -2.5 * u, 1.5 * u, 1.1 * u);              // 태블릿(바깥으로 내민 화면)
-        cx.fillRect(1.6 * u, -1.2 * u, 1.5 * u, .45 * u);               // 제스처 팔
-        cx.fillRect(-1.4 * u, .7 * u, 1.1 * u, 1.0 * u); cx.fillRect(.3 * u, .7 * u, 1.1 * u, 1.0 * u);
+    /* 허파랑 — 한 손엔 항상 화면, 다른 손은 넓은 제스처. 눈썹만 올라간 무표정 */
+    heo: {
+      tone: '#a8b088', h: 1.0, foot: 1.5, tall: 4.65, pal: { cloth: '#a8b088', cloth2: '#4a5568', hair: '#2e2a26' },
+      draw(cx, u, P) {
+        const th = 1.55 * u;
+        body(cx, u, P, { torsoW: 1.75 * u, torsoH: th, legW: .62 * u, legLen: 1.5 * u });
+        cx.fillStyle = P.cloth;
+        cx.fillRect(-1.62 * u, -th - .05 * u, .62 * u, .34 * u);        // 든 팔
+        cx.fillRect(.98 * u, -th + .5 * u, .68 * u, .32 * u);           // 제스처 팔
+        cx.fillStyle = P.prop || '#39414f';                              // 태블릿
+        cx.fillRect(-2.5 * u, -th - .62 * u, .9 * u, 1.0 * u);
+        if (!P.flat) { cx.fillStyle = '#8fa3c4'; cx.fillRect(-2.4 * u, -th - .52 * u, .32 * u, .38 * u);
+          cx.fillRect(-2.02 * u, -th - .52 * u, .32 * u, .38 * u);
+          cx.fillRect(-2.4 * u, -th - .1 * u, .32 * u, .38 * u); cx.fillRect(-2.02 * u, -th - .1 * u, .32 * u, .38 * u); }
+        cx.save(); cx.translate(0, -th - .82 * u);
+        cx.fillStyle = P.hair; cx.fillRect(-.8 * u, -.86 * u, 1.6 * u, .62 * u);
+        face(cx, u, P, { brow: -.12 });
+        if (u >= 15 && !P.flat) {                                        // 동그란 안경
+          cx.strokeStyle = INK; cx.lineWidth = .07 * u;
+          cx.beginPath(); cx.arc(-.29 * u, -.1 * u, .26 * u, 0, 7); cx.stroke();
+          cx.beginPath(); cx.arc(.29 * u, -.1 * u, .26 * u, 0, 7); cx.stroke();
+        }
+        cx.restore();
       },
     },
-    lyl: { // 이영림 — 가방 둘 + 목의 두 물건 + 링라이트. 자세가 안 무너진다
-      tone: '#9aa6bb', h: 1.0,
-      draw(cx, u, col) {
-        cx.fillStyle = col;
-        cx.fillRect(-2.2 * u, -1.5 * u, .6 * u, 1.5 * u);               // 백팩(뒤로 튀어나옴)
-        cx.fillRect(-1.6 * u, -1.5 * u, 3.2 * u, 2.2 * u);              // 몸 — 어깨 각짐
-        cx.beginPath(); cx.arc(0, -2.2 * u, .95 * u, 0, 7); cx.fill();
-        cx.fillRect(-.55 * u, -1.35 * u, .28 * u, .8 * u);              // 목 ①사원증
-        cx.fillRect(.25 * u, -1.35 * u, .28 * u, .6 * u);               // 목 ②클립 마이크
-        cx.fillRect(1.6 * u, -.6 * u, .5 * u, 1.4 * u);                 // 촬영 파우치
-        cx.beginPath(); cx.arc(2.6 * u, .1 * u, .85 * u, 0, 7);          // 링라이트
-        cx.lineWidth = .35 * u; cx.strokeStyle = col; cx.stroke();
-        cx.fillRect(-1.4 * u, .7 * u, 1.1 * u, 1.1 * u); cx.fillRect(.3 * u, .7 * u, 1.1 * u, 1.1 * u);
+    /* 이영림 — 가방 둘·목의 두 물건·링라이트. 자세가 안 무너진다. 눈썹 끝이 올라가 있다 */
+    lyl: {
+      tone: '#9aa6bb', h: 1.0, foot: 1.5, tall: 4.60, pal: { cloth: '#c9cdd6', cloth2: '#3f4652', hair: '#3a3128' },
+      draw(cx, u, P) {
+        const th = 1.5 * u;
+        cx.fillStyle = P.prop || '#6b7280';
+        cx.fillRect(-1.55 * u, -th - .05 * u, .55 * u, 1.25 * u);        // 백팩
+        body(cx, u, P, { torsoW: 1.7 * u, torsoH: th, legW: .6 * u, legLen: 1.5 * u });
+        cx.fillStyle = P.cloth; cx.fillRect(-1.9 * u, -th - .1 * u, 2 * u, .3 * u); // 각진 어깨
+        cx.fillStyle = P.prop || '#6b7280';
+        cx.fillRect(.9 * u, -th + .55 * u, .5 * u, 1.1 * u);             // 촬영 파우치
+        cx.strokeStyle = P.prop || '#6b7280'; cx.lineWidth = .28 * u;    // 링라이트
+        cx.beginPath(); cx.arc(2.1 * u, -.5 * u, .78 * u, 0, 7); cx.stroke();
+        cx.fillStyle = INK;                                              // 목의 두 물건
+        cx.fillRect(-.4 * u, -th - .25 * u, .16 * u, .8 * u);
+        cx.fillRect(.24 * u, -th - .25 * u, .16 * u, .6 * u);
+        cx.fillStyle = P.prop || '#8f95a3'; cx.fillRect(-.46 * u, -th + .55 * u, .28 * u, .34 * u);
+        cx.save(); cx.translate(0, -th - .82 * u);
+        cx.fillStyle = P.hair;
+        cx.fillRect(-.82 * u, -.88 * u, 1.64 * u, .78 * u); cx.fillRect(-.86 * u, -.5 * u, .3 * u, .9 * u);
+        face(cx, u, P, { brow: .16 });
+        cx.restore();
       },
     },
-    lhm: { // 이혜미 — 가장 길고 가늘다. 어깨가 올라가 있다. 허리에 라벨 프린터
-      tone: '#767c8a', h: 1.14,
-      draw(cx, u, col) {
-        cx.fillStyle = col;
-        cx.fillRect(-1.25 * u, -1.7 * u, 2.5 * u, 2.4 * u);             // 좁은 몸
-        cx.fillRect(-1.5 * u, -1.8 * u, 3.0 * u, .35 * u);              // 올라간 어깨
-        cx.beginPath(); cx.arc(0, -2.5 * u, .88 * u, 0, 7); cx.fill();
-        cx.beginPath(); cx.arc(.15 * u, -3.15 * u, .5 * u, 0, 7); cx.fill(); // 묶은 머리
-        cx.fillRect(1.2 * u, -.35 * u, .85 * u, .7 * u);                // 라벨 프린터
-        cx.fillRect(-1.05 * u, .7 * u, .85 * u, 1.5 * u); cx.fillRect(.2 * u, .7 * u, .85 * u, 1.5 * u); // 긴 다리
+    /* 이혜미 — 가장 길고 가늘다. 어깨가 올라가 있다. 라벨 프린터. 미간 세로 주름 1줄 */
+    lhm: {
+      tone: '#767c8a', h: 1.12, foot: 1.85, tall: 5.05, pal: { cloth: '#3f434c', cloth2: '#35383f', hair: '#231f1c' },
+      draw(cx, u, P) {
+        const th = 1.6 * u;
+        body(cx, u, P, { torsoW: 1.35 * u, torsoH: th, legW: .5 * u, legLen: 1.85 * u });
+        cx.fillStyle = P.cloth; cx.fillRect(-1.02 * u, -th - .2 * u, 2.04 * u, .34 * u); // 올라간 어깨
+        cx.fillStyle = P.prop || '#8f95a3';
+        cx.fillRect(.78 * u, -.32 * u, .62 * u, .5 * u);                 // 라벨 프린터
+        cx.save(); cx.translate(0, -th - .82 * u);
+        cx.fillStyle = P.hair;
+        cx.fillRect(-.8 * u, -.9 * u, 1.6 * u, .66 * u);
+        cx.beginPath(); cx.arc(.15 * u, -1.12 * u, .42 * u, 0, 7); cx.fill();   // 묶은 머리
+        face(cx, u, P, { brow: -.06 });
+        if (u >= 15 && !P.flat) { cx.fillStyle = INK; cx.fillRect(-.03 * u, -.42 * u, .06 * u, .2 * u); } // 미간 주름
+        cx.restore();
       },
     },
-    smr: { // 손미림 — 상하 폭이 갈린다(붙는 상의 + 통 넓은 바지). 목에 헤드폰
-      tone: '#948aa0', h: .88,
-      draw(cx, u, col) {
-        cx.fillStyle = col;
-        cx.fillRect(-1.25 * u, -1.4 * u, 2.5 * u, 1.7 * u);             // 붙는 상의 — 좁다
-        cx.beginPath(); cx.arc(0, -2.05 * u, .95 * u, 0, 7); cx.fill();
-        cx.fillRect(-1.35 * u, -2.35 * u, 2.7 * u, .55 * u);            // 단발
-        cx.beginPath(); cx.arc(0, -1.75 * u, 1.05 * u, Math.PI, 0);      // 목에 건 헤드폰
-        cx.lineWidth = .3 * u; cx.strokeStyle = col; cx.stroke();
-        cx.beginPath();                                                  // 통 넓은 바지 — 아래로 퍼진다
-        cx.moveTo(-1.25 * u, .3 * u); cx.lineTo(1.25 * u, .3 * u);
-        cx.lineTo(2.1 * u, 1.9 * u); cx.lineTo(-2.1 * u, 1.9 * u); cx.closePath(); cx.fill();
-        cx.fillRect(1.3 * u, -.9 * u, .8 * u, .6 * u);                  // 카메라
+    /* 손미림 — 붙는 상의 + 통 넓은 바지. 목에 헤드폰. 입꼬리만 살짝 */
+    smr: {
+      tone: '#948aa0', h: .9, foot: 1.6, tall: 4.60, pal: { cloth: '#2a2630', cloth2: '#5c5568', hair: '#2b2622' },
+      draw(cx, u, P) {
+        const th = 1.4 * u;
+        body(cx, u, P, { torsoW: 1.3 * u, torsoH: th, legW: .5 * u, legLen: 1.6 * u, wide: true });
+        cx.strokeStyle = P.prop || '#8f95a3'; cx.lineWidth = .26 * u;    // 목에 건 헤드폰
+        cx.beginPath(); cx.arc(0, -th - .18 * u, .72 * u, Math.PI, 0); cx.stroke();
+        cx.fillStyle = P.prop || '#8f95a3';
+        cx.fillRect(.72 * u, -th + .35 * u, .55 * u, .42 * u);           // 카메라
+        cx.save(); cx.translate(0, -th - .82 * u);
+        cx.fillStyle = P.hair; cx.fillRect(-.86 * u, -.9 * u, 1.72 * u, 1.15 * u);  // 단발
+        cx.fillStyle = P.skin; cx.beginPath(); cx.arc(0, -.02 * u, .66 * u, 0, Math.PI); cx.fill();
+        cx.fillStyle = P.skin; cx.fillRect(-.66 * u, -.34 * u, 1.32 * u, .5 * u);
+        face(cx, u, P, { brow: .02 });
+        cx.restore();
       },
     },
-    you: { // 플레이어 — 남의 장비에 파묻힌 작은 형체. 짐이 늘어난다
-      tone: '#b9b3a6', h: .84,
-      draw(cx, u, col, load) {
-        cx.fillStyle = col;
-        cx.fillRect(-1.75 * u, -1.3 * u, 3.5 * u, 2.0 * u);             // 오버핏 — 몸보다 크다
-        cx.beginPath(); cx.arc(0, -1.95 * u, .85 * u, 0, 7); cx.fill();
-        cx.fillRect(-1.15 * u, .7 * u, .95 * u, 1.0 * u); cx.fillRect(.2 * u, .7 * u, .95 * u, 1.0 * u);
-        const n = Math.min(4, load || 0);
-        cx.lineWidth = .26 * u; cx.strokeStyle = col;
-        if (n > 0) { cx.beginPath(); cx.arc(-1.9 * u, -.9 * u, .62 * u, 0, 7); cx.stroke(); }  // 케이블 코일
-        if (n > 1) { cx.fillRect(1.7 * u, -.7 * u, .6 * u, 1.2 * u); }                          // 토트백
-        if (n > 2) { cx.fillRect(-2.5 * u, .1 * u, .55 * u, 1.0 * u); }                         // 숄더백
-        if (n > 3) { cx.fillRect(1.5 * u, -1.75 * u, 1.3 * u, .5 * u); }                        // 슬레이트
+    /* 플레이어 — 오버핏, 남의 장비에 파묻힌다. 짐은 load로 늘어난다 */
+    you: {
+      tone: '#b9b3a6', h: .86, foot: 1.4, tall: 4.45, pal: { cloth: '#9a9488', cloth2: '#3d4450', hair: '#2a2622' },
+      draw(cx, u, P, load) {
+        const th = 1.45 * u;
+        body(cx, u, P, { torsoW: 1.85 * u, torsoH: th, legW: .6 * u, legLen: 1.4 * u });
+        const n = Math.min(4, load == null ? 2 : load);
+        cx.strokeStyle = P.prop || '#8f95a3'; cx.lineWidth = .22 * u;
+        cx.fillStyle = P.prop || '#8f95a3';
+        if (n > 0) { cx.beginPath(); cx.arc(-1.5 * u, -th + .5 * u, .52 * u, 0, 7); cx.stroke(); }
+        if (n > 1) { cx.fillRect(1.05 * u, -th + .45 * u, .5 * u, 1.0 * u); }
+        if (n > 2) { cx.fillRect(-1.95 * u, -th + .95 * u, .45 * u, .85 * u); }
+        if (n > 3) { cx.fillRect(.95 * u, -th - .35 * u, 1.05 * u, .4 * u); }
+        cx.save(); cx.translate(0, -th - .82 * u);
+        cx.fillStyle = P.hair; cx.fillRect(-.8 * u, -.9 * u, 1.6 * u, .6 * u);
+        face(cx, u, P, { brow: 0 });
+        cx.restore();
       },
     },
   };
 
-  /* 인물 1인을 (x, y) 바닥 기준으로 그린다. col을 주면 그 색, 없으면 고유 톤 */
+  /* 인물 1인을 (x, y) 바닥 기준으로 그린다.
+     col을 주면 전 파츠를 그 한 색으로 칠한다 = 순흑 실루엣 판정 모드. */
   function crew(cx, key, x, y, unit, col, load) {
     const c = CREW[key]; if (!c) return;
+    const P = col
+      ? { cloth: col, cloth2: col, skin: col, hair: col, prop: col, flat: true }
+      : Object.assign({ skin: SKIN, prop: '#8f95a3' }, c.pal);
     cx.save(); cx.translate(x, y); cx.scale(c.h, c.h);
-    c.draw(cx, unit, col || c.tone, load);
+    c.draw(cx, unit, P, load);
     cx.restore();
   }
 
@@ -264,9 +349,165 @@ const ART = (() => {
     const w = canvas.width, h = canvas.height;
     cx.clearRect(0, 0, w, h);
     const c = CREW[key]; if (!c) return;
-    const u = h * 0.94 / 6.7;
-    crew(cx, key, w / 2, h - 2.25 * u * c.h, u, col);
+    const MAX = 5.66;                       // 가장 큰 인물(이혜미)의 전체 높이 × h
+    const u = h * 0.95 / MAX;
+    crew(cx, key, w / 2, h - c.foot * c.h * u - 1, u, col);
   }
+
+
+  /* ---- 상시 사무실 씬 ----
+     60 Seconds의 벙커 화면에 해당한다. 배치·이벤트·야근·이면 내내 떠 있고
+     게임 상태에 따라 변한다 — 인물 컨디션, 쌓이는 커피잔, 수정부채 포스트잇,
+     낮/밤, D-카운터. 텍스트로만 알던 것을 눈으로 보게 하는 게 목적이다. */
+  const STAGE_POS = [
+    { k: 'heo', x: .11 }, { k: 'lyl', x: .29 }, { k: 'lhm', x: .47 },
+    { k: 'smr', x: .65 }, { k: 'you', x: .84 },
+  ];
+
+  function mix(a, b, t) {
+    const p = h => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
+    const [r1, g1, b1] = p(a), [r2, g2, b2] = p(b);
+    const r = Math.round(r1 + (r2 - r1) * t), g = Math.round(g1 + (g2 - g1) * t), bl = Math.round(b1 + (b2 - b1) * t);
+    return `rgb(${r},${g},${bl})`;
+  }
+
+  function stage(cx, w, h, st) {
+    st = st || {};
+    const night = !!st.night;
+    const TL = 22, FLOOR = h - 88;
+    const wall  = night ? '#1a1830' : '#262a33';
+    const wallD = night ? '#151327' : '#20242c';
+    const floor = night ? '#100e1e' : '#191c23';
+
+    cx.clearRect(0, 0, w, h);
+    cx.fillStyle = wall; cx.fillRect(0, TL, w, FLOOR - TL);
+    cx.fillStyle = wallD; cx.fillRect(0, TL, w, 26);                 // 천장 그림자
+    cx.fillStyle = floor; cx.fillRect(0, FLOOR, w, h - FLOOR);
+    cx.fillStyle = night ? '#2a2740' : '#333844'; cx.fillRect(0, FLOOR, w, 3);
+
+    /* D-카운터 — 편집 타임라인 모티프 */
+    cx.fillStyle = night ? '#0c0a16' : '#15181d'; cx.fillRect(0, 0, w, TL);
+    const cw = w / 8;
+    for (let i = 0; i < 8; i++) {
+      const cur = (st.day || 1) - 1 === i, past = i < (st.day || 1) - 1;
+      cx.fillStyle = cur ? C.accent : (past ? '#3a3f4a' : '#23262e');
+      cx.fillRect(i * cw + 2, 5, cw - 4, TL - 10);
+      cx.fillStyle = cur ? '#14161a' : (past ? '#6b7280' : '#4a4f59');
+      cx.font = '600 11px system-ui,sans-serif'; cx.textAlign = 'center';
+      cx.fillText('D-' + (7 - i), i * cw + cw / 2, TL - 6);
+    }
+    cx.textAlign = 'left';
+
+    /* 형광등 — 밤에는 꺼진다 */
+    for (let i = 0; i < 4; i++) {
+      const lx = w * (.16 + i * .23);
+      cx.fillStyle = night ? '#221f38' : '#c6c9be';
+      cx.fillRect(lx - 42, TL + 6, 84, 7);
+      if (!night) { cx.fillStyle = 'rgba(198,201,190,.05)';
+        cx.beginPath(); cx.moveTo(lx - 42, TL + 13); cx.lineTo(lx + 42, TL + 13);
+        cx.lineTo(lx + 120, FLOOR); cx.lineTo(lx - 120, FLOOR); cx.closePath(); cx.fill(); }
+    }
+
+    /* 화이트보드 */
+    cx.fillStyle = night ? '#221f38' : '#31363f'; cx.fillRect(40, TL + 40, 196, 96);
+    cx.strokeStyle = night ? '#2f2b4a' : '#3d434f'; cx.lineWidth = 3; cx.strokeRect(40, TL + 40, 196, 96);
+    cx.fillStyle = night ? '#413a68' : '#4d5462';
+    for (let i = 0; i < 4; i++) cx.fillRect(54, TL + 58 + i * 18, 70 + (i % 3) * 46, 4);
+    cx.fillStyle = night ? '#5b4a6e' : C.rec; cx.fillRect(54, TL + 58 + 3 * 18, 62, 4);
+
+    /* 벽시계 */
+    const clx = 282, cly = TL + 66, clr = 22;
+    cx.fillStyle = night ? '#221f38' : '#31363f'; cx.beginPath(); cx.arc(clx, cly, clr, 0, 7); cx.fill();
+    cx.strokeStyle = night ? '#4a4470' : '#5b626f'; cx.lineWidth = 3;
+    cx.beginPath(); cx.arc(clx, cly, clr, 0, 7); cx.stroke();
+    const hh = st.hour == null ? 9 : st.hour, mm = st.min || 0;
+    const ha = (hh % 12 + mm / 60) / 12 * 6.2832 - 1.5708, ma = mm / 60 * 6.2832 - 1.5708;
+    cx.strokeStyle = night ? C.rec : '#a8aeba'; cx.lineWidth = 3; cx.lineCap = 'round';
+    cx.beginPath(); cx.moveTo(clx, cly); cx.lineTo(clx + Math.cos(ha) * 10, cly + Math.sin(ha) * 10); cx.stroke();
+    cx.lineWidth = 2;
+    cx.beginPath(); cx.moveTo(clx, cly); cx.lineTo(clx + Math.cos(ma) * 17, cly + Math.sin(ma) * 17); cx.stroke();
+    cx.lineCap = 'butt';
+
+    /* 창문 — 낮은 옅은 하늘, 밤은 검고 사무실이 비친다(책상이 하나 더 많다) */
+    const wx = 330, wy = TL + 36, ww = 168, wh = 104;
+    cx.fillStyle = night ? '#0b0916' : '#46525f'; cx.fillRect(wx, wy, ww, wh);
+    cx.strokeStyle = night ? '#2a2740' : '#3d434f'; cx.lineWidth = 4; cx.strokeRect(wx, wy, ww, wh);
+    cx.fillRect(wx + ww / 2 - 2, wy, 4, wh);
+    if (night) { cx.fillStyle = 'rgba(120,130,170,.13)';
+      for (let i = 0; i < 6; i++) cx.fillRect(wx + 12 + i * 25, wy + wh - 36, 17, 24); }
+
+    /* 선반 — 테이프 박스가 쌓여 있다 */
+    cx.fillStyle = night ? '#221f38' : '#2e333d'; cx.fillRect(w - 300, TL + 42, 250, 10);
+    cx.fillRect(w - 300, TL + 100, 250, 10);
+    for (let i = 0; i < 8; i++) {
+      cx.fillStyle = night ? '#332d52' : ['#4a5568', '#5b5347', '#42505c'][i % 3];
+      cx.fillRect(w - 292 + i * 30, TL + 42 - 26, 24, 26);
+      if (i % 2) cx.fillRect(w - 292 + i * 30, TL + 100 - 24, 24, 24);
+    }
+
+    /* 수정부채 → 벽 포스트잇. 빚이 쌓일수록 벽이 지저분해진다 */
+    const notes = Math.min(18, Math.round((st.debt || 0) / 3.5));
+    for (let i = 0; i < notes; i++) {
+      cx.fillStyle = night ? 'rgba(200,180,90,.26)' : 'rgba(232,179,75,.5)';
+      cx.fillRect(534 + (i % 6) * 26, TL + 40 + Math.floor(i / 6) * 26, 18, 18);
+    }
+
+    /* 책상 5개 + 인물 */
+    const u = 21, POS = [.115, .295, .475, .655, .855];
+    STAGE_POS.forEach((pos, i) => {
+      const x = POS[i] * w, dw = 168, dy = FLOOR - 48;
+      cx.fillStyle = night ? '#221f38' : '#2b3039'; cx.fillRect(x - dw / 2, dy, dw, 48);
+      cx.fillStyle = night ? '#2e2a4c' : '#353b46'; cx.fillRect(x - dw / 2, dy, dw, 7);
+      const mw = 62, mh = 42, mx = x - dw / 2 + 12, my = dy - mh - 3;
+      cx.fillStyle = night ? '#0c0a16' : '#1f232a'; cx.fillRect(mx, my, mw, mh);
+      cx.fillStyle = night ? '#5570a8' : '#39414f'; cx.fillRect(mx + 4, my + 4, mw - 8, mh - 8);
+      if (night) { cx.fillStyle = 'rgba(90,120,180,.09)';
+        cx.beginPath(); cx.moveTo(mx - 26, my + mh); cx.lineTo(mx + mw + 26, my + mh);
+        cx.lineTo(mx + mw + 70, FLOOR); cx.lineTo(mx - 70, FLOOR); cx.closePath(); cx.fill(); }
+
+      const o = (st.crew || []).find(z => z.k === pos.k) || {};
+      const cond = o.cond == null ? 1 : clampf(o.cond, 0, 1);
+      let tone = null;
+      if (o.away) tone = night ? '#2b2645' : '#3d434e';
+      else if (cond < .55) tone = mix(night ? '#3d3a5c' : '#565b66', CREW[pos.k].tone, .3 + cond);
+      const cc = CREW[pos.k];
+      crew(cx, pos.k, x + 46, FLOOR - cc.foot * cc.h * u, u, tone, o.load);
+
+      if (o.label) {
+        cx.font = '600 12px system-ui,sans-serif'; cx.textAlign = 'center';
+        const lw = cx.measureText(o.label).width;
+        cx.fillStyle = night ? 'rgba(74,68,112,.6)' : 'rgba(232,179,75,.18)';
+        cx.beginPath(); cx.roundRect(x - lw / 2 - 7, h - 44, lw + 14, 17, 4); cx.fill();
+        cx.fillStyle = night ? '#b3a9e0' : C.accent; cx.fillText(o.label, x, h - 32);
+        cx.textAlign = 'left';
+      }
+      if (o.name) {
+        cx.font = '600 13px system-ui,sans-serif'; cx.textAlign = 'center';
+        cx.fillStyle = o.away ? (night ? '#4a4470' : '#5f6672') : (night ? '#a49ed0' : '#d5d2c9');
+        cx.fillText(o.name, x, h - 12); cx.textAlign = 'left';
+      }
+    });
+
+    /* 커피잔 — 남은 잔 수만큼 책상 위에 */
+    for (let i = 0; i < Math.min(10, st.coffee || 0); i++) {
+      const x = 52 + i * 108, y = FLOOR - 62;
+      cx.fillStyle = night ? '#6b6490' : '#a8aeba';
+      cx.fillRect(x, y, 11, 13); cx.fillRect(x + 11, y + 3, 4, 6);
+    }
+
+    /* 바닥 케이블 — 늘 깔려 있다 */
+    cx.strokeStyle = night ? '#1c1930' : '#22262e'; cx.lineWidth = 4;
+    cx.beginPath(); cx.moveTo(0, FLOOR + 34);
+    for (let i = 0; i <= 8; i++) cx.lineTo(w / 8 * i, FLOOR + 34 + (i % 2 ? 13 : -6));
+    cx.stroke();
+
+    if (night) {   // REC 점등
+      cx.fillStyle = C.rec; cx.beginPath(); cx.arc(w - 42, TL + 40, 6, 0, 7); cx.fill();
+      cx.fillStyle = 'rgba(226,73,59,.10)'; cx.beginPath(); cx.arc(w - 42, TL + 40, 16, 0, 7); cx.fill();
+    }
+  }
+
+  function clampf(v, a, b) { return v < a ? a : v > b ? b : v; }
 
   function label(cx, text, x, y) {
     cx.font = '600 11px system-ui, sans-serif';
@@ -277,5 +518,5 @@ const ART = (() => {
     cx.textAlign = 'left';
   }
 
-  return { C, furniture, glyphKind, itemGlyph, crew, crewChip, label, CREW };
+  return { C, furniture, glyphKind, itemGlyph, crew, crewChip, label, stage, CREW };
 })();

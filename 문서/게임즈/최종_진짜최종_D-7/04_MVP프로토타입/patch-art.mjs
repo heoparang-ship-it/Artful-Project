@@ -82,13 +82,56 @@ function paintCrew(){
 sub('paintCrew 정의', 'function renderBoard(){', `${CREWMAP}\nfunction renderBoard(){`);
 
 const OLD_TAIL = "  if(hasMod('PK-15') && S.deckPreviewList) $('bdNote').innerHTML += `<div class=\"sm dim\">전체 회고 — 오늘 이벤트 후보: ${S.deckPreviewList}</div>`;\n}";
-const NEW_TAIL = "  if(hasMod('PK-15') && S.deckPreviewList) $('bdNote').innerHTML += `<div class=\"sm dim\">전체 회고 — 오늘 이벤트 후보: ${S.deckPreviewList}</div>`;\n  paintCrew();\n}";
+const NEW_TAIL = "  if(hasMod('PK-15') && S.deckPreviewList) $('bdNote').innerHTML += `<div class=\"sm dim\">전체 회고 — 오늘 이벤트 후보: ${S.deckPreviewList}</div>`;\n  paintCrew();\n  try{ paintStage(); }catch(e){}\n}";
 sub('paintCrew 호출', OLD_TAIL, NEW_TAIL);
 
 /* 슬롯의 배치 인원을 이름 텍스트 → 실루엣으로 */
 const OLD_WHO = 'const s = SLOTS[sk], who = (usedIn[sk]||[]).map(k => CHARS[k].name).join(\', \');';
 const NEW_WHO = 'const s = SLOTS[sk], who = (usedIn[sk]||[]).map(k => `<span class="mini"><canvas class="cwc" width="44" height="42" data-crew="${k}"></canvas>${esc(CHARS[k].name)}</span>`).join(\'\');';
 sub('슬롯 배치 표시', OLD_WHO, NEW_WHO);
+
+/* 5. 상시 사무실 씬 — HUD 바로 아래에 붙여 플레이 내내 보이게 한다 */
+sub('무대 캔버스 삽입', '<div id="hud"></div>',
+  '<div id="hud"></div>\n<canvas id="stageCv" width="1120" height="430"></canvas>');
+
+const STAGE_FN = `
+/* 화면별 시각 — 하루의 진행을 벽시계로 읽게 한다 */
+const STAGE_CLOCK = {board:[9,0], event:[14,20], overtime:[19,0], night:[21,57], log:[23,10], ending:[18,0]};
+const STAGE_ON = ['board','event','overtime','night','log'];
+let stageScreen = 'board';
+function paintStage(){
+  const cv = $('stageCv'); if(!cv || !S) return;
+  const [hh,mm] = STAGE_CLOCK[stageScreen] || [9,0];
+  const isNight = ['overtime','night','log'].includes(stageScreen) || document.body.classList.contains('night');
+  const usedIn = {};
+  Object.entries(S.assign||{}).forEach(([c,sl]) => { usedIn[c] = sl; });
+  const crew = CHKEYS.map(k => {
+    const c = CHARS[k], stt = S.ch[k], sl = usedIn[k];
+    return {
+      k: CREW_ART[k], name: c.name,
+      cond: Math.min(stt.focus/c.focusMax, stt.hp/c.hpMax),
+      away: stageScreen === 'board' && sl === undefined,
+      label: sl !== undefined && SLOTS[sl] ? SLOTS[sl].name : '',
+    };
+  });
+  ART.stage(cv.getContext('2d'), cv.width, cv.height, {
+    day: S.day, hour: hh, min: mm, night: isNight,
+    crew, coffee: S.res.coffee, debt: S.res.revisionDebt, rec: isNight,
+  });
+}`;
+sub('paintStage 정의', 'function renderHud(){', `${STAGE_FN}\nfunction renderHud(){`);
+
+/* 상태가 바뀔 때마다 씬도 다시 그린다 */
+sub('paintStage 갱신 훅', "function renderHud(){\n  if(!S){ $('hud').innerHTML=''; return; }",
+  "function renderHud(){\n  if(!S){ $('hud').innerHTML=''; return; }\n  try{ paintStage(); }catch(e){}");
+
+/* 화면 전환 시 표시 여부 + 시각 갱신 */
+sub('무대 표시 전환',
+  "  $('hud').classList.toggle('on', !['title','dialog','codex'].includes(id));",
+  "  $('hud').classList.toggle('on', !['title','dialog','codex'].includes(id));\n" +
+  "  if(STAGE_ON.includes(id)) stageScreen = id;\n" +
+  "  $('stageCv').classList.toggle('on', STAGE_ON.includes(id));\n" +
+  "  try{ if(STAGE_ON.includes(id)) paintStage(); }catch(e){}");
 
 /* 4. CSS */
 /* 전역 canvas{width:100%}(위 34행)가 카드용 캔버스까지 늘린다.
@@ -106,6 +149,8 @@ canvas.cwc{width:auto!important;background:none;border:0;border-radius:0;flex:0 
 .slot .who{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end}
 .slot .who .mini{display:inline-flex;flex-direction:column;align-items:center;gap:2px;font-size:.78em;color:var(--dim)}
 #scCv{border-radius:4px}
+#stageCv{display:none;width:100%;max-width:1120px;margin:0 auto;background:none;border:0;border-bottom:1px solid var(--line);border-radius:0}
+#stageCv.on{display:block}
 `;
 sub('CSS 추가', '</style>', `${CSS}</style>`);
 
