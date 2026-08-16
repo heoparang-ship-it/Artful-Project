@@ -587,9 +587,14 @@ export function applySupplyGain(ledger, { sourceId, instanceId = null, coffee = 
   if (isMemeSource(sourceId)) {
     const roomC = Math.max(0, SUPPLY_CAP.memeCoffee - next.memeCoffee);
     const roomS = Math.max(0, SUPPLY_CAP.memeSnack - next.memeSnack);
-    if (gc > roomC || gs > roomS) reason = 'meme_cap';
+    const clipped = gc > roomC || gs > roomS;
     gc = Math.min(gc, roomC);
     gs = Math.min(gs, roomS);
+    if (clipped) {
+      // 상한에 **도달한 뒤**의 획득은 자원 0으로 기록한다(AC-MEM-06 ㉣).
+      // 여유가 남아 일부만 반영된 경우는 'meme_partial'로 구분한다.
+      reason = gc === 0 && gs === 0 ? 'meme_cap' : 'meme_partial';
+    }
     next.memeCoffee += gc;
     next.memeSnack += gs;
   }
@@ -612,6 +617,8 @@ export function auditSupply(ledger) {
   const snackTotal = RESOURCE_SPEC.snack.init + ledger.snackGained;
   const it28 = ledger.itemCount['IT-28'] ?? 0;
   const it29 = ledger.itemCount['IT-29'] ?? 0;
+  // 상한 도달 후 획득('meme_cap')·횟수 초과('pickup_limit')·재획득('redundant_pickup')은
+  // 반드시 자원 0으로 기록되어야 한다. 여유가 남아 일부만 반영된 'meme_partial'은 정상 지급이다.
   const overCapZero = ledger.log
     .filter((e) => e.reason === 'meme_cap' || e.reason === 'pickup_limit' || e.reason === 'redundant_pickup')
     .every((e) => e.coffee === 0 && e.snack === 0);
@@ -680,7 +687,9 @@ export function advanceTrueEndChain(flags, stepId) {
  * @returns {string} JSON 문자열
  */
 export function serializeRun(run) {
+  // 알 수 없는 키(벤더 확장·후속 스키마)는 삭제하지 않고 그대로 실어 보낸다.
   return JSON.stringify({
+    ...run,
     schemaVersion: SCHEMA_VERSION,
     seed: run.seed,
     difficulty: run.difficulty,
