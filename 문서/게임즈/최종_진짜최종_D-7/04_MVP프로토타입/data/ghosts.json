@@ -1,0 +1,1584 @@
+{
+  "schemaVersion": "4.0.0",
+  "kind": "ghosts",
+  "source": "FINAL-FINAL-D7-GDD.md v4.0 — 11.2 야간 플레이 / 11.3 괴이 19종 / 11.4 진엔딩 체인 / 13.3 이면 프레임 도감 / 부록 C.1 낮→밤 페어",
+  "invariants": [
+    "6.2 이면 조우율 식(기본 30 + 야근인원×7 + 평균집중<40이면 15 + 부채 10당 4 + D-4부터 일차당 5 − 무결성 80 이상이면 10)에 가감 항을 추가하지 않는다.",
+    "밤에 작용하는 효과는 spawnWeightModifiers(개별 괴이 출현률 분포)로만 기술하며, 밤 조우 총량은 변하지 않고 조우 대상만 재배분된다.",
+    "11.2 담력 판정식과 계수는 데이터에 적지 않는다. braveCheck=true 하나로 시뮬레이션 코어가 판정한다.",
+    "크레딧 장부 조각 획득처는 GH-04·GH-09·GH-12 3곳으로 고정한다. GH-16~19는 조각을 지급하지 않는다.",
+    "GH-16~19는 새 규칙·새 상태이상·새 자원을 만들지 않는다. 실패는 전부 '타임코드 오염'이다."
+  ],
+  "ghosts": [
+    {
+      "id": "GH-01",
+      "name": "삭제된 테이크",
+      "phase": "backstudio",
+      "memeLayer": false,
+      "givesCreditLedgerPiece": 0,
+      "appearCondition": {
+        "days": [1, 2, 3],
+        "dayLabel": "D-7~D-5",
+        "dsl": "",
+        "text": "D-7~D-5. 첫 야근의 조우 테이블 최상단에 배치되어 우선 출현한다. 전제 없음.",
+        "oncePerRun": false,
+        "retriggerable": false,
+        "cooldown": 2,
+        "priority": "top"
+      },
+      "text": "어제 삭제한 인터뷰 컷이 휴지통에서 복원된다. 매번 2초씩 길어지고, 마지막 2초에는 촬영자 뒤에 누군가 서 있다.",
+      "choices": [
+        {
+          "id": "delete_permanently",
+          "label": "영구 삭제",
+          "slot": "A",
+          "kind": "safe",
+          "braveCheck": false,
+          "explicitRisk": false,
+          "effects": [
+            {"op": "resource", "target": "fear", "delta": 5},
+            {"op": "flag", "target": "gh01LongerVersion", "value": true, "when": "nextNight", "note": "GDD 11.3 GH-01 원문 '다음 날 더 긴 버전 출현' — 수치 미명시"}
+          ],
+          "result": "휴지통까지 비웠다. 내일 복원되는 버전은 오늘보다 2초 더 길 것이다."
+        },
+        {
+          "id": "watch_to_end",
+          "label": "끝까지 보기",
+          "slot": "B",
+          "kind": "gamble",
+          "braveCheck": true,
+          "explicitRisk": false,
+          "effects": [
+            {"op": "char", "target": "player", "stat": "focus", "delta": -8},
+            {"op": "flag", "target": "metadataFragments", "delta": 1, "note": "GDD 11.3 GH-01 원문 '메타데이터 조각 획득'"}
+          ],
+          "result": "마지막 2초까지 봤다. 촬영자 뒤에 선 사람의 어깨선은 이 사무실 의자 높이와 맞지 않는다."
+        },
+        {
+          "id": "trace_source",
+          "label": "출처 추적",
+          "slot": "C",
+          "kind": "value",
+          "braveCheck": false,
+          "explicitRisk": false,
+          "requires": {"dsl": "flag.hasIT27", "text": "체크섬 리포트(IT-27) 보유 시"},
+          "effects": [
+            {"op": "resource", "target": "sourceIntegrity", "delta": 5}
+          ],
+          "result": "체크섬 리포트와 대조했다. 복원된 파일의 해시는 어제 지운 파일의 해시가 아니다."
+        }
+      ],
+      "failureDefinition": {
+        "text": "'끝까지 보기'가 담력 판정이다. 실패 시 조각을 얻지 못하고 공포 +10, '타임코드 오염' 판정.",
+        "braveChoices": ["watch_to_end"],
+        "riskChoices": [],
+        "status": "타임코드 오염",
+        "effects": [
+          {"op": "resource", "target": "fear", "delta": 10},
+          {"op": "status", "target": "타임코드 오염", "mode": "apply"}
+        ]
+      },
+      "codexRegisterCondition": "'끝까지 보기' 또는 '출처 추적'을 1회 완료.",
+      "codexEntry": {
+        "front": "삭제했는데 다시 생겼다. 파일 크기는 매번 2MB씩 늘어난다.",
+        "back": "삭제는 출처를 없애지 못한다."
+      },
+      "dayPair": {
+        "text": "낮에 지운 컷은 지운 사람만 알고 있었다. 삭제 목록은 어디에도 기록되지 않는다.",
+        "refs": ["OF-07"],
+        "source": "GDD 11.3 출현 조건(낮의 전제)"
+      }
+    },
+    {
+      "id": "GH-02",
+      "name": "61번째 프레임",
+      "phase": "backstudio",
+      "memeLayer": false,
+      "givesCreditLedgerPiece": 0,
+      "appearCondition": {
+        "days": [2, 3, 4, 5],
+        "dayLabel": "D-6~D-3",
+        "dsl": "post >= 10",
+        "text": "D-6~D-3. 편집·후반 진척 10 이상(최종본이 존재해야 한다).",
+        "oncePerRun": false,
+        "retriggerable": false,
+        "cooldown": 2
+      },
+      "text": "최종본이 정확히 1,441프레임이다. 1,440프레임이어야 한다. 마지막 프레임에는 내일의 사무실이 찍혀 있다.",
+      "choices": [
+        {
+          "id": "remove_frame",
+          "label": "프레임 제거",
+          "slot": "A",
+          "kind": "safe",
+          "braveCheck": false,
+          "explicitRisk": false,
+          "effects": [
+            {"op": "track", "target": "post", "delta": 2},
+            {"op": "resource", "target": "fear", "delta": 5}
+          ],
+          "result": "한 장을 잘라 1,440으로 맞췄다. 잘라 낸 한 장은 휴지통에도 들어가지 않았다."
+        },
+        {
+          "id": "still_analysis",
+          "label": "정지화면 분석",
+          "slot": "B",
+          "kind": "gamble",
+          "braveCheck": true,
+          "explicitRisk": false,
+          "effects": [
+            {"op": "eventDeck", "mode": "preview", "count": 1, "scope": "reality", "when": "nextDay", "note": "GDD 11.3 GH-02 원문 '다음 날 이벤트 1건 미리보기'"}
+          ],
+          "result": "마지막 한 장을 확대했다. 내일의 사무실 화이트보드에는 아직 쓰지 않은 일정이 적혀 있다."
+        },
+        {
+          "id": "timecode_crosscheck",
+          "label": "타임코드 대조",
+          "slot": "C",
+          "kind": "value",
+          "braveCheck": false,
+          "explicitRisk": false,
+          "effects": [
+            {"op": "flag", "target": "gh10Clue", "value": true, "note": "GDD 11.3 GH-02 원문 'GH-10 연결 단서' — 수치 미명시"}
+          ],
+          "result": "1,441번째 프레임의 타임코드는 렌더 큐 00번의 타임코드와 같다."
+        }
+      ],
+      "failureDefinition": {
+        "text": "'정지화면 분석'이 담력 판정이다. 실패 시 미리보기 없이 공포 +8, '타임코드 오염' 판정.",
+        "braveChoices": ["still_analysis"],
+        "riskChoices": [],
+        "status": "타임코드 오염",
+        "effects": [
+          {"op": "resource", "target": "fear", "delta": 8},
+          {"op": "status", "target": "타임코드 오염", "mode": "apply"}
+        ]
+      },
+      "codexRegisterCondition": "'정지화면 분석' 또는 '타임코드 대조'를 완료.",
+      "codexEntry": {
+        "front": "1,440프레임이어야 하는 최종본이 1,441프레임이다. 늘어난 한 장에는 내일의 사무실이 있다.",
+        "back": "프레임은 늘어나지 않는다. 세지 않은 한 장이 있었을 뿐이다."
+      },
+      "dayPair": {
+        "text": "낮에 편집·모션 슬롯에서 최종본을 처음 뽑은 날. 프레임 수를 센 사람은 아무도 없었다.",
+        "refs": ["OF-08"],
+        "source": "GDD 11.3 출현 조건(낮의 전제)"
+      }
+    },
+    {
+      "id": "GH-03",
+      "name": "최종_진짜최종",
+      "phase": "backstudio",
+      "memeLayer": false,
+      "givesCreditLedgerPiece": 0,
+      "appearCondition": {
+        "days": [3, 4, 5, 6, 7],
+        "dayLabel": "D-5~D-1",
+        "dsl": "master >= 1 || revisionDebt >= 10",
+        "text": "D-5~D-1. 마스터·납품 진척 1 이상 또는 수정 부채 10 이상.",
+        "oncePerRun": false,
+        "retriggerable": false,
+        "cooldown": 2
+      },
+      "text": "같은 마스터가 57개 생성된다. 파일명만 다르고 체크섬은 모두 다르다.",
+      "choices": [
+        {
+          "id": "pick_newest",
+          "label": "가장 최신 파일 선택",
+          "slot": "A",
+          "kind": "gamble",
+          "braveCheck": false,
+          "explicitRisk": true,
+          "effects": [
+            {
+              "op": "random",
+              "chance": 20,
+              "onHit": [
+                {"op": "flag", "target": "criticalMissing", "delta": 1, "note": "GDD 11.3 GH-03 원문 '20% 치명 오류' — 5.3 치명 누락 플래그 1건 발생"},
+                {"op": "status", "target": "버전 혼선", "mode": "apply", "note": "GDD 11.3 GH-03 실패 정의 — '버전 혼선' 조건(최종본 3개 이상)을 즉시 충족한다"},
+                {"op": "status", "target": "타임코드 오염", "mode": "apply"}
+              ],
+              "onMiss": []
+            }
+          ],
+          "result": "수정 시각이 가장 늦은 파일을 골랐다. 가장 늦게 저장된 것이 가장 나중에 결정된 것이라는 보장은 없다.",
+          "resultOnFail": "고른 파일은 렌더 도중 저장된 중간본이었다. 마지막 12초가 비어 있다."
+        },
+        {
+          "id": "pick_oldest",
+          "label": "가장 오래된 파일 선택",
+          "slot": "B",
+          "kind": "safe",
+          "braveCheck": false,
+          "explicitRisk": false,
+          "effects": [
+            {"op": "resource", "target": "sourceIntegrity", "delta": 3}
+          ],
+          "result": "가장 처음 만든 파일을 골랐다. 57개 중 유일하게 만든 사람이 기억나는 파일이다."
+        },
+        {
+          "id": "compare_versions",
+          "label": "버전 비교",
+          "slot": "C",
+          "kind": "value",
+          "braveCheck": false,
+          "explicitRisk": false,
+          "effects": [
+            {"op": "char", "target": "player", "stat": "hp", "delta": -8},
+            {"op": "resource", "target": "revisionDebt", "delta": -8}
+          ],
+          "result": "57개를 두 개씩 붙여 놓고 끝까지 비교했다. 실제로 내용이 다른 것은 네 개뿐이었다."
+        }
+      ],
+      "failureDefinition": {
+        "text": "'가장 최신 파일 선택'의 20% 치명 오류가 명시 리스크의 악결과다. 발생 시 '타임코드 오염' 판정과 함께 상태이상 '버전 혼선' 조건(최종본 3개 이상)을 즉시 충족한다.",
+        "braveChoices": [],
+        "riskChoices": ["pick_newest"],
+        "status": "타임코드 오염",
+        "effects": [
+          {"op": "status", "target": "타임코드 오염", "mode": "apply"},
+          {"op": "status", "target": "버전 혼선", "mode": "apply"}
+        ]
+      },
+      "codexRegisterCondition": "'버전 비교'를 완료.",
+      "codexEntry": {
+        "front": "파일명은 57개인데 체크섬은 57개 다 다르다. 어느 것도 같은 파일이 아니다.",
+        "back": "최종은 이름이 아니라 결정이다. 결정하지 않으면 계속 늘어난다."
+      },
+      "dayPair": {
+        "text": "MM-061 최종_진짜최종 — 낮에는 파일명 뒤에 붙는 농담이었다. 밤에는 그 농담이 57개의 서로 다른 파일이 된다.",
+        "refs": ["P-03", "MM-061"],
+        "source": "GDD 부록 C.1 낮→밤 페어"
+      }
+    },
+    {
+      "id": "GH-04",
+      "name": "다섯 번째 목소리",
+      "phase": "backstudio",
+      "memeLayer": false,
+      "givesCreditLedgerPiece": 1,
+      "appearCondition": {
+        "days": [2, 3, 4, 5, 6],
+        "dayLabel": "D-6~D-2",
+        "dsl": "",
+        "text": "D-6~D-2. 당일까지 회의·인터뷰 녹음 파일이 1개 이상 존재(기본 충족).",
+        "oncePerRun": false,
+        "retriggerable": false,
+        "cooldown": 2
+      },
+      "text": "네 명만 있던 회의 녹음에 다섯 번째 사람이 말한다.\n\"그 장면은 내 거예요.\"",
+      "choices": [
+        {
+          "id": "remove_as_noise",
+          "label": "노이즈로 제거",
+          "slot": "A",
+          "kind": "gamble",
+          "braveCheck": false,
+          "explicitRisk": true,
+          "effects": [
+            {"op": "track", "target": "master", "delta": 3},
+            {"op": "flag", "target": "fifthChannelRisk", "value": true, "note": "GDD 11.3 GH-04 원문 '다섯 번째 채널 위험' — 명시 리스크. 악결과는 failureDefinition이 정본"}
+          ],
+          "result": "그 대역만 골라 지웠다. 지운 뒤에도 파형 아래쪽에 같은 모양이 얇게 남아 있다."
+        },
+        {
+          "id": "record_reply",
+          "label": "답변 녹음",
+          "slot": "B",
+          "kind": "gamble",
+          "braveCheck": true,
+          "explicitRisk": false,
+          "effects": [
+            {"op": "resource", "target": "fear", "delta": 10},
+            {"op": "flag", "target": "creditLedgerPieces", "delta": 1, "note": "GDD 11.3 크레딧 장부 조각 획득처 — 1/3. 공포 +10 감수"}
+          ],
+          "result": "마이크를 켜고 대답했다. \"누구세요.\" 되돌아온 파형에는 크레딧 시트 한 장의 이름 배열이 실려 있다."
+        },
+        {
+          "id": "play_room_tone",
+          "label": "룸톤 재생",
+          "slot": "C",
+          "kind": "safe",
+          "braveCheck": false,
+          "explicitRisk": false,
+          "requires": {"dsl": "flag.hasIT16 && flag.hasIT19", "text": "무선 마이크(IT-16)·헤드폰(IT-19) 보유 시 안전하게 분리"},
+          "effects": [
+            {"op": "flag", "target": "roomToneIsolated", "value": true, "note": "GDD 11.3 GH-04 원문 '무선 마이크·헤드폰 보유 시 안전하게 분리' — 수치 미명시"}
+          ],
+          "result": "그 방의 룸톤을 그대로 틀었다. 다섯 번째 채널만 룸톤과 위상이 맞지 않아 따로 떨어져 나온다."
+        }
+      ],
+      "failureDefinition": {
+        "text": "'답변 녹음'이 담력 판정, '노이즈로 제거'가 명시 리스크다. 어느 쪽이든 실패 시 상태이상 '다섯 번째 채널'(모든 녹음에 미지 음성 혼입, 해제: 룸톤 의식 또는 원본 로그).",
+        "braveChoices": ["record_reply"],
+        "riskChoices": ["remove_as_noise"],
+        "status": "다섯 번째 채널",
+        "effects": [
+          {"op": "status", "target": "다섯 번째 채널", "mode": "apply"}
+        ]
+      },
+      "codexRegisterCondition": "'룸톤 재생' 성공 또는 '답변 녹음' 완료.",
+      "codexEntry": {
+        "front": "네 명이 들어간 회의 녹음에 다섯 번째 목소리가 있다. 마이크는 네 개였다.",
+        "back": "말한 사람이 없는 문장은 없다. 적히지 않았을 뿐이다."
+      },
+      "dayPair": {
+        "text": "낮에 회의·인터뷰를 녹음한 날. 참석자 명단은 회의록 맨 위에 네 줄로 적혀 있었다.",
+        "refs": ["OF-04"],
+        "source": "GDD 11.3 출현 조건(낮의 전제)"
+      }
+    },
+    {
+      "id": "GH-05",
+      "name": "촬영하지 않은 장면",
+      "phase": "backstudio",
+      "memeLayer": false,
+      "givesCreditLedgerPiece": 0,
+      "appearCondition": {
+        "days": [3, 4, 5, 6],
+        "dayLabel": "D-5~D-2",
+        "dsl": "footage >= 20",
+        "text": "D-5~D-2. 촬영·원본 진척 20 이상.",
+        "oncePerRun": false,
+        "retriggerable": false,
+        "cooldown": 2
+      },
+      "text": "타임라인에 촬영한 적 없는 새벽 장면이 들어 있다. 촬영 날짜는 내일, 카메라 시리얼은 등록되지 않았다.",
+      "choices": [
+        {
+          "id": "use_it",
+          "label": "사용",
+          "slot": "A",
+          "kind": "gamble",
+          "braveCheck": false,
+          "explicitRisk": true,
+          "effects": [
+            {"op": "track", "target": "footage", "delta": 12},
+            {"op": "resource", "target": "sourceIntegrity", "delta": -15}
+          ],
+          "result": "타임라인에 그대로 두고 붙였다. 이 프로젝트에서 출처를 적을 수 없는 컷이 처음 생겼다."
+        },
+        {
+          "id": "delete_it",
+          "label": "삭제",
+          "slot": "B",
+          "kind": "safe",
+          "braveCheck": false,
+          "explicitRisk": false,
+          "effects": [
+            {"op": "resource", "target": "audienceResonance", "delta": -3}
+          ],
+          "result": "지웠다. 지우고 나서야 그 컷이 이야기의 어느 자리에 맞았는지 알았다."
+        },
+        {
+          "id": "hold_and_trace",
+          "label": "보류하고 출처 추적",
+          "slot": "C",
+          "kind": "value",
+          "braveCheck": true,
+          "explicitRisk": false,
+          "effects": [
+            {"op": "flag", "target": "trueEndingFlag", "delta": 1, "note": "GDD 11.3 GH-05 원문 '진엔딩 플래그 +1'"}
+          ],
+          "result": "쓰지도 지우지도 않고 별도 폴더에 넣었다. 카메라 시리얼 조회 결과는 '등록되지 않음'이다."
+        }
+      ],
+      "failureDefinition": {
+        "text": "'보류하고 출처 추적'이 담력 판정, '사용'이 명시 리스크다. 실패 시 상태이상 '동행 컷'(플레이어 뒤에 미지 인물 스프라이트, 해제: 해당 컷 삭제 대신 출처 확인).",
+        "braveChoices": ["hold_and_trace"],
+        "riskChoices": ["use_it"],
+        "status": "동행 컷",
+        "effects": [
+          {"op": "status", "target": "동행 컷", "mode": "apply"}
+        ]
+      },
+      "codexRegisterCondition": "'보류하고 출처 추적'을 완료.",
+      "codexEntry": {
+        "front": "찍은 적 없는 새벽 장면이 타임라인에 있다. 촬영 날짜는 내일이다.",
+        "back": "찍히지 않은 장면도 누군가의 것이다."
+      },
+      "dayPair": {
+        "text": "낮에 촬영·원본이 20을 넘긴 날. 그날 현장에 있던 카메라는 자산대장의 번호와 다른 번호를 달고 있었다.",
+        "refs": ["IT-09"],
+        "source": "GDD 11.3 출현 조건(낮의 전제)"
+      }
+    },
+    {
+      "id": "GH-06",
+      "name": "빈 슬레이트",
+      "phase": "backstudio",
+      "memeLayer": false,
+      "givesCreditLedgerPiece": 0,
+      "appearCondition": {
+        "days": [2, 3, 4, 5, 6],
+        "dayLabel": "D-6~D-2",
+        "dsl": "",
+        "text": "D-6~D-2. 야간에 미니 스튜디오 구역 진입 시.",
+        "zone": "miniStudio",
+        "oncePerRun": false,
+        "retriggerable": false,
+        "cooldown": 2
+      },
+      "text": "미니 스튜디오에서 슬레이트가 혼자 닫힌다. 장면·컷·테이크 칸이 비어 있고, 촬영자 칸에 플레이어 이름이 적힌다.",
+      "choices": [
+        {
+          "id": "erase_name",
+          "label": "이름 지우기",
+          "slot": "A",
+          "kind": "safe",
+          "braveCheck": false,
+          "explicitRisk": false,
+          "effects": [
+            {"op": "char", "target": "player", "stat": "focus", "delta": -10}
+          ],
+          "result": "소매로 지웠다. 마른 천이 없어서 글자 자국이 흐리게 남았다."
+        },
+        {
+          "id": "write_scene_number",
+          "label": "장면 번호 쓰기",
+          "slot": "B",
+          "kind": "value",
+          "braveCheck": false,
+          "explicitRisk": false,
+          "effects": [
+            {"op": "flag", "target": "sceneShootLocked", "value": true, "when": "nextDay", "note": "GDD 11.3 GH-06 원문 '다음 날 해당 장면 확정 촬영' — 수치 미명시"}
+          ],
+          "result": "빈 칸에 내일 찍을 장면 번호를 적었다. 적는 순간 그 장면은 내일의 일정이 된다."
+        },
+        {
+          "id": "write_source0000",
+          "label": "SOURCE_0000 쓰기",
+          "slot": "C",
+          "kind": "gamble",
+          "braveCheck": true,
+          "explicitRisk": false,
+          "effects": [
+            {"op": "spawnWeight", "target": "GH-09", "mode": "raise", "scope": "run", "note": "GDD 11.3 GH-09 출현 조건 원문 \"GH-06 'SOURCE_0000 쓰기'로 출현률이 증가한다\" — 수치 미명시. 6.2 이면 조우율 식 불변, 밤 조우 총량 불변. GH-09 개별 출현률 분포만 상향"}
+          ],
+          "result": "촬영자 칸에 SOURCE_0000을 적었다. 이름 칸이 채워지자 슬레이트가 한 번 더 닫혔다."
+        }
+      ],
+      "failureDefinition": {
+        "text": "'SOURCE_0000 쓰기'가 담력 판정이다. 실패 시 GH-09 출현률 증가 없이 공포 +8, '타임코드 오염' 판정.",
+        "braveChoices": ["write_source0000"],
+        "riskChoices": [],
+        "status": "타임코드 오염",
+        "effects": [
+          {"op": "resource", "target": "fear", "delta": 8},
+          {"op": "status", "target": "타임코드 오염", "mode": "apply"}
+        ]
+      },
+      "codexRegisterCondition": "'장면 번호 쓰기' 또는 'SOURCE_0000 쓰기'를 완료.",
+      "codexEntry": {
+        "front": "슬레이트가 혼자 닫혔다. 장면·컷·테이크 칸은 비어 있고 촬영자 칸에만 내 이름이 있다.",
+        "back": "빈 칸은 비어 있는 것이 아니라, 아직 쓰이지 않은 것이다."
+      },
+      "dayPair": {
+        "text": "낮의 슬레이트(IT-18)는 마른 천이 없어 늘 소매로 지운다. 그래서 어제 적은 컷 번호가 흐리게 남아 있다.",
+        "refs": ["IT-18"],
+        "source": "GDD 11.3 출현 조건(낮의 전제)"
+      }
+    },
+    {
+      "id": "GH-07",
+      "name": "역재생 인터뷰",
+      "phase": "backstudio",
+      "memeLayer": false,
+      "givesCreditLedgerPiece": 0,
+      "appearCondition": {
+        "days": [3, 4, 5, 6],
+        "dayLabel": "D-5~D-2",
+        "dsl": "footage >= 30",
+        "text": "D-5~D-2. 촬영·원본 진척 30 이상(인터뷰 촬영 이력 필요).",
+        "oncePerRun": false,
+        "retriggerable": false,
+        "cooldown": 2
+      },
+      "text": "인터뷰이가 입을 닫은 채 말한다. 역재생하면 질문이 들린다. 그 질문은 아직 이영림이 쓰지 않은 문장이다.",
+      "choices": [
+        {
+          "id": "record_question",
+          "label": "질문 기록",
+          "slot": "A",
+          "kind": "value",
+          "braveCheck": false,
+          "explicitRisk": false,
+          "effects": [
+            {"op": "track", "target": "story", "delta": 5},
+            {"op": "char", "target": "leeyounglim", "stat": "focus", "delta": -5, "when": "nextDay"},
+            {"op": "flag", "target": "sourceLogClues", "delta": 1, "note": "GDD 11.3 GH-07 원문 \"'질문 기록'은 크레딧 장부 조각이 아니라 원본 로그 단서로 집계된다\". UI에서 조각과 별도 아이콘으로 표시"}
+          ],
+          "result": "역재생으로 들린 질문을 받아 적었다. 다음 날 이영림이 쓴 질문지의 세 번째 줄이 그 문장과 같다."
+        },
+        {
+          "id": "close_file",
+          "label": "파일 닫기",
+          "slot": "B",
+          "kind": "safe",
+          "braveCheck": false,
+          "explicitRisk": false,
+          "effects": [],
+          "result": "재생을 멈추고 파일을 닫았다. 닫는 순간의 파형은 정방향으로도 아무 소리가 아니다.",
+          "note": "GDD 11.3 GH-07 원문 '안전' — 수치 미명시"
+        },
+        {
+          "id": "record_answer",
+          "label": "대답 녹음",
+          "slot": "C",
+          "kind": "gamble",
+          "braveCheck": true,
+          "explicitRisk": false,
+          "effects": [
+            {"op": "resource", "target": "audienceResonance", "delta": 8},
+            {"op": "resource", "target": "fear", "delta": 15}
+          ],
+          "result": "역재생된 질문에 정방향으로 대답했다. 그 대답이 최종본에서 가장 오래 남는 3초가 된다."
+        }
+      ],
+      "failureDefinition": {
+        "text": "'대답 녹음'이 담력 판정이다. 실패 시 공감 획득 없이 공포 +15만 적용, '타임코드 오염' 판정.",
+        "braveChoices": ["record_answer"],
+        "riskChoices": [],
+        "status": "타임코드 오염",
+        "effects": [
+          {"op": "resource", "target": "fear", "delta": 15},
+          {"op": "status", "target": "타임코드 오염", "mode": "apply"}
+        ]
+      },
+      "codexRegisterCondition": "'질문 기록' 또는 '대답 녹음'을 완료.",
+      "codexEntry": {
+        "front": "인터뷰이가 입을 닫은 채 말한다. 역재생한 질문은 아직 쓰지 않은 문장이었다.",
+        "back": "질문은 쓰기 전에 이미 있었다. 쓴 사람만 나중에 정해진다."
+      },
+      "dayPair": {
+        "text": "낮의 인터뷰 질문지(IT-06)는 12개 중 세 개만 쓴다. 나머지 아홉 개는 상대가 말을 멈췄을 때를 위해 있다.",
+        "refs": ["IT-06"],
+        "source": "GDD 11.3 출현 조건(낮의 전제)"
+      }
+    },
+    {
+      "id": "GH-08",
+      "name": "4층 로케이션",
+      "phase": "backstudio",
+      "memeLayer": false,
+      "givesCreditLedgerPiece": 0,
+      "appearCondition": {
+        "days": [2, 3, 4, 5, 6, 7],
+        "dayLabel": "D-6부터 가능, 권장 D-5",
+        "recommendedDays": [3],
+        "dsl": "flag.hasIT30",
+        "text": "IT-30 '이름 없는 미니DV 테이프' 소지 시에만 4층 버튼이 생성된다. D-6부터 가능, 권장 D-5. 재조우 가능.",
+        "zone": "floor4",
+        "oncePerRun": false,
+        "retriggerable": true,
+        "cooldown": 2
+      },
+      "text": "3층짜리 건물의 엘리베이터에 4층 버튼이 생긴다. 문이 열리면 동일한 엑스컴 사무실이지만 책상마다 다른 시대의 편집 장비가 놓여 있다.",
+      "choices": [
+        {
+          "id": "enter",
+          "label": "진입",
+          "slot": "A",
+          "kind": "gamble",
+          "braveCheck": true,
+          "explicitRisk": false,
+          "effects": [
+            {"op": "flag", "target": "sourceLogClues", "delta": 1, "note": "GDD 11.3 GH-08 원문 '진입: 원본 로그 탐색'"},
+            {"op": "flag", "target": "gh08Entered", "value": true, "note": "GDD 11.3 GH-09 출현 조건 — GH-08 '진입' 이후 조우 테이블에 등재된다"}
+          ],
+          "result": "4층에 내렸다. 책상 배치는 우리 사무실 그대로고, 장비만 우리가 쓴 적 없는 것들이다."
+        },
+        {
+          "id": "remove_button",
+          "label": "버튼 제거",
+          "slot": "B",
+          "kind": "safe",
+          "braveCheck": false,
+          "explicitRisk": false,
+          "effects": [
+            {"op": "flag", "target": "ghostRepelCharge", "delta": 1, "note": "GDD 11.3 GH-08 원문 '버튼 제거: 괴이 1회 격퇴 아이템'"}
+          ],
+          "result": "패널에서 4층 버튼을 떼어 냈다. 떼어 낸 버튼은 손에서 아직 따뜻하다."
+        },
+        {
+          "id": "tag_minidv",
+          "label": "이름 없는 미니DV 태그",
+          "slot": "C",
+          "kind": "value",
+          "braveCheck": false,
+          "explicitRisk": false,
+          "effects": [
+            {"op": "flag", "target": "gh14ChainOpen", "value": true, "note": "GDD 11.3 GH-08 원문 'GH-14 체인 개방'. 11.4 진엔딩 체인 IT-30 → GH-08 → GH-09 → … → GH-14 → GH-15"}
+          ],
+          "result": "라벨이 없는 유일한 물건에 태그를 붙였다. 이혜미가 세 번 붙였고 세 번 다 떨어졌던 그 자리다."
+        }
+      ],
+      "failureDefinition": {
+        "text": "'진입' 후의 4층 탐색이 담력 판정이다. 실패 시 원본 로그 미획득, 공포 +10, '타임코드 오염' 판정.",
+        "braveChoices": ["enter"],
+        "riskChoices": [],
+        "status": "타임코드 오염",
+        "effects": [
+          {"op": "resource", "target": "fear", "delta": 10},
+          {"op": "status", "target": "타임코드 오염", "mode": "apply"}
+        ]
+      },
+      "codexRegisterCondition": "4층에 1회 '진입'.",
+      "codexEntry": {
+        "front": "3층 건물의 엘리베이터에 4층이 있다. 문이 열리면 우리 사무실이고, 장비만 다른 시대다.",
+        "back": "층은 늘지 않는다. 세지 않은 층이 있었을 뿐이다."
+      },
+      "dayPair": {
+        "text": "IT-30 '이름 없는 미니DV 테이프' — 이 사무실에서 라벨이 없는 유일한 물건. 낮에 주운 그 테이프가 밤의 4층 버튼을 만든다.",
+        "refs": ["IT-30"],
+        "source": "GDD 11.3 출현 조건(낮의 전제)"
+      }
+    },
+    {
+      "id": "GH-09",
+      "name": "SOURCE_0000",
+      "phase": "backstudio",
+      "memeLayer": false,
+      "givesCreditLedgerPiece": 2,
+      "appearCondition": {
+        "days": [3, 4, 5, 6, 7],
+        "dayLabel": "D-5~D-1",
+        "dsl": "flag.gh08Entered",
+        "text": "D-5~D-1. GH-08 '진입' 이후 조우 테이블에 등재. GH-06 'SOURCE_0000 쓰기'로 출현률이 증가한다.",
+        "oncePerRun": false,
+        "retriggerable": true,
+        "cooldown": 2
+      },
+      "text": "NAS 사용자 목록에 다섯 명 외 계정이 로그인한다. 채팅창이 열린다.\n\"사용할 거면 이름을 남겨주세요.\"",
+      "note": "출현률 상향·하향 항목의 소유처 — GH-06 'SOURCE_0000 쓰기'(본 파일), IT-34 소지 상태로 21:57을 맞으면 +5%p(items.json IT-34), CH-04 2단계 '공유기 초기화' −10%p·1일 지연(events.json). 중복 적용을 막기 위해 각 효과는 원 소유 파일에만 기술한다",
+      "choices": [
+        {
+          "id": "force_logout",
+          "label": "로그아웃 강제",
+          "slot": "A",
+          "kind": "safe",
+          "braveCheck": false,
+          "explicitRisk": false,
+          "effects": [
+            {"op": "resource", "target": "fear", "delta": 15}
+          ],
+          "result": "관리자 권한으로 세션을 끊었다. 목록에서 사라진 계정의 마지막 접속 시각은 21:57이다."
+        },
+        {
+          "id": "ask_who",
+          "label": "누구인지 묻기",
+          "slot": "B",
+          "kind": "gamble",
+          "braveCheck": true,
+          "explicitRisk": false,
+          "effects": [
+            {"op": "flag", "target": "creditLedgerPieces", "delta": 1, "note": "GDD 11.3 크레딧 장부 조각 획득처 — 2/3. 담력 판정 성공"},
+            {"op": "flag", "target": "gh09Done", "value": true, "note": "GDD 11.4 진엔딩 체인 — GH-15 출현 조건의 'GH-09 완료'"}
+          ],
+          "result": "\"누구세요.\" 채팅창에 이름 대신 크레딧 장부의 한 조각이 붙는다."
+        },
+        {
+          "id": "share_ownership",
+          "label": "프로젝트 소유권 공유",
+          "slot": "C",
+          "kind": "value",
+          "braveCheck": false,
+          "explicitRisk": false,
+          "effects": [
+            {"op": "resource", "target": "sourceIntegrity", "delta": 8},
+            {"op": "flag", "target": "nightContamination", "value": true, "note": "GDD 11.3 GH-09 원문 '야간 오염 증가' — 수치 미명시"}
+          ],
+          "result": "프로젝트 권한 목록에 그 계정을 넣었다. 무결성은 올랐고, 밤의 폴더명이 더 자주 바뀐다."
+        }
+      ],
+      "failureDefinition": {
+        "text": "'누구인지 묻기'가 담력 판정이다. 실패 시 조각 미획득, 공포 +12, '타임코드 오염' 판정. 진엔딩 체인 진행을 위해 재조우로 재시도할 수 있다.",
+        "braveChoices": ["ask_who"],
+        "riskChoices": [],
+        "status": "타임코드 오염",
+        "effects": [
+          {"op": "resource", "target": "fear", "delta": 12},
+          {"op": "status", "target": "타임코드 오염", "mode": "apply"}
+        ]
+      },
+      "codexRegisterCondition": "'누구인지 묻기'를 완료(성공·실패 무관).",
+      "codexEntry": {
+        "front": "NAS 사용자 목록에 다섯 명 외 계정이 하나 더 있다. 그 계정이 먼저 말을 걸었다.",
+        "back": "사용할 거면 이름을 남겨주세요."
+      },
+      "dayPair": {
+        "text": "MM-068 공용 계정 비밀번호 — 회사 이름과 설립연도를 붙인 조합이고, 3년째 그대로다. 낮에 모니터 아래 붙어 있던 메모가 밤의 접속 계정이 된다.",
+        "refs": ["P-04", "MM-068", "IT-34", "OF-25"],
+        "source": "GDD 부록 C.1 낮→밤 페어"
+      }
+    },
+    {
+      "id": "GH-10",
+      "name": "내일의 렌더",
+      "phase": "backstudio",
+      "memeLayer": false,
+      "givesCreditLedgerPiece": 0,
+      "appearCondition": {
+        "days": [3, 4, 5, 6],
+        "dayLabel": "D-5~D-2",
+        "dsl": "post >= 30",
+        "text": "D-5~D-2. 편집·후반 진척 30 이상(렌더 대기열이 존재해야 한다).",
+        "oncePerRun": false,
+        "retriggerable": false,
+        "cooldown": 2
+      },
+      "text": "렌더 큐 00번이 완료된다. 파일에는 내일 발생할 컨펌 장면과, 그 뒤 빈 책상 하나가 들어 있다.",
+      "choices": [
+        {
+          "id": "delete_render",
+          "label": "삭제",
+          "slot": "A",
+          "kind": "safe",
+          "braveCheck": false,
+          "explicitRisk": false,
+          "effects": [
+            {"op": "eventDeck", "mode": "hide", "count": 1, "scope": "reality", "when": "nextDay", "note": "GDD 11.3 GH-10 원문 '삭제: 다음 이벤트 숨김'"}
+          ],
+          "result": "큐 00번을 지웠다. 내일 무슨 일이 있을지 모르는 상태로 돌아왔다."
+        },
+        {
+          "id": "watch_render",
+          "label": "시청",
+          "slot": "B",
+          "kind": "gamble",
+          "braveCheck": true,
+          "explicitRisk": false,
+          "effects": [
+            {"op": "eventDeck", "mode": "preview", "count": 1, "scope": "reality", "when": "nextDay", "note": "GDD 11.3 GH-10 원문 '시청: 다음 이벤트 결과 공개'"},
+            {"op": "resource", "target": "fear", "delta": 10}
+          ],
+          "result": "끝까지 봤다. 컨펌 장면 뒤의 빈 책상은 다섯 자리 중 어느 자리인지 알 수 없게 잘려 있다."
+        },
+        {
+          "id": "shoot_alternative",
+          "label": "다른 선택을 촬영",
+          "slot": "C",
+          "kind": "value",
+          "braveCheck": false,
+          "explicitRisk": false,
+          "effects": [
+            {"op": "eventDeck", "mode": "reroll", "count": 1, "scope": "reality", "when": "nextDay", "note": "GDD 11.3 GH-10 원문 '다른 선택을 촬영: 다음 날 이벤트 1회 재선택 가능'"}
+          ],
+          "result": "화면 속 컨펌 장면을 다시 찍었다. 내일 같은 자리에서 다른 대답을 한 번 더 고를 수 있다."
+        }
+      ],
+      "failureDefinition": {
+        "text": "'시청'이 담력 판정이다. 실패 시 상태이상 '렌더 루프'(결산 때 후반 진척 일부 되돌아감, 해제: 렌더 큐 00번 완료).",
+        "braveChoices": ["watch_render"],
+        "riskChoices": [],
+        "status": "렌더 루프",
+        "effects": [
+          {"op": "status", "target": "렌더 루프", "mode": "apply"}
+        ]
+      },
+      "codexRegisterCondition": "'시청'을 완료.",
+      "codexEntry": {
+        "front": "렌더 큐 00번이 완료됐다. 파일에는 내일의 컨펌 장면과 빈 책상 하나가 있다.",
+        "back": "큐는 미래를 만들지 않는다. 이미 정해진 순서를 먼저 출력할 뿐이다."
+      },
+      "dayPair": {
+        "text": "낮의 렌더 대기열은 편집·후반 30을 넘긴 날부터 밤새 돈다. 큐 번호는 01번부터 시작한다.",
+        "refs": ["OF-16"],
+        "source": "GDD 11.3 출현 조건(낮의 전제)"
+      }
+    },
+    {
+      "id": "GH-11",
+      "name": "00:00:00:00",
+      "phase": "backstudio",
+      "memeLayer": false,
+      "givesCreditLedgerPiece": 0,
+      "appearCondition": {
+        "days": [4, 5, 6, 7],
+        "dayLabel": "D-4~D-1",
+        "dsl": "post >= 40 || revisionDebt >= 15",
+        "text": "D-4~D-1. 편집·후반 진척 40 이상 또는 수정 부채 15 이상.",
+        "oncePerRun": false,
+        "retriggerable": false,
+        "cooldown": 2
+      },
+      "text": "모든 영상의 시작 타임코드가 0으로 바뀌고 컷 순서가 섞인다.",
+      "choices": [
+        {
+          "id": "auto_sort",
+          "label": "자동 정렬",
+          "slot": "A",
+          "kind": "gamble",
+          "braveCheck": false,
+          "explicitRisk": true,
+          "effects": [
+            {
+              "op": "random",
+              "chance": 50,
+              "onHit": [],
+              "onMiss": [
+                {"op": "slot", "target": "editing", "mode": "outputMul", "value": 0.8, "when": "nextDay", "note": "GDD 11.3 GH-11 실패 정의 원문 '컷 순서가 섞인 채 남아 다음 날 편집·모션 슬롯 산출 ×0.8'"},
+                {"op": "status", "target": "타임코드 오염", "mode": "apply"}
+              ],
+              "note": "GDD 11.3 GH-11 원문 '자동 정렬: 50% 성공' — chance는 성공 확률이며 onHit이 성공 분기다"
+            }
+          ],
+          "result": "정렬 기능을 돌렸다. 파일 생성 시각이 남아 있는 컷들이 제자리를 찾았다.",
+          "resultOnFail": "정렬 결과는 알파벳 순이었다. 컷 순서와 파일명은 처음부터 관계가 없었다."
+        },
+        {
+          "id": "manual_slate_check",
+          "label": "슬레이트 로그 수동 대조",
+          "slot": "B",
+          "kind": "safe",
+          "braveCheck": false,
+          "explicitRisk": false,
+          "requires": {"dsl": "flag.hasIT18", "text": "IT-18 슬레이트 보유 시 성공"},
+          "effects": [],
+          "result": "슬레이트에 적힌 컷 번호를 하나씩 대조했다. 흐리게 남은 어제 글씨까지 오늘 쓸모가 있었다.",
+          "note": "GDD 11.3 GH-11 원문 'IT-18 보유 시 성공' — 수치 미명시"
+        },
+        {
+          "id": "play_shuffled",
+          "label": "섞인 순서로 재생",
+          "slot": "C",
+          "kind": "value",
+          "braveCheck": false,
+          "explicitRisk": false,
+          "effects": [
+            {"op": "track", "target": "post", "delta": 8, "note": "GDD 11.3 GH-11 원문 '새로운 편집 +8' — 5.1 편집·후반 트랙"},
+            {"op": "track", "target": "story", "delta": -5}
+          ],
+          "result": "섞인 채로 처음부터 끝까지 틀었다. 의도하지 않은 순서가 의도한 순서보다 나은 구간이 두 군데 있다."
+        }
+      ],
+      "failureDefinition": {
+        "text": "'자동 정렬'의 50% 실패가 악결과다. 실패 시 컷 순서가 섞인 채 남아 다음 날 편집·모션 슬롯 산출 ×0.8, '타임코드 오염' 판정.",
+        "braveChoices": [],
+        "riskChoices": ["auto_sort"],
+        "status": "타임코드 오염",
+        "effects": [
+          {"op": "status", "target": "타임코드 오염", "mode": "apply"}
+        ]
+      },
+      "codexRegisterCondition": "'슬레이트 로그 수동 대조' 성공 또는 '섞인 순서로 재생' 완료.",
+      "codexEntry": {
+        "front": "모든 영상의 시작 타임코드가 0이 되고 컷 순서가 섞였다. 슬레이트만 원래 순서를 안다.",
+        "back": "시각을 지우면 순서가 사라진다. 순서가 사라지면 만든 사람도 사라진다."
+      },
+      "dayPair": {
+        "text": "11.1 전환 연출 3단계 — 밤 9시 56분 57초, 모든 모니터의 타임코드가 21:57:00:00으로 맞춰진다.",
+        "refs": ["IT-18"],
+        "source": "GDD 11.3 출현 조건(낮의 전제)"
+      }
+    },
+    {
+      "id": "GH-12",
+      "name": "승인된 적 없는 컷",
+      "phase": "backstudio",
+      "memeLayer": false,
+      "givesCreditLedgerPiece": 3,
+      "appearCondition": {
+        "days": [4, 5, 6, 7],
+        "dayLabel": "D-4~D-1",
+        "dsl": "flag.confirmDoneOnce",
+        "text": "D-4~D-1. 컨펌(하루 페이즈 5)을 1회 이상 수행한 뒤.",
+        "oncePerRun": false,
+        "retriggerable": false,
+        "cooldown": 2
+      },
+      "text": "발주처 이름으로 승인 완료 도장이 찍혀 있다. 메일·메신저·회의록에는 기록이 없다.",
+      "choices": [
+        {
+          "id": "treat_as_approved",
+          "label": "승인으로 간주",
+          "slot": "A",
+          "kind": "gamble",
+          "braveCheck": false,
+          "explicitRisk": true,
+          "effects": [
+            {"op": "resource", "target": "clientTrust", "delta": 5},
+            {
+              "op": "random",
+              "chance": 40,
+              "when": "d0",
+              "onHit": [
+                {"op": "resource", "target": "clientTrust", "delta": -10},
+                {"op": "resource", "target": "revisionDebt", "delta": 8}
+              ],
+              "onMiss": [],
+              "note": "GDD 11.3 GH-12 실패 정의 원문 \"'승인으로 간주'의 D-0 발각(발각률 40%)이 명시 리스크의 악결과다. 발각 시 클라이언트 신뢰 -10, 수정 부채 +8\""
+            }
+          ],
+          "result": "도장이 찍혀 있으니 승인으로 처리했다. 승인 일시를 적을 칸은 비워 두었다.",
+          "resultOnFail": "D-0에 발각됐다. \"저희는 그 컷을 승인한 적이 없습니다.\""
+        },
+        {
+          "id": "void_it",
+          "label": "무효 처리",
+          "slot": "B",
+          "kind": "safe",
+          "braveCheck": false,
+          "explicitRisk": false,
+          "effects": [
+            {"op": "track", "target": "master", "delta": -3}
+          ],
+          "result": "기록이 없는 승인은 승인이 아니라고 적고 무효 처리했다. 그 컷은 다시 대기열로 돌아갔다."
+        },
+        {
+          "id": "request_approval_log",
+          "label": "승인 로그 요청",
+          "slot": "C",
+          "kind": "value",
+          "braveCheck": false,
+          "explicitRisk": false,
+          "requires": {"dsl": "char.leehyemi.bond >= 60", "text": "이혜미 유대도 60이면 숨은 진실 획득"},
+          "effects": [
+            {"op": "flag", "target": "creditLedgerPieces", "delta": 1, "note": "GDD 11.3 크레딧 장부 조각 획득처 — 3/3. 이혜미 유대도 60"}
+          ],
+          "result": "이혜미가 승인 로그 원본을 열었다. 도장을 찍은 계정의 표시명 칸이 비어 있다."
+        }
+      ],
+      "failureDefinition": {
+        "text": "'승인으로 간주'의 D-0 발각(발각률 40%)이 명시 리스크의 악결과다. 발각 시 클라이언트 신뢰 -10, 수정 부채 +8.",
+        "braveChoices": [],
+        "riskChoices": ["treat_as_approved"],
+        "status": "타임코드 오염",
+        "effects": [
+          {"op": "status", "target": "타임코드 오염", "mode": "apply"}
+        ]
+      },
+      "codexRegisterCondition": "'승인 로그 요청'을 수행(유대도 충족 여부 무관).",
+      "codexEntry": {
+        "front": "발주처 이름으로 승인 도장이 찍혀 있다. 메일에도 회의록에도 그 승인은 없다.",
+        "back": "도장은 승인이 아니다. 승인은 누가 언제 했는지가 남아야 승인이다."
+      },
+      "dayPair": {
+        "text": "낮의 OF-18 '담당자 교체' 선택 C — 이혜미가 승인 일시와 발신자가 찍힌 로그를 그대로 보냈다. 그 로그가 밤에 이름 칸만 비운 채 돌아온다.",
+        "refs": ["OF-18"],
+        "source": "GDD 11.3 출현 조건(낮의 전제)"
+      }
+    },
+    {
+      "id": "GH-13",
+      "name": "월화수목금금금",
+      "phase": "backstudio",
+      "memeLayer": false,
+      "givesCreditLedgerPiece": 0,
+      "appearCondition": {
+        "days": [4, 5, 6],
+        "dayLabel": "D-4~D-2",
+        "dsl": "flag.overtimeRunTotal >= 3",
+        "text": "D-4~D-2. 야근 누적 3회 이상.",
+        "oncePerRun": false,
+        "retriggerable": false,
+        "cooldown": 2
+      },
+      "text": "캘린더의 토·일이 금요일로 바뀌고, 편집 타임라인이 7개의 금요일로 늘어난다.",
+      "choices": [
+        {
+          "id": "submit_leave_form",
+          "label": "연차신청서 제시",
+          "slot": "A",
+          "kind": "value",
+          "braveCheck": false,
+          "explicitRisk": false,
+          "effects": [
+            {"op": "flag", "target": "holidayFragments", "delta": 1, "note": "GDD 11.3 GH-13 원문 '연차신청서 제시: 휴일 조각 획득'"}
+          ],
+          "result": "두 달 전에 승인된 연차신청서를 화면에 띄웠다. 일곱 개의 금요일 중 하나가 다시 토요일이 된다."
+        },
+        {
+          "id": "call_it_a_day",
+          "label": "\"오늘은 끝냅니다\"",
+          "slot": "B",
+          "kind": "safe",
+          "braveCheck": false,
+          "explicitRisk": false,
+          "effects": [
+            {"op": "slot", "target": "any", "mode": "lock", "note": "GDD 11.3 GH-13 원문 '야근 즉시 종료'"},
+            {"op": "char", "target": "all", "stat": "focus", "delta": 5}
+          ],
+          "result": "모니터를 껐다. 끄는 데 걸린 시간은 3초고, 끄기로 정하는 데 걸린 시간은 나흘이다."
+        },
+        {
+          "id": "keep_rendering",
+          "label": "계속 렌더",
+          "slot": "C",
+          "kind": "gamble",
+          "braveCheck": false,
+          "explicitRisk": true,
+          "effects": [
+            {"op": "track", "target": "post", "delta": 10},
+            {"op": "char", "target": "all", "stat": "focus", "delta": -10, "when": "nextDay", "note": "GDD 11.3 GH-13 실패 정의 원문 \"'계속 렌더'의 전원 프레임 드롭(다음 날 전원 집중 -10)이 명시 리스크의 악결과\""},
+            {"op": "status", "target": "타임코드 오염", "mode": "apply"}
+          ],
+          "result": "일곱 개의 금요일을 전부 렌더에 썼다. 진척은 올라갔고, 다음 날 아침 다섯 사람의 화면은 전부 한 박자 늦다."
+        }
+      ],
+      "failureDefinition": {
+        "text": "담력 판정 없음. '계속 렌더'의 전원 프레임 드롭(다음 날 전원 집중 -10)이 명시 리스크의 악결과이며 '타임코드 오염' 판정.",
+        "braveChoices": [],
+        "riskChoices": ["keep_rendering"],
+        "status": "타임코드 오염",
+        "effects": [
+          {"op": "status", "target": "타임코드 오염", "mode": "apply"}
+        ]
+      },
+      "codexRegisterCondition": "'연차신청서 제시'로 휴일 조각을 획득.",
+      "codexEntry": {
+        "front": "캘린더의 토요일과 일요일이 금요일로 바뀌었다. 편집 타임라인에는 금요일이 일곱 개다.",
+        "back": "날짜는 지우면 늘어난다. 쉬지 않은 날은 어디에도 기록되지 않는다."
+      },
+      "dayPair": {
+        "text": "낮의 대응 밈을 심지 않는 유일한 예외다(부록 C.1 운용 규칙). 밈 MM-095는 이미 정본 괴이로 존재하므로 페어 목록에 넣지 않고 밤 전용으로 유지한다. 낮의 전제는 야근 누적 3회이며, OF-29 선택 A의 휴일 조각이 이 괴이의 선택 A와 이어진다.",
+        "refs": ["OF-29", "MM-095"],
+        "source": "GDD 11.3 출현 조건(낮의 전제)"
+      }
+    },
+    {
+      "id": "GH-14",
+      "name": "원본 작성자",
+      "phase": "backstudio",
+      "memeLayer": false,
+      "givesCreditLedgerPiece": 0,
+      "appearCondition": {
+        "days": [2, 3, 4, 5, 6, 7],
+        "dayLabel": "권장 일차 D-2~D-1",
+        "recommendedDays": [6, 7],
+        "dsl": "flag.gh14ChainOpen",
+        "text": "GH-08 '이름 없는 미니DV 태그'로 체인 개방 후, 4층 아카이브 진입 시. 권장 일차 D-2~D-1.",
+        "zone": "floor4",
+        "oncePerRun": false,
+        "retriggerable": false,
+        "cooldown": 2
+      },
+      "text": "4층 아카이브에서 이름이 지워진 크레딧 시트가 나온다. 한 줄씩 복원할 때마다 낮의 좋은 컷 하나가 사라진다.",
+      "choices": [
+        {
+          "id": "restore_all",
+          "label": "전부 복원",
+          "slot": "A",
+          "kind": "gamble",
+          "braveCheck": true,
+          "explicitRisk": false,
+          "effects": [
+            {"op": "track", "target": "total", "delta": -10, "require": "!flag.gh19HandoverSigned", "note": "GDD 11.3 GH-14 원문 '전부 복원: 진척 합계 -10, 진엔딩 체인'. 트랙 배분은 시뮬 코어가 소유한다"},
+            {"op": "track", "target": "total", "delta": -6, "require": "flag.gh19HandoverSigned", "note": "GDD 11.3 GH-19 원문 \"성공 시 GH-14 '전부 복원'의 진척 합계 -10이 -6으로 완화된다\""},
+            {"op": "flag", "target": "gh14Done", "value": true, "note": "GDD 11.4 진엔딩 체인 — GH-15 출현 조건의 'GH-14 완료'"}
+          ],
+          "result": "지워진 이름을 전부 되살렸다. 복원된 줄만큼 낮에 잘 나온 컷이 타임라인에서 빠졌다."
+        },
+        {
+          "id": "restore_needed_only",
+          "label": "필요한 이름만 복원",
+          "slot": "B",
+          "kind": "value",
+          "braveCheck": false,
+          "explicitRisk": false,
+          "effects": [
+            {"op": "track", "target": "total", "delta": -3, "note": "GDD 11.3 GH-14 원문 '필요한 이름만 복원: 진척 -3, 일반 굿엔딩'"},
+            {"op": "flag", "target": "gh14Done", "value": true, "note": "GDD 11.4 진엔딩 체인 — GH-15 출현 조건의 'GH-14 완료'"}
+          ],
+          "result": "크레딧에 반드시 들어가야 할 이름만 되살렸다. 반드시가 어디까지인지는 우리가 정했다."
+        },
+        {
+          "id": "cover_it",
+          "label": "덮기",
+          "slot": "C",
+          "kind": "gamble",
+          "braveCheck": false,
+          "explicitRisk": true,
+          "effects": [
+            {"op": "resource", "target": "sourceIntegrity", "delta": -20},
+            {"op": "track", "target": "footage", "delta": 10}
+          ],
+          "result": "시트를 덮고 원래 자리에 넣었다. 사라졌던 좋은 컷들이 전부 돌아왔다."
+        }
+      ],
+      "failureDefinition": {
+        "text": "'전부 복원'이 담력 판정, '덮기'가 명시 리스크다. 실패 시 상태이상 '크레딧 소실'(유대도 보너스 무효, 해제: 원본·권리 목록 완성).",
+        "braveChoices": ["restore_all"],
+        "riskChoices": ["cover_it"],
+        "status": "크레딧 소실",
+        "effects": [
+          {"op": "status", "target": "크레딧 소실", "mode": "apply"}
+        ]
+      },
+      "codexRegisterCondition": "크레딧 시트를 1줄 이상 복원.",
+      "codexEntry": {
+        "front": "이름이 지워진 크레딧 시트를 한 줄 복원할 때마다 낮의 좋은 컷이 하나씩 사라진다.",
+        "back": "이름을 되찾는 값은 언제나 완성도로 치른다."
+      },
+      "dayPair": {
+        "text": "GH-08에서 이름 없는 미니DV에 태그를 붙인 밤. 라벨 없는 물건에 이름을 붙이려던 시도가 4층 아카이브의 크레딧 시트로 이어진다.",
+        "refs": ["GH-08", "IT-30"],
+        "source": "GDD 11.3 출현 조건(낮의 전제)"
+      }
+    },
+    {
+      "id": "GH-15",
+      "name": "마스터 인계",
+      "phase": "backstudio",
+      "memeLayer": false,
+      "givesCreditLedgerPiece": 0,
+      "appearCondition": {
+        "days": [7],
+        "dayLabel": "D-1",
+        "dsl": "day == 7 && flag.gh09Done && flag.gh14Done && flag.rightsManifest >= 80",
+        "text": "원전 명시 조건 유지 — D-1, GH-09·GH-14 완료 + 원본·권리 목록 80% 이상. 조건 미달 시 이번 루프에서는 출현하지 않는다.",
+        "oncePerRun": true,
+        "retriggerable": false,
+        "cooldown": 2
+      },
+      "text": "D-1, GH-09와 GH-14를 완료하고 원본·권리 목록이 80% 이상이면 발생한다. SOURCE_0000 이 최종 작업본을 연다.\n\"마지막 프레임의 소유자를 지정하세요.\"",
+      "choices": [
+        {
+          "id": "assign_xcom",
+          "label": "엑스컴",
+          "slot": "A",
+          "kind": "safe",
+          "braveCheck": false,
+          "explicitRisk": false,
+          "effects": [
+            {"op": "flag", "target": "sourceRemains", "value": true, "note": "GDD 11.3 GH-15 원문 '엑스컴: 일반 성공, SOURCE 잔류' — 수치 미명시"}
+          ],
+          "result": "소유자 칸에 회사 이름을 넣었다. 목록의 마지막 줄은 여전히 0000이다."
+        },
+        {
+          "id": "assign_client",
+          "label": "발주처",
+          "slot": "B",
+          "kind": "value",
+          "braveCheck": false,
+          "explicitRisk": false,
+          "effects": [
+            {"op": "resource", "target": "clientTrust", "delta": 10},
+            {"op": "resource", "target": "sourceIntegrity", "delta": -10}
+          ],
+          "result": "소유자 칸에 발주처를 넣었다. 신뢰는 올랐고, 이 프로젝트를 만든 사람의 이름은 어디에도 남지 않는다."
+        },
+        {
+          "id": "credit_everyone",
+          "label": "제작자 전원과 출처를 기록",
+          "slot": "C",
+          "kind": "value",
+          "braveCheck": false,
+          "explicitRisk": false,
+          "effects": [
+            {"op": "flag", "target": "traceableMaster", "value": true, "note": "GDD 11.3·11.4 원문 '진엔딩 플래그 TRACEABLE_MASTER'"}
+          ],
+          "result": "다섯 사람과 원본 제공자, 참여자, 협조자, 음악·폰트·자료 출처, 이전 작업자를 한 줄씩 적었다. 마지막 줄에 SOURCE_0000을 적자 SOURCE MANIFEST COMPLETE가 뜬다."
+        },
+        {
+          "id": "assign_nobody",
+          "label": "아무도 지정하지 않음",
+          "slot": "D",
+          "kind": "gamble",
+          "braveCheck": false,
+          "explicitRisk": true,
+          "effects": [
+            {"op": "ending", "target": "ED-09", "note": "GDD 11.3 GH-15 실패 정의 원문 \"'아무도 지정하지 않음'이 악결과이며 즉시 ED-09로 분기한다\""}
+          ],
+          "result": "소유자 칸을 비운 채 닫았다. 다음 프로젝트의 원본 작성자 칸에 플레이어가 0000으로 표시된다."
+        }
+      ],
+      "failureDefinition": {
+        "text": "담력 판정 없음. '아무도 지정하지 않음'이 악결과이며 즉시 ED-09로 분기한다.",
+        "braveChoices": [],
+        "riskChoices": ["assign_nobody"],
+        "status": "타임코드 오염",
+        "effects": [
+          {"op": "ending", "target": "ED-09", "note": "GDD 12.2 엔딩 우선순위 1 — 즉시 실패형"}
+        ]
+      },
+      "codexRegisterCondition": "조우 즉시 등록(1회성 이벤트).",
+      "codexEntry": {
+        "front": "최종 작업본이 혼자 열렸다. 마지막 프레임의 소유자 칸만 비어 있다.",
+        "back": "마지막 프레임의 소유자를 지정하세요."
+      },
+      "dayPair": {
+        "text": "낮의 원본·권리 목록 업무. 80% 게이트는 밤이 아니라 낮의 권리 업무로만 넘게 두었다(11.3 밸런스 점검 2).",
+        "refs": ["GH-09", "GH-14"],
+        "source": "GDD 11.3 출현 조건(낮의 전제)"
+      }
+    },
+    {
+      "id": "GH-16",
+      "name": "이름 없는 도시락",
+      "phase": "backstudio",
+      "memeLayer": true,
+      "givesCreditLedgerPiece": 0,
+      "appearCondition": {
+        "days": [2, 3, 4, 5],
+        "dayLabel": "D-6~D-3",
+        "dsl": "flag.of30Handled || coffee <= 3 || snack <= 2",
+        "text": "D-6~D-3. 야간에 탕비실 구역 진입 시. 전제는 낮에 OF-30 '탕비실 재고 조사'를 1회 처리(선택 무관)했거나, 커피 3 이하 또는 간식 2 이하 상태로 밤에 진입한 경우다. 한 런 1회.",
+        "zone": "pantryArchive",
+        "oncePerRun": true,
+        "retriggerable": false,
+        "cooldown": 2
+      },
+      "text": "탕비실 냉장고가 정리되어 있다. 낮까지 아무도 버리지 못한 이름 없는 음식 세 개가 사라지고, 이름표가 붙은 통 하나만 남아 있다. 이름표에는 플레이어의 이름과 내일 날짜가 인쇄되어 있다. 냉장고 문 안쪽 재고표는 낮에 적은 숫자와 다르다. 커피와 간식이 각각 하나씩 덜 남아 있고, 소비 칸 맨 아래에는 이름 칸이 비어 있고 수량만 채워진 줄이 하나 있다.",
+      "choices": [
+        {
+          "id": "discard_label",
+          "label": "이름표를 떼고 폐기",
+          "slot": "A",
+          "kind": "gamble",
+          "braveCheck": false,
+          "explicitRisk": true,
+          "effects": [
+            {"op": "resource", "target": "fear", "delta": 10},
+            {"op": "resource", "target": "snack", "delta": -1},
+            {
+              "op": "random",
+              "chance": 30,
+              "onHit": [
+                {"op": "flag", "target": "gh16LabelReturns", "value": true, "when": "nextNight", "note": "GDD 11.3 GH-16 원문 '30% 확률로 다음 밤 같은 이름표가 통째로 다시 놓이며' — 수치 미명시"},
+                {"op": "resource", "target": "fear", "delta": 8, "when": "nextNight"}
+              ],
+              "onMiss": []
+            }
+          ],
+          "result": "이름표를 떼고 통째로 버렸다. 뗀 이름표에 인쇄된 날짜는 내일이다.",
+          "resultOnFail": "다음 밤, 같은 이름표가 붙은 통이 같은 칸에 다시 놓여 있다."
+        },
+        {
+          "id": "restore_inventory_sheet",
+          "label": "재고표를 낮의 숫자로 되돌려 적기",
+          "slot": "B",
+          "kind": "safe",
+          "braveCheck": false,
+          "explicitRisk": false,
+          "effects": [
+            {"op": "resource", "target": "coffee", "delta": 1, "cap": "memeLayer", "note": "GDD 11.3 GH-16 원문 '밤에 사라진 한 칸씩만 되돌리며 낮의 값을 넘기지 않는다(9.5.5 커피 총공급 불변)'. 되돌린 분도 밈 레이어 통산 상한(커피 +2)의 런 카운터에 산입"},
+            {"op": "resource", "target": "snack", "delta": 1, "cap": "memeLayer", "note": "GDD 11.3 GH-16 — 되돌린 분도 밈 레이어 통산 상한(간식 +2)의 런 카운터에 산입"},
+            {"op": "resource", "target": "sourceIntegrity", "delta": -3},
+            {"op": "resource", "target": "fear", "delta": 4}
+          ],
+          "result": "낮에 적은 숫자로 재고표를 다시 썼다. 되돌려 적는 순간 이름 없는 한 줄도 함께 지워졌다."
+        },
+        {
+          "id": "crosscheck_consumption_log",
+          "label": "소비 기록 시각을 야간 출입 로그와 대조",
+          "slot": "C",
+          "kind": "gamble",
+          "braveCheck": true,
+          "explicitRisk": false,
+          "effects": [
+            {"op": "flag", "target": "sourceLogClues", "delta": 1, "note": "GDD 11.3 GH-16 원문 '성공 시 원본 로그 단서 1건'"},
+            {"op": "resource", "target": "sourceIntegrity", "delta": 5},
+            {"op": "resource", "target": "fear", "delta": 6}
+          ],
+          "result": "소비 칸의 시각과 출입 로그를 나란히 놓았다. 이름 칸이 빈 줄의 시각은 21:57이고, 그 시각의 출입 기록은 없다."
+        }
+      ],
+      "failureDefinition": {
+        "text": "'소비 기록 시각 대조'가 담력 판정, '이름표를 떼고 폐기'가 명시 리스크(30%)다. 어느 쪽이든 실패 시 단서를 얻지 못하고 공포 +12, '타임코드 오염' 판정.",
+        "braveChoices": ["crosscheck_consumption_log"],
+        "riskChoices": ["discard_label"],
+        "status": "타임코드 오염",
+        "effects": [
+          {"op": "resource", "target": "fear", "delta": 12},
+          {"op": "status", "target": "타임코드 오염", "mode": "apply"}
+        ]
+      },
+      "codexRegisterCondition": "'소비 기록 시각 대조'를 완료(성공·실패 무관) 또는 '재고표를 낮의 숫자로 되돌려 적기'를 완료.",
+      "codexEntry": {
+        "front": "냉장고를 정리했는데 재고표 숫자는 정리 전과 같다. 소비 칸만 한 줄 늘었다.",
+        "back": "주인이 없는 것은 없다. 적지 않았을 뿐이다."
+      },
+      "dayPair": {
+        "text": "OF-30 '탕비실 재고 조사' 선택 C(이름 없는 음식 3개 폐기)와 배경 소품 PR-04(냉장고 경고문, 페어 P-01) — 낮에 웃으며 버린 이름 없는 음식이, 밤에는 내 이름이 붙은 채 하나 남는다.",
+        "refs": ["OF-30", "PR-04", "P-01", "MM-049", "IT-38"],
+        "source": "GDD 11.3 낮의 짝"
+      }
+    },
+    {
+      "id": "GH-17",
+      "name": "인쇄 대기 17건",
+      "phase": "backstudio",
+      "memeLayer": true,
+      "givesCreditLedgerPiece": 0,
+      "appearCondition": {
+        "days": [3, 4, 5, 6],
+        "dayLabel": "D-5~D-2",
+        "dsl": "flag.of26Handled || flag.printoutDoneOnce",
+        "text": "D-5~D-2. 야간에 사무 구역(복합기 앞) 진입 시. 전제는 낮에 OF-26 '용지 걸림'을 처리했거나, 프리프로덕션 슬롯에서 출력물(콜시트·출연 동의서)을 1회 이상 뽑은 경우다. 한 런 1회.",
+        "zone": "office",
+        "oncePerRun": true,
+        "retriggerable": false,
+        "cooldown": 2
+      },
+      "text": "복합기가 혼자 돌고 있다. 용지함은 비어 있고 토너 잔량은 5%인데 종이가 계속 나온다. 대기 목록에는 17건이 올라 있고, 문서 프로그램에서 보낸 기록은 한 건도 없다. 첫 장은 내일 콜시트, 둘째 장은 아직 받지 않은 수정 지시서, 마지막 장은 이름 칸 한 줄이 비어 있는 크레딧 시트다. 모든 출력물의 요청자 칸에는 0000이 찍혀 있다. 옆에 놓인 라벨 프린터도 함께 돌고, 아직 나지 않은 제작사고의 이름이 라벨로 인쇄되어 나온다.",
+      "choices": [
+        {
+          "id": "cancel_all_and_cut_power",
+          "label": "대기 목록 전체 취소·전원 차단",
+          "slot": "A",
+          "kind": "safe",
+          "braveCheck": false,
+          "explicitRisk": false,
+          "effects": [
+            {"op": "resource", "target": "fear", "delta": 6},
+            {"op": "resource", "target": "sourceIntegrity", "delta": -3},
+            {"op": "eventDeck", "mode": "hide", "count": 1, "scope": "reality", "when": "nextDay", "note": "GDD 11.3 GH-17 원문 '다음 날 현실 이벤트 1건 숨김'"}
+          ],
+          "result": "대기 목록을 전부 취소하고 코드를 뽑았다. 코드를 뽑은 뒤에도 한 장이 더 나왔다."
+        },
+        {
+          "id": "read_all_seventeen",
+          "label": "17장을 끝까지 받아 순서대로 읽기",
+          "slot": "B",
+          "kind": "gamble",
+          "braveCheck": true,
+          "explicitRisk": false,
+          "effects": [
+            {"op": "eventDeck", "mode": "preview", "count": 1, "scope": "reality", "when": "nextDay", "note": "GDD 11.3 GH-17 원문 '성공 시 다음 날 이벤트 1건 미리보기'"},
+            {"op": "track", "target": "story", "delta": 4},
+            {"op": "resource", "target": "fear", "delta": 8}
+          ],
+          "result": "17장을 순서대로 읽었다. 둘째 장의 수정 지시서 내용은 내일 오후에 실제로 도착한다."
+        },
+        {
+          "id": "attach_labels",
+          "label": "라벨을 실제 물건에 붙이기",
+          "slot": "C",
+          "kind": "gamble",
+          "braveCheck": false,
+          "explicitRisk": true,
+          "effects": [
+            {"op": "resource", "target": "revisionDebt", "delta": -6},
+            {
+              "op": "random",
+              "chance": 40,
+              "chanceAlt": 20,
+              "chanceAltCondition": "char.leehyemi.bond >= 60",
+              "onHit": [
+                {"op": "resource", "target": "sourceIntegrity", "delta": -8},
+                {"op": "resource", "target": "revisionDebt", "delta": 4}
+              ],
+              "onMiss": [],
+              "note": "GDD 11.3 GH-17 원문 '40% 확률로 라벨에 없던 항목에서 사고가 발생해 원본 무결성 -8, 수정 부채 +4. 이혜미 유대도 60 이상(정본 단계 30/60/90)이면 발생 확률 20%'"
+            }
+          ],
+          "result": "아직 나지 않은 사고의 이름을 실제 물건에 붙였다. 이름이 붙은 항목은 그날 밤 안에 전부 정리됐다.",
+          "resultOnFail": "라벨에 없던 항목 하나에서 사고가 났다. 이름을 붙이지 않은 것은 여전히 목록 밖이다."
+        }
+      ],
+      "failureDefinition": {
+        "text": "'17장을 끝까지 받아 순서대로 읽기'가 담력 판정, '라벨을 실제 물건에 붙이기'가 명시 리스크(40%)다. 실패 시 플레이어 집중 -10, 공포 +12, '타임코드 오염' 판정.",
+        "braveChoices": ["read_all_seventeen"],
+        "riskChoices": ["attach_labels"],
+        "status": "타임코드 오염",
+        "effects": [
+          {"op": "char", "target": "player", "stat": "focus", "delta": -10},
+          {"op": "resource", "target": "fear", "delta": 12},
+          {"op": "status", "target": "타임코드 오염", "mode": "apply"}
+        ]
+      },
+      "codexRegisterCondition": "'17장을 끝까지 받아 순서대로 읽기'를 완료(성공·실패 무관) 또는 라벨을 1장 이상 부착.",
+      "codexEntry": {
+        "front": "용지함이 비어 있는데 17장이 나왔다. 토너는 계속 5%다.",
+        "back": "출력은 예고가 아니다. 이미 기록된 것을 늦게 받는 것이다."
+      },
+      "dayPair": {
+        "text": "OF-26 '용지 걸림'과 배경 소품 PR-06(복합기 포스트잇)·PR-18(라벨 조각, 페어 P-02) — 낮에는 걸린 반 장 때문에 아무것도 안 나오던 기계가, 밤에는 넣은 적 없는 종이로 17장을 뽑는다.",
+        "refs": ["OF-26", "PR-06", "PR-18", "P-02", "MM-108"],
+        "source": "GDD 11.3 낮의 짝"
+      }
+    },
+    {
+      "id": "GH-18",
+      "name": "읽지 않음 1",
+      "phase": "backstudio",
+      "memeLayer": true,
+      "givesCreditLedgerPiece": 0,
+      "appearCondition": {
+        "days": [4, 5, 6],
+        "dayLabel": "D-4~D-2",
+        "dsl": "flag.overtimeRunTotal >= 1 || day >= 5",
+        "text": "D-4~D-2. 야근 누적 1회 이상. 무야근 런에서는 D-3부터 전제 없이 후보로 편입된다(야근이 이 괴이의 관문이 되지 않는다). 한 런 1회.",
+        "zone": "office",
+        "oncePerRun": true,
+        "retriggerable": false,
+        "cooldown": 2
+      },
+      "spawnWeightModifiers": [
+        {
+          "condition": "flag.of22Occurred",
+          "mode": "raise",
+          "scope": "run",
+          "source": "GDD 11.3 GH-18 출현 조건",
+          "note": "낮에 OF-22 '저녁이나 하죠'가 발생한 런에서는 GH-18 개별 출현률 분포만 상향된다(IT-34 방식). 6.2 이면 조우율 식의 항이 아니며 밤 조우 총량은 불변이다. 원문이 방향만 명시하므로 delta가 아니라 mode로 적는다"
+        }
+      ],
+      "text": "사내 메신저 팀 대화방이 혼자 열린다. 낮에 올린 마지막 메시지의 읽지 않음 표시가 1에서 내려가지 않는다. 엑스컴 전원의 읽음 시각이 이미 찍혀 있는데도 1이다. 참여자 목록을 끝까지 내리면 맨 아래 한 줄에는 표시명이 없다. 이름 칸은 비어 있고 입장 시각만 21:57로 적혀 있다. 대화 기록을 위로 올리면 오늘 하지 않은 저녁 자리 사진이 한 장 올라와 있다. 사진 캡션의 참석자 이름 중 마지막 한 칸이 비어 있고, 촬영 시각은 21:57이며, 촬영 기기는 회사 장비 목록에 없는 기기다.",
+      "choices": [
+        {
+          "id": "close_and_mute",
+          "label": "대화방을 닫고 알림 끄기",
+          "slot": "A",
+          "kind": "safe",
+          "braveCheck": false,
+          "explicitRisk": false,
+          "effects": [
+            {"op": "resource", "target": "fear", "delta": 5},
+            {"op": "char", "target": "player", "stat": "focus", "delta": -4, "when": "nextDay", "note": "GDD 11.3 GH-18 원문 '다음 날 제작 브리핑에서 밤새 쌓인 내용을 한 번에 확인해 플레이어 집중 -4. 유대도·클라이언트 신뢰 페널티는 붙지 않는다'"}
+          ],
+          "result": "대화방을 닫고 알림을 껐다. 아침 브리핑에서 밤새 쌓인 내용을 한 번에 확인했다."
+        },
+        {
+          "id": "open_device_info",
+          "label": "사진 파일의 촬영 기기 정보 열기",
+          "slot": "B",
+          "kind": "gamble",
+          "braveCheck": true,
+          "explicitRisk": false,
+          "effects": [
+            {"op": "flag", "target": "metadataFragments", "delta": 1, "note": "GDD 11.3 GH-18 원문 '성공 시 메타데이터 조각 1개'"},
+            {"op": "resource", "target": "sourceIntegrity", "delta": 5},
+            {"op": "resource", "target": "fear", "delta": 6}
+          ],
+          "result": "사진 속성을 열었다. 촬영 기기 항목은 회사 장비 목록에 없고, 소유자 필드는 비어 있다."
+        },
+        {
+          "id": "write_reply",
+          "label": "답장 쓰기",
+          "slot": "C",
+          "kind": "gamble",
+          "braveCheck": false,
+          "explicitRisk": true,
+          "effects": [
+            {"op": "resource", "target": "audienceResonance", "delta": 6},
+            {"op": "resource", "target": "fear", "delta": 14},
+            {
+              "op": "random",
+              "chance": 40,
+              "onHit": [
+                {"op": "flag", "target": "nameFieldBlankConfirmed", "value": true, "note": "GDD 11.3 GH-18 원문 '40% 확률로 그 줄의 이름 칸이 공란으로 확정되어' — 수치 미명시"},
+                {"op": "spawnWeight", "target": ["GH-16", "GH-17", "GH-19"], "mode": "raise", "scope": "nextNight", "note": "GDD 11.3 GH-18 원문 '다음 밤 조우 테이블에서 기록물 계열(GH-16·GH-17·GH-19)의 개별 출현률 분포가 상향된다(IT-34 방식. 밤 조우 총량은 변하지 않고 조우 대상만 바뀐다)'"}
+              ],
+              "onMiss": []
+            }
+          ],
+          "result": "이름 없는 줄에 답장을 썼다. \"그 사진, 누가 찍으셨어요?\"",
+          "resultOnFail": "답장을 보낸 뒤 그 줄의 이름 칸이 공란으로 확정됐다. 다음 밤의 기록물들이 먼저 말을 건다."
+        }
+      ],
+      "failureDefinition": {
+        "text": "'사진 파일의 촬영 기기 정보 열기'가 담력 판정, '답장 쓰기'가 명시 리스크(40%)다. 실패 시 조각을 얻지 못하고 공포 +12, '타임코드 오염' 판정.",
+        "braveChoices": ["open_device_info"],
+        "riskChoices": ["write_reply"],
+        "status": "타임코드 오염",
+        "effects": [
+          {"op": "resource", "target": "fear", "delta": 12},
+          {"op": "status", "target": "타임코드 오염", "mode": "apply"}
+        ]
+      },
+      "codexRegisterCondition": "'사진 파일의 촬영 기기 정보 열기'를 완료(성공·실패 무관) 또는 '답장 쓰기'를 완료.",
+      "codexEntry": {
+        "front": "전원이 다 읽었는데 1이 남는다. 참여자 목록 맨 아래 줄에는 이름이 없다.",
+        "back": "읽지 않은 사람은 없다. 세지 않은 사람이 있을 뿐이다."
+      },
+      "dayPair": {
+        "text": "OF-22 '저녁이나 하죠'의 해산 선택과 사내 메신저 「알림판」 알림(N-23·N-24) — 낮에는 안 사라지는 1이 누구인지 다 알았는데, 밤에는 전원이 다 읽어도 1이 남는다. 이 괴이의 오염축은 '읽지 않음 1'과 '이름 칸 공란·21:57'이며, 참여자 수를 세어 하나를 더 붙이지 않는다.",
+        "refs": ["OF-22", "N-23", "N-24"],
+        "source": "GDD 11.3 낮의 짝"
+      }
+    },
+    {
+      "id": "GH-19",
+      "name": "전임자 자리",
+      "phase": "backstudio",
+      "memeLayer": true,
+      "givesCreditLedgerPiece": 0,
+      "appearCondition": {
+        "days": [3, 4, 5, 6, 7],
+        "dayLabel": "D-5~D-1",
+        "dsl": "flag.of27Handled || day >= 5",
+        "text": "D-5~D-1. 야간에 플레이어 책상 구역 진입 시. 전제는 낮에 OF-27 '전임자 계정'을 처리(선택 무관)한 경우이며, OF-27 미발생 런에서는 D-3부터 전제 없이 후보로 편입된다. 한 런 1회.",
+        "zone": "playerDesk",
+        "oncePerRun": true,
+        "retriggerable": false,
+        "cooldown": 2
+      },
+      "text": "플레이어 자리 모니터만 켜져 있다. 잠기지 않은 세션이 복원되어 있고, 우리 프로젝트가 열려 있고, 저장 시각은 3분 전이다. 타임라인에는 오늘 하려다 못 한 구간이 이미 정리되어 있다. 작업자 필드는 비어 있고, 의자 높이는 낮에 맞춰 둔 눈금보다 한 칸 낮다. 바탕화면의 '새 폴더 (3)' 자리에는 '인수인계' 폴더가 있고, 그 안 문서의 본문은 오늘 플레이어가 쓴 문장 그대로다. 마지막 수정 시각은 21:57이다.",
+      "choices": [
+        {
+          "id": "close_without_saving",
+          "label": "저장하지 않고 세션 종료",
+          "slot": "A",
+          "kind": "safe",
+          "braveCheck": false,
+          "explicitRisk": false,
+          "effects": [
+            {"op": "resource", "target": "fear", "delta": 5},
+            {"op": "track", "target": "post", "delta": -3}
+          ],
+          "result": "저장하지 않고 세션을 닫았다. 정리되어 있던 구간은 내일 아침 다시 정리해야 한다."
+        },
+        {
+          "id": "take_over_work",
+          "label": "그 작업을 그대로 이어받기",
+          "slot": "B",
+          "kind": "gamble",
+          "braveCheck": false,
+          "explicitRisk": true,
+          "effects": [
+            {"op": "track", "target": "post", "delta": 10},
+            {"op": "resource", "target": "sourceIntegrity", "delta": -12},
+            {
+              "op": "random",
+              "chance": 30,
+              "onHit": [
+                {"op": "flag", "target": "workerFieldBlank", "value": true, "note": "GDD 11.3 GH-19 원문 '30% 확률로 해당 구간 작업자 필드가 공란으로 확정되어' — 수치 미명시"},
+                {"op": "resource", "target": "revisionDebt", "delta": 6}
+              ],
+              "onMiss": []
+            }
+          ],
+          "result": "정리된 타임라인을 그대로 이어받았다. 오늘 하려다 못 한 구간이 이미 끝나 있다.",
+          "resultOnFail": "그 구간의 작업자 필드가 공란으로 굳었다. 누가 했는지 물을 수 있는 창은 이미 닫혔다."
+        },
+        {
+          "id": "sign_handover_doc",
+          "label": "인수인계 문서에 내 이름과 인계 시각 적기",
+          "slot": "C",
+          "kind": "value",
+          "braveCheck": true,
+          "explicitRisk": false,
+          "effects": [
+            {"op": "flag", "target": "rightsManifest", "delta": 2, "note": "GDD 11.3 GH-19 원문 '성공 시 원본·권리 목록 +2%'. 11.3 밸런스 점검 2 — 80% 게이트는 밤이 아니라 낮의 권리 업무로만 넘게 둔다"},
+            {"op": "resource", "target": "sourceIntegrity", "delta": 6},
+            {"op": "flag", "target": "sourceLogClues", "delta": 1, "note": "GDD 11.3 GH-19 원문 '원본 로그 단서 1건'"},
+            {"op": "resource", "target": "fear", "delta": 6},
+            {"op": "flag", "target": "gh19HandoverSigned", "value": true, "note": "GDD 11.3 GH-19 원문 \"성공 시 GH-14 '전부 복원'의 진척 합계 -10이 -6으로 완화된다\""}
+          ],
+          "result": "빈 작성자 칸에 내 이름과 인계 시각을 적었다. 이 자리에서 처음으로 이름이 적힌 문서가 생겼다."
+        }
+      ],
+      "failureDefinition": {
+        "text": "'인수인계 문서에 내 이름과 인계 시각 적기'가 담력 판정, '그 작업을 그대로 이어받기'가 명시 리스크(30%)다. 실패 시 단서·완화 효과 없이 공포 +12, '타임코드 오염' 판정.",
+        "braveChoices": ["sign_handover_doc"],
+        "riskChoices": ["take_over_work"],
+        "status": "타임코드 오염",
+        "effects": [
+          {"op": "resource", "target": "fear", "delta": 12},
+          {"op": "status", "target": "타임코드 오염", "mode": "apply"}
+        ]
+      },
+      "codexRegisterCondition": "'인수인계 문서에 내 이름과 인계 시각 적기'를 수행(성공·실패 무관).",
+      "codexEntry": {
+        "front": "내 자리인데 저장 시각이 3분 전이다. 나는 3분 전에 여기 없었다.",
+        "back": "자리는 비지 않는다. 이름만 지워진다."
+      },
+      "dayPair": {
+        "text": "OF-27 '전임자 계정'과 체인 10.6 2단계 '인수인계_최종_진짜최종', 배경 소품 PR-13(파일명 규칙 문서)과 퇴사자 자리(페어 P-06) — 낮에는 문서가 없어서 웃던 자리가, 밤에는 문서가 이미 있고 작성자만 없다.",
+        "refs": ["OF-27", "OF-27-S2", "PR-13", "P-06", "MM-077"],
+        "source": "GDD 11.3 낮의 짝"
+      }
+    }
+  ]
+}

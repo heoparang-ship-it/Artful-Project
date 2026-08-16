@@ -1,0 +1,1996 @@
+{
+  "schemaVersion": "4.0.0",
+  "kind": "events",
+  "source": "FINAL-FINAL-D7-GDD.md v4.0 — 10장 현실 제작 이벤트 30종 / 10.0 이벤트 표 / 10.1~10.6 체인 / 10.7 일차별 발생 밀도",
+  "dayScale": {
+    "1": "D-7",
+    "2": "D-6",
+    "3": "D-5",
+    "4": "D-4",
+    "5": "D-3",
+    "6": "D-2",
+    "7": "D-1",
+    "8": "D-0"
+  },
+  "events": [
+    {
+      "id": "OF-01",
+      "name": "조금 더 감성적으로",
+      "phase": "reality_event",
+      "days": [5],
+      "dayLabel": "D-3 확정(D-4 중간 컨펌 수행 시)",
+      "weight": 0,
+      "condition": "day == 5 && flag.midConfirmDone",
+      "once": true,
+      "forced": {
+        "condition": "day == 5 && flag.midConfirmDone",
+        "note": "GDD 10.0 — D-3 확정. 중간 컨펌 미수행이면 발생하지 않는다. 확정 이벤트는 추첨보다 우선하며 그날의 기본 1건으로 계산한다(10장 발생 조건 열의 운용)"
+      },
+      "ftueOverride": {
+        "days": [1],
+        "condition": "flag.ftueBuild && day == 1",
+        "note": "GDD 10.0 — FTUE·MVP 수직절단 빌드는 D-7 고정 발생 예외(14장·19.1)"
+      },
+      "memeLayer": false,
+      "text": "중간 컨펌 답변이 한 문장이다.",
+      "tags": ["수정"],
+      "chain": "CH-01",
+      "choices": [
+        {
+          "id": "full_recut",
+          "label": "전면 재편집",
+          "slot": "A",
+          "kind": "gamble",
+          "effects": [
+            {"op": "track", "target": "post", "delta": -4},
+            {"op": "resource", "target": "clientTrust", "delta": 8},
+            {"op": "resource", "target": "revisionDebt", "delta": 6},
+            {"op": "chain", "target": "OF-01-S2", "mode": "reserve", "delay": 1}
+          ],
+          "result": "기준 없는 문장 하나에 편집실 전체가 다시 열린다. 신뢰는 올라갔고, 되돌릴 분량이 그만큼 늘었다."
+        },
+        {
+          "id": "ask_criteria",
+          "label": "구체 질문 회신",
+          "slot": "B",
+          "kind": "value",
+          "effects": [
+            {"op": "resource", "target": "clientTrust", "delta": -3},
+            {"op": "flag", "target": "nextFeedbackVisible", "value": true, "note": "GDD 18.4 이벤트 데이터 예시 원문 그대로 — 다음 피드백 결과 공개. 수치 미명시"}
+          ],
+          "result": "\"어느 장면의 어느 지점입니까\"라고 되물었다. 답장은 늦어졌지만, 다음 피드백은 문장이 아니라 위치로 온다."
+        },
+        {
+          "id": "translate_three",
+          "label": "이영림이 3개 기준으로 번역",
+          "slot": "C",
+          "kind": "safe",
+          "favors": ["leeyounglim"],
+          "effects": [
+            {"op": "char", "target": "leeyounglim", "stat": "focus", "delta": -8},
+            {"op": "resource", "target": "revisionDebt", "delta": -4}
+          ],
+          "result": "이영림이 '감성적으로'를 세 줄로 옮겨 적는다. 회의실에 남은 것은 감상이 아니라 체크할 수 있는 항목 세 개다."
+        }
+      ]
+    },
+    {
+      "id": "OF-02",
+      "name": "브리프가 두 개",
+      "phase": "reality_event",
+      "days": [1, 2],
+      "dayLabel": "D-7~D-6",
+      "weight": 35,
+      "condition": "",
+      "once": true,
+      "forced": {
+        "condition": "day == 1",
+        "note": "GDD 10장 운용 규칙 'D-7 온보딩 보호' — D-7 저녁 이벤트 슬롯은 온보딩 이벤트 OF-02가 확정 점유한다. 10.7-3에 따라 D-7 풀에는 밈 이벤트를 편성하지 않으므로 D-7 발생률 100%가 유지된다"
+      },
+      "memeLayer": false,
+      "text": "메일 첨부본과 메신저 본문 요구가 다르다.",
+      "tags": ["수정"],
+      "choices": [
+        {
+          "id": "latest_timestamp",
+          "label": "최신 시간 기준",
+          "slot": "A",
+          "kind": "gamble",
+          "effects": [
+            {
+              "op": "random",
+              "chance": 50,
+              "onHit": [{"op": "flag", "target": "briefResolved", "value": true, "note": "GDD 10.0 OF-02 선택 A 원문 '50% 정답' — 정답 시 결과 수치 미명시"}],
+              "onMiss": [{"op": "flag", "target": "briefConflictUnresolved", "value": true, "note": "GDD 10.0 OF-02 선택 A 원문 '50% 정답' — 오답 시 결과 수치 미명시"}]
+            }
+          ],
+          "result": "타임스탬프가 늦은 쪽을 기준으로 잡았다. 두 문서 중 나중에 쓰인 것이 나중에 결정된 것이라는 보장은 어디에도 없다.",
+          "resultOnFail": "나중에 온 쪽은 초안이었다. 오늘 잠근 기준이 어제 것이었다."
+        },
+        {
+          "id": "official_confirm",
+          "label": "공식 확인 요청",
+          "slot": "B",
+          "kind": "safe",
+          "effects": [
+            {"op": "slot", "target": "any", "mode": "delay", "value": 1, "note": "GDD 10.0 OF-02 선택 B 원문 '하루 지연'"},
+            {"op": "resource", "target": "sourceIntegrity", "delta": 5}
+          ],
+          "result": "어느 쪽이 정본인지 문서로 물었다. 하루를 잃었고, 그 하루치 기록이 남았다."
+        },
+        {
+          "id": "purpose_based",
+          "label": "허파랑이 목적 기준 선택",
+          "slot": "C",
+          "kind": "gamble",
+          "favors": ["heoparang"],
+          "effects": [
+            {
+              "op": "check",
+              "checkType": "task",
+              "actor": "heoparang",
+              "note": "GDD 10.0 OF-02 선택 C 원문 '기획 +5, 실패 시 신뢰 -8' — 10장 판정 참조의 업무 판정 공식 적용",
+              "onSuccess": [{"op": "track", "target": "story", "delta": 5}],
+              "onFail": [{"op": "resource", "target": "clientTrust", "delta": -8}]
+            }
+          ],
+          "result": "허파랑이 두 문서를 덮고 \"이 프로젝트가 왜 필요한가\"부터 다시 물었다. 목적이 기준이 되면 문서 두 개는 문제가 아니다.",
+          "resultOnFail": "목적은 우리 것이었고, 발주처의 목적은 첨부파일에 있었다."
+        }
+      ]
+    },
+    {
+      "id": "OF-03",
+      "name": "로케이션 허가 미결",
+      "phase": "reality_event",
+      "days": [2, 4],
+      "dayLabel": "D-6·D-4(촬영 전날)",
+      "weight": 35,
+      "condition": "",
+      "once": true,
+      "memeLayer": false,
+      "text": "내일 새벽 촬영인데 허가 답이 없다.",
+      "tags": ["촬영", "권리"],
+      "choices": [
+        {
+          "id": "change_location",
+          "label": "장소 변경",
+          "slot": "A",
+          "kind": "safe",
+          "effects": [
+            {"op": "track", "target": "story", "delta": -3},
+            {"op": "flag", "target": "locationSafe", "value": true, "note": "GDD 10.0 OF-03 선택 A 원문 '안전' — 수치 미명시"}
+          ],
+          "result": "허가가 이미 나 있는 장소로 옮겼다. 콘티의 절반이 그 장소를 전제로 쓰여 있었다."
+        },
+        {
+          "id": "wait_permit",
+          "label": "기다림",
+          "slot": "B",
+          "kind": "gamble",
+          "effects": [
+            {
+              "op": "random",
+              "chance": 60,
+              "onHit": [{"op": "flag", "target": "locationPermitGranted", "value": true, "note": "GDD 10.0 OF-03 선택 B 원문 '60% 허가' — 허가 시 결과 수치 미명시"}],
+              "onMiss": [{"op": "flag", "target": "shootGapToday", "value": true, "note": "GDD 10.0 OF-03 선택 B 원문 '실패 시 촬영 공백' — 수치 미명시"}]
+            }
+          ],
+          "result": "새벽 5시 12분에 회신이 왔다. 도장은 스캔본이고, 원본은 담당자가 출근하면 준단다.",
+          "resultOnFail": "회신은 촬영이 끝날 시각에 왔다. 그날 스케줄표에는 아무것도 채워지지 않았다."
+        },
+        {
+          "id": "small_alt_cut",
+          "label": "소규모 대체 컷",
+          "slot": "C",
+          "kind": "value",
+          "effects": [
+            {"op": "track", "target": "footage", "delta": 5},
+            {"op": "resource", "target": "audienceResonance", "delta": 2}
+          ],
+          "result": "허가가 필요 없는 자리에서 두 컷만 찍었다. 계획에 없던 컷이 나중에 제일 많이 쓰인다."
+        }
+      ]
+    },
+    {
+      "id": "OF-04",
+      "name": "출연 가능 시간 30분",
+      "phase": "reality_event",
+      "days": [3, 4, 5],
+      "dayLabel": "D-5~D-3",
+      "weight": 30,
+      "condition": "",
+      "once": true,
+      "memeLayer": false,
+      "text": "핵심 인터뷰이가 잠깐만 가능하다.",
+      "tags": ["촬영"],
+      "choices": [
+        {
+          "id": "cut_questions",
+          "label": "질문 축소",
+          "slot": "A",
+          "kind": "safe",
+          "effects": [
+            {"op": "track", "target": "story", "delta": 3},
+            {"op": "track", "target": "footage", "delta": 6}
+          ],
+          "result": "질문 12개를 3개로 줄였다. 남긴 세 개는 원래부터 그 세 개였다."
+        },
+        {
+          "id": "two_camera",
+          "label": "두 카메라 집중 촬영",
+          "slot": "B",
+          "kind": "gamble",
+          "requires": {"dsl": "flag.gearRequirementMet", "text": "장비 필요"},
+          "effects": [
+            {"op": "track", "target": "footage", "delta": 10}
+          ],
+          "result": "카메라 두 대를 동시에 돌렸다. 30분이 60분치 원본이 되었고, 편집실에서 붙일 컷이 두 배가 되었다."
+        },
+        {
+          "id": "reschedule",
+          "label": "일정 재조정",
+          "slot": "C",
+          "kind": "value",
+          "effects": [
+            {"op": "resource", "target": "budget", "delta": -30, "unit": "만원"},
+            {"op": "flag", "target": "interviewLockedTomorrow", "value": true, "note": "GDD 10.0 OF-04 선택 C 원문 '다음 날 확정' — 수치 미명시"}
+          ],
+          "result": "이동비와 대기비를 물고 내일 두 시간을 확보했다. 오늘 쓴 돈이 내일의 분량이 된다."
+        }
+      ]
+    },
+    {
+      "id": "OF-05",
+      "name": "비 예보 90%",
+      "phase": "reality_event",
+      "days": [2, 3, 4, 5],
+      "dayLabel": "D-6~D-3(야외 촬영 예정일)",
+      "weight": 25,
+      "condition": "flag.outdoorShootPlanned",
+      "once": true,
+      "memeLayer": false,
+      "text": "야외 촬영일에 폭우가 온다.",
+      "tags": ["촬영"],
+      "choices": [
+        {
+          "id": "push_through",
+          "label": "강행",
+          "slot": "A",
+          "kind": "gamble",
+          "effects": [
+            {
+              "op": "random",
+              "chance": 40,
+              "onHit": [{"op": "flag", "target": "rainMasterCut", "value": true, "note": "GDD 10.0 OF-05 선택 A 원문 '좋은 컷 확률 40%' — 수치 미명시"}],
+              "onMiss": [{"op": "flag", "target": "gearDamageRisk", "value": true, "note": "GDD 10.0 OF-05 선택 A 원문 '장비 위험' — 수치 미명시"}]
+            }
+          ],
+          "result": "우비를 씌우고 찍었다. 렌즈에 맺힌 물방울 두 개가 이 프로젝트에서 제일 좋은 컷이 되었다.",
+          "resultOnFail": "물이 들어간 곳은 카메라가 아니라 케이블이었다. 그쪽이 더 오래 걸린다."
+        },
+        {
+          "id": "move_indoor",
+          "label": "실내 전환",
+          "slot": "B",
+          "kind": "safe",
+          "effects": [
+            {"op": "track", "target": "story", "delta": -2},
+            {"op": "track", "target": "footage", "delta": 5}
+          ],
+          "result": "회의실 벽을 배경으로 바꿨다. 예정된 그림은 사라졌고, 예정에 없던 분량은 채워졌다."
+        },
+        {
+          "id": "rain_into_work",
+          "label": "비를 작품에 편입",
+          "slot": "C",
+          "kind": "value",
+          "requires": {"dsl": "flag.pairConceptToFrame", "text": "허파랑·손미림 페어 '콘셉트 투 프레임' 성립 필요"},
+          "effects": [
+            {"op": "track", "target": "footage", "delta": 12}
+          ],
+          "result": "허파랑이 \"비가 오늘의 콘셉트\"라고 말했고, 손미림이 3분 만에 그 말을 프레임으로 바꿨다."
+        }
+      ]
+    },
+    {
+      "id": "OF-06",
+      "name": "배터리 8%",
+      "phase": "reality_event",
+      "days": [3, 4, 5],
+      "dayLabel": "D-5~D-3",
+      "weight": 25,
+      "weightModifiers": [
+        {"condition": "flag.requiredGearMissing", "delta": 10, "note": "GDD 10.0 OF-06 원문 '요구 장비 미비 시 +10%p'"}
+      ],
+      "condition": "",
+      "once": true,
+      "memeLayer": false,
+      "text": "인터뷰 중 카메라가 꺼질 위기다.",
+      "tags": ["촬영"],
+      "choices": [
+        {
+          "id": "switch_sub_camera",
+          "label": "보조 카메라 전환",
+          "slot": "A",
+          "kind": "gamble",
+          "effects": [
+            {"op": "flag", "target": "qualityMismatch", "value": true, "note": "GDD 10.0 OF-06 선택 A 원문 '화질 불일치' — 수치 미명시"}
+          ],
+          "result": "말이 끊기기 전에 보조 카메라로 넘겼다. 두 컷의 색이 다르다는 건 편집실에서 알게 된다."
+        },
+        {
+          "id": "one_last_question",
+          "label": "질문을 마지막 하나로 압축",
+          "slot": "B",
+          "kind": "value",
+          "effects": [
+            {"op": "resource", "target": "audienceResonance", "delta": 5}
+          ],
+          "result": "\"마지막으로 하나만 여쭐게요.\" 남은 8%로 찍은 그 대답이 예고편의 첫 문장이 된다."
+        },
+        {
+          "id": "stop_and_swap",
+          "label": "촬영 중단·교체",
+          "slot": "C",
+          "kind": "safe",
+          "effects": [
+            {"op": "flag", "target": "shootTimeSpent", "value": true, "note": "GDD 10.0 OF-06 선택 C 원문 '시간 소모' — 수치 미명시"},
+            {"op": "flag", "target": "batteryIncidentSafe", "value": true, "note": "GDD 10.0 OF-06 선택 C 원문 '안전' — 수치 미명시"}
+          ],
+          "result": "\"잠깐만요\"를 말하고 배터리를 갈았다. 끊긴 4분 동안 인터뷰이는 하려던 말을 정리했다."
+        }
+      ]
+    },
+    {
+      "id": "OF-07",
+      "name": "카드 남은 시간 7분",
+      "phase": "reality_event",
+      "days": [3, 4, 5],
+      "dayLabel": "D-5~D-3",
+      "weight": 25,
+      "condition": "",
+      "once": true,
+      "memeLayer": false,
+      "text": "클라이맥스 촬영 직전 저장 공간 부족.",
+      "tags": ["촬영"],
+      "choices": [
+        {
+          "id": "delete_on_site",
+          "label": "현장 삭제",
+          "slot": "A",
+          "kind": "gamble",
+          "effects": [
+            {
+              "op": "random",
+              "chance": 20,
+              "onHit": [{"op": "flag", "target": "keyCutLost", "value": true, "note": "GDD 10.0 OF-07 선택 A 원문 '20% 핵심 컷 손실' — 손실 규모 수치 미명시"}],
+              "onMiss": []
+            }
+          ],
+          "result": "모니터도 없이 지울 것을 골랐다. 지운 파일 목록은 아무 데도 남지 않는다.",
+          "resultOnFail": "지운 것 중 하나가 어제 제일 잘 나온 컷이었다."
+        },
+        {
+          "id": "low_bitrate",
+          "label": "낮은 비트레이트",
+          "slot": "B",
+          "kind": "value",
+          "effects": [
+            {"op": "track", "target": "footage", "delta": 6},
+            {"op": "flag", "target": "postBurden", "value": true, "note": "GDD 10.0 OF-07 선택 B 원문 '후반 부담' — 수치 미명시"}
+          ],
+          "result": "화질을 한 단계 내려 분량을 확보했다. 색보정에서 그 한 단계를 되돌리는 일은 편집실 몫이다."
+        },
+        {
+          "id": "swap_card",
+          "label": "카드 교체",
+          "slot": "C",
+          "kind": "safe",
+          "effects": [
+            {"op": "flag", "target": "noDamage", "value": true, "require": "flag.hasIT12", "note": "GDD 10.0 OF-07 선택 C 원문 'IT-12 있으면 무피해' — 수치 미명시"},
+            {"op": "flag", "target": "storageShortage", "value": true, "require": "!flag.hasIT12", "note": "GDD 10.0 OF-07 선택 C — IT-12 미보유 시 교체할 카드가 없다. 원문에 미보유 시 수치 미명시"}
+          ],
+          "result": "\"포맷 완료\" 라벨이 붙은 카드를 꺼냈다. 라벨을 믿지 않고 한 번 더 확인한 건 이번이 처음이다."
+        }
+      ]
+    },
+    {
+      "id": "OF-08",
+      "name": "룸톤이 없다",
+      "phase": "reality_event",
+      "days": [4, 5, 6],
+      "dayLabel": "D-4~D-2(편집·모션 슬롯 가동 시)",
+      "weight": 30,
+      "condition": "flag.postSlotActiveToday",
+      "once": true,
+      "memeLayer": false,
+      "text": "편집 중 인터뷰 사이 소리가 비어 있다.",
+      "tags": ["수정"],
+      "choices": [
+        {
+          "id": "noise_removal",
+          "label": "노이즈 제거",
+          "slot": "A",
+          "kind": "gamble",
+          "effects": [
+            {"op": "track", "target": "post", "delta": 3},
+            {"op": "flag", "target": "audioQualityRisk", "value": true, "note": "GDD 10.0 OF-08 선택 A 원문 '음질 위험' — 수치 미명시"}
+          ],
+          "result": "빈 구간을 지워서 메웠다. 사람 목소리의 끝자락도 조금 같이 지워졌다."
+        },
+        {
+          "id": "rerecord",
+          "label": "재녹음",
+          "slot": "B",
+          "kind": "safe",
+          "effects": [
+            {"op": "slot", "target": "any", "mode": "consume", "value": 1, "note": "GDD 10.0 OF-08 선택 B 원문 '일정 -1 업무'"}
+          ],
+          "result": "같은 방에서 30초를 그냥 녹음했다. 아무 말도 하지 않은 30초가 오늘 가장 필요한 소리였다."
+        },
+        {
+          "id": "ambient_rhythm",
+          "label": "현장음을 리듬으로 사용",
+          "slot": "C",
+          "kind": "value",
+          "favors": ["sonmirim"],
+          "effects": [
+            {
+              "op": "check",
+              "checkType": "task",
+              "actor": "sonmirim",
+              "note": "GDD 10.0 OF-08 선택 C 원문 '손미림 성공 시 공감 +4' — 10장 판정 참조의 업무 판정 공식 적용",
+              "onSuccess": [{"op": "resource", "target": "audienceResonance", "delta": 4}],
+              "onFail": []
+            }
+          ],
+          "result": "에어컨 소리와 복합기 소리를 박자로 깔았다. 사무실의 소음이 처음으로 편집 의도가 되었다.",
+          "resultOnFail": "리듬으로 쓰려던 소리는 그냥 소음으로 들렸다."
+        }
+      ]
+    },
+    {
+      "id": "OF-09",
+      "name": "콘티와 현장이 다르다",
+      "phase": "reality_event",
+      "days": [3, 4, 5],
+      "dayLabel": "D-5~D-3",
+      "weight": 30,
+      "condition": "",
+      "once": true,
+      "memeLayer": false,
+      "text": "실제 장소에 계획한 동선이 없다.",
+      "tags": ["촬영"],
+      "choices": [
+        {
+          "id": "keep_storyboard",
+          "label": "콘티 고수",
+          "slot": "A",
+          "kind": "safe",
+          "effects": [
+            {"op": "flag", "target": "continuityTimeAndStaminaLoss", "value": true, "note": "GDD 10.0 OF-09 선택 A 원문 '시간·체력 손실' — 수치 미명시"}
+          ],
+          "result": "없는 동선을 만들어 가며 콘티대로 찍었다. 18컷 중 네 컷에 오늘 시간의 절반이 들어갔다."
+        },
+        {
+          "id": "restructure_on_site",
+          "label": "현장 재구성",
+          "slot": "B",
+          "kind": "gamble",
+          "effects": [
+            {
+              "op": "check",
+              "checkType": "task",
+              "statKey": "연출",
+              "note": "GDD 10.0 OF-09 선택 B 원문 '연출 판정(업무 판정 공식 적용, 연출 능력치 기준)'",
+              "onSuccess": [],
+              "onFail": []
+            }
+          ],
+          "result": "장소가 가진 선을 따라 동선을 다시 그었다. 콘티보다 짧고, 콘티보다 정확하다.",
+          "resultOnFail": "다시 그은 동선이 세 번째로 바뀔 때 해가 넘어갔다."
+        },
+        {
+          "id": "drop_scene",
+          "label": "장면 삭제",
+          "slot": "C",
+          "kind": "value",
+          "effects": [
+            {"op": "resource", "target": "revisionDebt", "delta": -3},
+            {"op": "track", "target": "story", "delta": -2}
+          ],
+          "result": "이 장면 없이도 이야기가 되는지 물었고, 된다는 답이 나왔다. 지운 장면 자리에 아무것도 넣지 않았다."
+        }
+      ]
+    },
+    {
+      "id": "OF-10",
+      "name": "동의서 한 장",
+      "phase": "reality_event",
+      "days": [5, 6],
+      "dayLabel": "D-3~D-2",
+      "weight": 35,
+      "weightModifiers": [
+        {"condition": "sourceIntegrity < 70", "delta": 10, "note": "GDD 10.0 OF-10 원문 '원본 무결성 70 미만이면 +10%p'"}
+      ],
+      "condition": "",
+      "once": true,
+      "memeLayer": false,
+      "text": "최고의 인터뷰 컷에 서명이 없다.",
+      "tags": ["권리"],
+      "choices": [
+        {
+          "id": "hold_usage",
+          "label": "사용 보류",
+          "slot": "A",
+          "kind": "safe",
+          "effects": [
+            {"op": "track", "target": "footage", "delta": -7},
+            {"op": "resource", "target": "sourceIntegrity", "delta": 8}
+          ],
+          "result": "서명이 없는 컷은 쓰지 않기로 했다. 제일 좋은 컷을 뺀 타임라인은 조금 조용해졌다."
+        },
+        {
+          "id": "urgent_contact",
+          "label": "긴급 연락",
+          "slot": "B",
+          "kind": "gamble",
+          "effects": [
+            {
+              "op": "random",
+              "chance": 70,
+              "onHit": [{"op": "flag", "target": "consentResolved", "value": true, "note": "GDD 10.0 OF-10 선택 B 원문 '70% 해결' — 해결 시 결과 수치 미명시"}],
+              "onMiss": [{"op": "flag", "target": "consentMissing", "value": true, "note": "GDD 10.0 OF-10 선택 B — 미해결 시 치명 누락 '미동의 출연자'(5.3) 후보로 남는다. 수치 미명시"}]
+            }
+          ],
+          "result": "전화를 걸었고, 사진으로 서명본을 받았다. 원본은 다음 주에 우편으로 온다.",
+          "resultOnFail": "번호는 살아 있었고 받는 사람이 없었다. 이 컷은 아직 우리 것이 아니다."
+        },
+        {
+          "id": "anonymize",
+          "label": "얼굴·음성 변형",
+          "slot": "C",
+          "kind": "value",
+          "effects": [
+            {"op": "track", "target": "post", "delta": -3},
+            {"op": "resource", "target": "audienceResonance", "delta": -2}
+          ],
+          "result": "얼굴을 흐리고 목소리를 낮췄다. 권리 문제는 사라졌고, 그 사람이 누구인지도 사라졌다."
+        }
+      ]
+    },
+    {
+      "id": "OF-11",
+      "name": "추가 버전도 오늘",
+      "phase": "reality_event",
+      "days": [6, 7],
+      "dayLabel": "D-2~D-1",
+      "weight": 30,
+      "condition": "",
+      "once": true,
+      "memeLayer": false,
+      "text": "납품 항목이 갑자기 하나 늘어난다.",
+      "tags": ["수정", "납품"],
+      "chain": "CH-02",
+      "choices": [
+        {
+          "id": "accept",
+          "label": "수락",
+          "slot": "A",
+          "kind": "gamble",
+          "effects": [
+            {"op": "resource", "target": "clientTrust", "delta": 5},
+            {"op": "resource", "target": "revisionDebt", "delta": 8},
+            {"op": "chain", "target": "OF-11-S2", "mode": "reserve", "delay": 1}
+          ],
+          "result": "\"그 정도는 되죠\"라고 답했다. 되는 것과 오늘 되는 것은 다른 말이었다."
+        },
+        {
+          "id": "separate_schedule",
+          "label": "별도 일정 제시",
+          "slot": "B",
+          "kind": "safe",
+          "effects": [
+            {"op": "resource", "target": "clientTrust", "delta": -3},
+            {"op": "flag", "target": "scopeLocked", "value": true, "note": "GDD 10.0 OF-11 선택 B 원문 '범위 잠금' — 수치 미명시"}
+          ],
+          "result": "추가 항목의 일정과 조건을 따로 적어 보냈다. 답장은 짧아졌고, 범위는 문서가 되었다."
+        },
+        {
+          "id": "derive_from_master",
+          "label": "기존 최종본에서 파생",
+          "slot": "C",
+          "kind": "value",
+          "effects": [
+            {"op": "track", "target": "post", "delta": -2},
+            {"op": "flag", "target": "extraDeliverableDone", "value": true, "note": "GDD 10.0 OF-11 선택 C 원문 '추가 산출물 1개 완료' — 수치 미명시"}
+          ],
+          "result": "이미 잠근 최종본에서 잘라 냈다. 새로 만들지 않았기 때문에 새로 틀릴 일도 없다."
+        }
+      ]
+    },
+    {
+      "id": "OF-12",
+      "name": "폰트 라이선스",
+      "phase": "reality_event",
+      "days": [5, 6],
+      "dayLabel": "D-3~D-2",
+      "weight": 25,
+      "condition": "",
+      "once": true,
+      "memeLayer": false,
+      "text": "프로젝트 핵심 폰트의 상업 범위가 불명확하다.",
+      "tags": ["권리"],
+      "choices": [
+        {
+          "id": "purchase",
+          "label": "구매",
+          "slot": "A",
+          "kind": "safe",
+          "effects": [
+            {"op": "resource", "target": "budget", "delta": -25, "unit": "만원"},
+            {"op": "flag", "target": "fontRightsCleared", "value": true, "note": "GDD 10.0 OF-12 선택 A 원문 '안전' — 수치 미명시"}
+          ],
+          "result": "결제하고 라이선스 문서를 프로젝트 폴더에 넣었다. 4페이지 각주까지 읽은 사람은 이혜미뿐이다."
+        },
+        {
+          "id": "substitute",
+          "label": "대체",
+          "slot": "B",
+          "kind": "value",
+          "effects": [
+            {"op": "track", "target": "post", "delta": -3}
+          ],
+          "result": "비슷한 무료 폰트로 전부 바꿨다. 비슷하다는 말의 뜻은 자막 두 줄에서 드러난다."
+        },
+        {
+          "id": "redesign_type",
+          "label": "직접 타이포 재설계",
+          "slot": "C",
+          "kind": "value",
+          "requires": {"dsl": "flag.pairStoryboardMoves", "text": "이영림+손미림 페어 '스토리보드가 움직인다' 성립 필요"},
+          "effects": [
+            {"op": "track", "target": "post", "delta": 5}
+          ],
+          "result": "이영림이 문장을 줄이고 손미림이 글자를 다시 짰다. 라이선스가 필요 없는 타이포는 우리 것이다."
+        }
+      ]
+    },
+    {
+      "id": "OF-13",
+      "name": "음원 사용 범위",
+      "phase": "reality_event",
+      "days": [5, 6],
+      "dayLabel": "D-3~D-2",
+      "weight": 30,
+      "condition": "",
+      "once": true,
+      "memeLayer": false,
+      "text": "현재 계약 범위로는 최종 납품에 사용할 수 없다.",
+      "tags": ["권리"],
+      "choices": [
+        {
+          "id": "extend_license",
+          "label": "확장 라이선스",
+          "slot": "A",
+          "kind": "safe",
+          "effects": [
+            {"op": "resource", "target": "budget", "delta": -60, "unit": "만원"}
+          ],
+          "result": "사용 범위를 넓혀 다시 계약했다. 표 안의 더 작은 표를 이번에는 먼저 읽었다."
+        },
+        {
+          "id": "replace_music",
+          "label": "음악 교체",
+          "slot": "B",
+          "kind": "value",
+          "effects": [
+            {"op": "track", "target": "post", "delta": -5}
+          ],
+          "result": "다른 곡으로 갈아 끼웠다. 붙여 놓은 컷의 리듬은 원래 곡에 맞춰 잘려 있었다."
+        },
+        {
+          "id": "rebuild_from_owned",
+          "label": "보유 소스로 재구성",
+          "slot": "C",
+          "kind": "value",
+          "effects": [
+            {"op": "slot", "target": "editing", "mode": "consume", "value": 1, "note": "GDD 10.0 OF-13 선택 C 원문 '사운드 슬롯 추가 요구' — 8.1 슬롯 6종에 사운드 슬롯이 없고 사운드 작업은 편집·모션 슬롯이 수행한다"}
+          ],
+          "result": "가지고 있는 소스만으로 다시 깔았다. 권리 문제가 없는 트랙은 처음부터 우리가 만든 것뿐이다."
+        }
+      ]
+    },
+    {
+      "id": "OF-14",
+      "name": "결과가 다릅니다",
+      "phase": "reality_event",
+      "days": [6, 7],
+      "dayLabel": "D-2~D-1",
+      "weight": 30,
+      "weightModifiers": [
+        {"condition": "day == 7 && !flag.deliveryTestDone", "delta": 10, "note": "GDD 10.0 OF-14 원문 '납품 테스트 미수행 시 D-1 +10%p'"}
+      ],
+      "condition": "",
+      "once": true,
+      "memeLayer": false,
+      "text": "발주처 환경과 제작 환경에서 최종본이 다르게 보인다.",
+      "tags": ["납품"],
+      "choices": [
+        {
+          "id": "match_their_env",
+          "label": "상대 환경에 맞춤",
+          "slot": "A",
+          "kind": "value",
+          "effects": [
+            {"op": "flag", "target": "qualityLoss", "value": true, "note": "GDD 10.0 OF-14 선택 A 원문 '품질 손실' — 수치 미명시"}
+          ],
+          "result": "저쪽 모니터에서 제대로 보이게 맞췄다. 우리 기준에서 보면 이제 이쪽이 틀린 그림이다."
+        },
+        {
+          "id": "explain_reference",
+          "label": "기준 환경 설명",
+          "slot": "B",
+          "kind": "gamble",
+          "effects": [
+            {
+              "op": "check",
+              "checkType": "confirm",
+              "note": "GDD 10.0 OF-14 선택 B 원문 '신뢰 판정(컨펌 판정 공식 적용)'",
+              "onSuccess": [],
+              "onFail": []
+            }
+          ],
+          "result": "기준 환경이 무엇이고 왜 그것이 기준인지 한 장으로 보냈다. 이제 규격 이야기는 취향 이야기가 아니다.",
+          "resultOnFail": "설명은 길었고, 답장은 \"그래도 저희 쪽에서는 이렇게 보입니다\"였다."
+        },
+        {
+          "id": "delivery_test",
+          "label": "납품 테스트",
+          "slot": "C",
+          "kind": "safe",
+          "effects": [
+            {"op": "track", "target": "master", "delta": 5},
+            {"op": "slot", "target": "any", "mode": "consume", "value": 1, "note": "GDD 10.0 OF-14 선택 C 원문 '하루 슬롯 1개'"},
+            {"op": "flag", "target": "deliveryTestDone", "value": true, "note": "GDD 10.0 OF-14 선택 C — 납품 테스트 수행. 같은 이벤트의 D-1 가중치 보정 조건과 연결된다"}
+          ],
+          "result": "발주처와 같은 조건을 만들어 한 번 틀어 봤다. 다르게 보이던 이유는 우리 쪽 설정 한 줄이었다."
+        }
+      ]
+    },
+    {
+      "id": "OF-15",
+      "name": "자막 한 글자",
+      "phase": "reality_event",
+      "days": [6, 7],
+      "dayLabel": "D-2~D-1",
+      "weight": 25,
+      "condition": "",
+      "once": true,
+      "memeLayer": false,
+      "text": "인물 이름의 받침이 틀렸다.",
+      "tags": ["납품", "수정"],
+      "choices": [
+        {
+          "id": "full_rerender",
+          "label": "즉시 전체 재렌더",
+          "slot": "A",
+          "kind": "safe",
+          "effects": [
+            {"op": "flag", "target": "fullRerender", "value": true, "note": "GDD 10.0 OF-15 선택 A 원문 '즉시 전체 재렌더' — 수치 미명시"}
+          ],
+          "result": "한 글자 때문에 전체를 다시 걸었다. 이름은 한 글자 틀리면 다른 사람의 이름이다."
+        },
+        {
+          "id": "partial_replace",
+          "label": "부분 교체",
+          "slot": "B",
+          "kind": "gamble",
+          "effects": [
+            {
+              "op": "random",
+              "chance": 10,
+              "onHit": [{"op": "flag", "target": "subtitleSyncIncident", "value": true, "note": "GDD 10.0 OF-15 선택 B 원문 '10% 싱크 사고' — 사고 규모 수치 미명시"}],
+              "onMiss": []
+            }
+          ],
+          "result": "해당 구간만 잘라 붙였다. 붙인 자리의 프레임이 하나 어긋나 있는지는 아직 아무도 확인하지 않았다.",
+          "resultOnFail": "교체한 구간부터 자막이 반 박자씩 밀렸다."
+        },
+        {
+          "id": "full_inspection",
+          "label": "이혜미 전수검수",
+          "slot": "C",
+          "kind": "value",
+          "favors": ["leehyemi"],
+          "effects": [
+            {"op": "char", "target": "leehyemi", "stat": "focus", "delta": -8},
+            {"op": "flag", "target": "criticalSubtitleCleared", "value": true, "note": "GDD 10.0 OF-15 선택 C 원문 '치명 오류 제거' — 5.3 치명 누락 '자막 미검수' 해소. 수치 미명시"}
+          ],
+          "result": "이혜미가 자막 전체를 처음부터 읽었다. 받침 하나 말고도 두 군데가 더 있었다."
+        }
+      ]
+    },
+    {
+      "id": "OF-16",
+      "name": "렌더 99%",
+      "phase": "reality_event",
+      "days": [7],
+      "dayLabel": "D-1(렌더 작업 가동 시)",
+      "weight": 35,
+      "condition": "day == 7 && flag.renderSlotActiveToday",
+      "once": true,
+      "memeLayer": false,
+      "text": "마감 1시간 전 멈췄다.",
+      "tags": ["납품"],
+      "choices": [
+        {
+          "id": "force_restart",
+          "label": "강제 종료·재시작",
+          "slot": "A",
+          "kind": "gamble",
+          "effects": [
+            {
+              "op": "random",
+              "chance": 60,
+              "onHit": [{"op": "flag", "target": "renderRestartOk", "value": true, "note": "GDD 10.0 OF-16 선택 A 원문 '60% 성공' — 성공 시 결과 수치 미명시"}],
+              "onMiss": [{"op": "flag", "target": "postPartialLoss", "value": true, "note": "GDD 10.0 OF-16 선택 A — 실패 시 결과 수치 미명시"}]
+            }
+          ],
+          "result": "껐다 켰다. 99%까지 오는 데 걸린 시간은 두 번째에는 더 짧았다.",
+          "resultOnFail": "두 번째도 99%에서 멈췄다. 남은 시간은 이제 첫 번째보다 짧다."
+        },
+        {
+          "id": "clear_cache",
+          "label": "캐시 삭제",
+          "slot": "B",
+          "kind": "value",
+          "effects": [
+            {"op": "flag", "target": "postPartialLoss", "value": true, "note": "GDD 10.0 OF-16 선택 B 원문 '후반 일부 손실' — 수치 미명시"}
+          ],
+          "result": "캐시를 비우니 렌더는 넘어갔다. 같이 사라진 프리뷰는 다시 만들어야 한다."
+        },
+        {
+          "id": "proxy_master",
+          "label": "프록시 마스터",
+          "slot": "C",
+          "kind": "safe",
+          "effects": [
+            {"op": "track", "target": "master", "delta": -5, "note": "GDD 10.0 OF-16 선택 C 원문 '화질 점수 -5' — 프록시 마스터 납품이므로 5.1 마스터·납품(최종 규격·QC) 트랙에 반영한다"},
+            {"op": "flag", "target": "deliverableReady", "value": true, "note": "GDD 10.0 OF-16 선택 C 원문 '납품 가능' — 수치 미명시"}
+          ],
+          "result": "프록시로 마스터를 내보냈다. 시간 안에 열리는 파일과 시간 밖의 좋은 파일 중 앞을 골랐다."
+        }
+      ]
+    },
+    {
+      "id": "OF-17",
+      "name": "지원하지 않는 코덱",
+      "phase": "reality_event",
+      "days": [7],
+      "dayLabel": "D-1",
+      "weight": 25,
+      "condition": "day == 7",
+      "once": true,
+      "memeLayer": false,
+      "text": "현장 플레이어가 마스터를 읽지 못한다.",
+      "tags": ["납품"],
+      "choices": [
+        {
+          "id": "convert_on_site",
+          "label": "현장 변환",
+          "slot": "A",
+          "kind": "gamble",
+          "effects": [
+            {"op": "flag", "target": "onSiteConversionPressure", "value": true, "note": "GDD 10.0 OF-17 선택 A 원문 '시간 압박' — 수치 미명시"}
+          ],
+          "result": "현장 노트북에서 변환을 걸었다. 남은 시간과 변환 예상 시간이 같은 숫자다."
+        },
+        {
+          "id": "use_backup",
+          "label": "백업본 사용",
+          "slot": "B",
+          "kind": "safe",
+          "requires": {"dsl": "flag.hasIT26", "text": "IT-26 납품 규격서 필요"},
+          "effects": [
+            {"op": "flag", "target": "backupMasterUsed", "value": true, "note": "GDD 10.0 OF-17 선택 B 원문 'IT-26 필요' — 수치 미명시"}
+          ],
+          "result": "규격서에 적힌 두 번째 포맷 백업본을 꺼냈다. 항목이 많은 쪽을 기준으로 잡아 둔 덕을 오늘 봤다."
+        },
+        {
+          "id": "direct_laptop",
+          "label": "노트북 직결 재생",
+          "slot": "C",
+          "kind": "gamble",
+          "effects": [
+            {
+              "op": "check",
+              "checkType": "task",
+              "note": "GDD 10.0 OF-17 선택 C 원문 '안정성 판정(업무 판정 공식 적용)'",
+              "onSuccess": [],
+              "onFail": []
+            }
+          ],
+          "result": "우리 노트북을 직접 물렸다. 화면은 나왔고, 케이블 하나가 90분 동안 아무에게도 밟히지 않았다.",
+          "resultOnFail": "재생 도중 절전이 걸렸다. 우리 노트북의 설정은 우리만 알고 있었다."
+        }
+      ]
+    },
+    {
+      "id": "OF-18",
+      "name": "담당자 교체",
+      "phase": "reality_event",
+      "days": [3, 4, 5, 6],
+      "dayLabel": "D-5~D-2",
+      "weight": 20,
+      "condition": "",
+      "once": true,
+      "memeLayer": false,
+      "text": "새 담당자가 처음부터 다시 설명해 달라 한다.",
+      "tags": ["사람", "수정"],
+      "chain": "CH-03",
+      "choices": [
+        {
+          "id": "full_presentation",
+          "label": "전체 발표",
+          "slot": "A",
+          "kind": "value",
+          "effects": [
+            {"op": "slot", "target": "any", "mode": "consume", "value": 1, "note": "GDD 10.0 OF-18 선택 A 원문 '업무 슬롯 1개 소모'"},
+            {"op": "chain", "target": "OF-18-S2", "mode": "reserve", "delay": 1}
+          ],
+          "result": "처음부터 다시 발표했다. 앞사람이 승인한 내용을 다시 설명하는 데 오후가 갔다."
+        },
+        {
+          "id": "one_page_summary",
+          "label": "1페이지 요약",
+          "slot": "B",
+          "kind": "value",
+          "favors": ["leeyounglim"],
+          "effects": [
+            {"op": "chain", "target": "OF-18-S2", "mode": "reserve", "delay": 1}
+          ],
+          "result": "이영림이 여덟 줄을 한 줄로 줄인 문서를 냈다. 새 담당자가 읽은 것은 그 한 줄이다."
+        },
+        {
+          "id": "show_approval_log",
+          "label": "기존 승인 로그 제시",
+          "slot": "C",
+          "kind": "safe",
+          "favors": ["leehyemi"],
+          "effects": [],
+          "result": "이혜미가 승인 일시와 발신자가 찍힌 로그를 그대로 보냈다. 다시 설명할 것이 없어졌다.",
+          "note": "GDD 10.3 — 선택 C를 고르면 로그가 방패가 되어 CH-03 2단계는 발생하지 않는다"
+        }
+      ]
+    },
+    {
+      "id": "OF-19",
+      "name": "다른 프로젝트의 마감",
+      "phase": "reality_event",
+      "days": [4, 5, 6],
+      "dayLabel": "D-4~D-2",
+      "weight": 20,
+      "condition": "",
+      "once": true,
+      "memeLayer": false,
+      "text": "동시에 작은 납품이 겹쳤다.",
+      "tags": ["사람"],
+      "choices": [
+        {
+          "id": "split_team",
+          "label": "전원 분산",
+          "slot": "A",
+          "kind": "value",
+          "effects": [
+            {"op": "slot", "target": "any", "mode": "outputPct", "value": -15, "note": "GDD 10.0 OF-19 선택 A 원문 '메인 산출 -15%'"}
+          ],
+          "result": "다섯 명이 두 프로젝트를 나눠 들었다. 두 곳 다 절반씩 늦어지는 방식으로 공평해졌다."
+        },
+        {
+          "id": "outsource",
+          "label": "외부 협업",
+          "slot": "B",
+          "kind": "safe",
+          "effects": [
+            {"op": "resource", "target": "budget", "delta": -50, "unit": "만원"}
+          ],
+          "result": "작은 건을 밖으로 넘겼다. 돈으로 산 것은 작업이 아니라 이번 주의 오후 시간이다."
+        },
+        {
+          "id": "negotiate_scope",
+          "label": "범위 협상",
+          "slot": "C",
+          "kind": "gamble",
+          "effects": [
+            {
+              "op": "check",
+              "checkType": "confirm",
+              "note": "GDD 10.0 OF-19 선택 C 원문 '신뢰 판정(컨펌 판정 공식 적용), 성공 시 무피해'",
+              "onSuccess": [{"op": "flag", "target": "scopeNegotiated", "value": true, "note": "GDD 10.0 OF-19 선택 C 원문 '성공 시 무피해' — 수치 미명시"}],
+              "onFail": []
+            }
+          ],
+          "result": "두 건의 순서를 문서로 합의했다. 겹친 마감은 겹친 채로 두고, 순서만 정했다.",
+          "resultOnFail": "\"저희도 이번 주가 마감이라서요.\" 양쪽 다 같은 문장을 썼다."
+        }
+      ]
+    },
+    {
+      "id": "OF-20",
+      "name": "납품 규격 변경",
+      "phase": "reality_event",
+      "days": [6, 7],
+      "dayLabel": "D-2~D-1",
+      "weight": 25,
+      "condition": "",
+      "once": true,
+      "memeLayer": false,
+      "text": "해상도·화면비·음향 규격이 바뀌었다.",
+      "tags": ["납품", "수정"],
+      "choices": [
+        {
+          "id": "full_remaster",
+          "label": "전체 재마스터",
+          "slot": "A",
+          "kind": "safe",
+          "effects": [
+            {"op": "flag", "target": "fullRemaster", "value": true, "note": "GDD 10.0 OF-20 선택 A 원문 '전체 재마스터' — 수치 미명시"}
+          ],
+          "result": "바뀐 규격으로 처음부터 다시 걸었다. 규격서가 두 개였을 때 많은 쪽을 기준으로 잡았어야 했다."
+        },
+        {
+          "id": "quick_convert",
+          "label": "간이 변환",
+          "slot": "B",
+          "kind": "value",
+          "effects": [
+            {"op": "track", "target": "master", "delta": -4, "note": "GDD 10.0 OF-20 선택 B 원문 '품질 -4' — 간이 변환 결과물의 규격 품질이므로 5.1 마스터·납품 트랙에 반영한다"}
+          ],
+          "result": "변환기로 한 번에 밀었다. 화면비를 맞추느라 위아래로 잘린 자막이 두 줄 있다."
+        },
+        {
+          "id": "add_custom_version",
+          "label": "맞춤 버전 추가",
+          "slot": "C",
+          "kind": "gamble",
+          "requires": {"dsl": "flag.overtimeTonight || day == 7", "text": "야근 또는 D-1 슬롯 필요"},
+          "effects": [],
+          "result": "기존 마스터는 두고 맞춤 버전을 하나 더 만들었다. 그 한 개를 만드는 데 하루의 마지막 슬롯이 들어갔다."
+        }
+      ]
+    },
+    {
+      "id": "OF-21",
+      "name": "새벽 세 시의 링크",
+      "phase": "reality_event",
+      "days": [2, 3, 4],
+      "dayLabel": "D-6~D-4",
+      "weight": 25,
+      "condition": "",
+      "once": true,
+      "memeLayer": true,
+      "decayFromDay": 6,
+      "text": "아침 브리핑 전 사내 메신저에 새벽 3시대 메시지 11건이 쌓여 있다. 링크 9개와 \"이거 우리 거에 붙이면 될 듯\"이 전부다.",
+      "tags": ["수정", "사람"],
+      "note": "GDD 10.4 OF-21 — 아이디어의 질이 아니라 도착 시각이 문제라는 것을 수치로 보여준다",
+      "choices": [
+        {
+          "id": "review_all_eleven",
+          "label": "11건 전부 검토해 오늘 반영",
+          "slot": "A",
+          "kind": "gamble",
+          "effects": [
+            {"op": "track", "target": "story", "delta": 6},
+            {"op": "resource", "target": "revisionDebt", "delta": 5},
+            {"op": "char", "target": "all", "stat": "focus", "delta": -6}
+          ],
+          "result": "링크 아홉 개를 전부 열었다. 오늘 범위에 들어온 것은 아이디어가 아니라 아이디어 열한 개의 지분이다."
+        },
+        {
+          "id": "pick_three",
+          "label": "3건만 골라 오늘 범위에 넣기",
+          "slot": "B",
+          "kind": "value",
+          "effects": [
+            {"op": "track", "target": "story", "delta": 3},
+            {"op": "resource", "target": "revisionDebt", "delta": 1},
+            {"op": "char", "target": "heoparang", "stat": "bond", "delta": 3}
+          ],
+          "result": "세 건을 골라 오늘 안에 붙였다. 고르지 않은 여덟 건에 대해서는 고르지 않은 이유를 적어 두었다."
+        },
+        {
+          "id": "overall_judgment",
+          "label": "허파랑이 액티브 '총괄 판단'으로 자기 제안을 범위 밖 확정",
+          "slot": "C",
+          "kind": "safe",
+          "requires": {"dsl": "flag.assignedHeoparang", "text": "허파랑 액티브 '총괄 판단' 당일 소모"},
+          "effects": [
+            {"op": "resource", "target": "revisionDebt", "delta": -4},
+            {"op": "char", "target": "all", "stat": "focus", "delta": 3},
+            {"op": "track", "target": "story", "delta": -2}
+          ],
+          "result": "허파랑이 자기가 새벽에 보낸 링크를 스스로 범위 밖으로 내렸다. \"내가 보낸 건 내가 자른다.\""
+        }
+      ]
+    },
+    {
+      "id": "OF-22",
+      "name": "저녁이나 하죠",
+      "phase": "reality_event",
+      "days": [3, 4, 5],
+      "dayLabel": "D-5~D-3",
+      "weight": 25,
+      "weightModifiers": [
+        {"condition": "flag.confirmPassedYesterday", "delta": 10, "note": "GDD 10.0 OF-22 원문 '전일 컨펌 성공 시 +10%p — 이벤트는 18:00, 컨펌 결과는 19:00이므로 당일 결과를 참조하지 않는다'"}
+      ],
+      "condition": "",
+      "once": true,
+      "memeLayer": true,
+      "decayFromDay": 6,
+      "text": "허파랑이 외부 데모데이에서 다음 건에 관한 이야기를 하나 듣고 돌아와 저녁을 제안한다. 시각은 19시 40분이다.",
+      "tags": ["사람", "돈"],
+      "note": "GDD 10.4 OF-22 — 회식 참석이 경제·유대 어느 축에서도 최적해가 되지 않게 설계했다(21장 원칙 7). 자리를 뜨는 선택에는 유대도 페널티를 두지 않는다",
+      "choices": [
+        {
+          "id": "first_round_only",
+          "label": "1차까지만 하고 해산",
+          "slot": "A",
+          "kind": "value",
+          "effects": [
+            {"op": "resource", "target": "budget", "delta": -25, "unit": "만원"},
+            {"op": "char", "target": "all", "stat": "hp", "delta": -5},
+            {"op": "char", "target": "all", "stat": "bond", "delta": 3},
+            {"op": "flag", "target": "of22Occurred", "value": true, "note": "GDD 11.3 GH-18 출현 조건 — 낮에 OF-22가 발생한 런에서는 GH-18 개별 출현률 분포만 상향된다"}
+          ],
+          "result": "1차에서 일어섰다. 다음 건 이야기는 절반쯤 나왔고, 절반은 다음 주 낮으로 넘어갔다."
+        },
+        {
+          "id": "second_round",
+          "label": "2차까지 간다",
+          "slot": "B",
+          "kind": "gamble",
+          "effects": [
+            {"op": "resource", "target": "budget", "delta": -45, "unit": "만원"},
+            {"op": "char", "target": "all", "stat": "hp", "delta": -12},
+            {"op": "char", "target": "all", "stat": "bond", "delta": 1},
+            {"op": "char", "target": "all", "stat": "focus", "delta": -8, "when": "nextDay"},
+            {"op": "flag", "target": "overtimeLockedToday", "value": true, "note": "GDD 10.0 OF-22 선택 B 원문 '당일 야근 선택 불가'"},
+            {"op": "flag", "target": "of22Occurred", "value": true, "note": "GDD 11.3 GH-18 출현 조건 — 낮에 OF-22가 발생한 런에서는 GH-18 개별 출현률 분포만 상향된다"}
+          ],
+          "result": "2차까지 갔다. 다음 건 이야기는 세 번 반복됐고, 세 번 다 조금씩 달랐다."
+        },
+        {
+          "id": "move_to_daytime",
+          "label": "오늘은 해산하고 다음 주 낮 회의로 옮기기",
+          "slot": "C",
+          "kind": "safe",
+          "effects": [
+            {"op": "char", "target": "all", "stat": "hp", "delta": 5},
+            {"op": "char", "target": "all", "stat": "bond", "delta": 4},
+            {"op": "flag", "target": "of22Occurred", "value": true, "note": "GDD 11.3 GH-18 출현 조건 — 낮에 OF-22가 발생한 런에서는 GH-18 개별 출현률 분포만 상향된다"}
+          ],
+          "result": "\"그 얘기는 다음 주 낮에 하시죠.\" 예산은 그대로고, 들은 이야기는 안건으로만 남았다.",
+          "note": "GDD 10.0 OF-22 선택 C 원문 '예산 변동 없음 … 들은 이야기는 다음 주 낮 회의 안건으로만 남는다(자원 보상 없음)'"
+        }
+      ]
+    },
+    {
+      "id": "OF-23",
+      "name": "한도 초과입니다",
+      "phase": "reality_event",
+      "days": [3, 4, 5],
+      "dayLabel": "D-5~D-3(촬영·현장 슬롯 가동일)",
+      "weight": 25,
+      "condition": "flag.shootSlotActiveToday",
+      "once": true,
+      "memeLayer": true,
+      "decayFromDay": 6,
+      "text": "현장에서 주차·식대·소품값을 결제하려는데 법인카드가 한도 초과다. 승인 문자는 대표 휴대폰으로만 간다.",
+      "tags": ["돈", "촬영"],
+      "note": "GDD 10.4 OF-23 — 개인카드 선결제를 공짜 해결책으로 두지 않기 위해 유대도와 정산 부채를 함께 깎는다",
+      "choices": [
+        {
+          "id": "personal_card",
+          "label": "촬영 담당이 개인카드로 선결제",
+          "slot": "A",
+          "kind": "gamble",
+          "effects": [
+            {"op": "char", "target": "actor", "stat": "focus", "delta": -8},
+            {"op": "resource", "target": "revisionDebt", "delta": 3},
+            {"op": "char", "target": "actor", "stat": "bond", "delta": -2}
+          ],
+          "result": "촬영은 멈추지 않았다. 결제한 사람의 영수증 넉 장이 오늘부터 서랍에서 정산을 기다린다.",
+          "note": "GDD 10.0 OF-23 선택 A 원문 '당일 촬영 무피해' — 촬영 산출에 감산 없음"
+        },
+        {
+          "id": "wait_limit_raise",
+          "label": "한도 상향 승인까지 대기",
+          "slot": "B",
+          "kind": "safe",
+          "effects": [
+            {"op": "track", "target": "footage", "delta": -4}
+          ],
+          "result": "40분을 기다렸다. 대표 휴대폰이 회의 중 무음이었다는 사실을 40분 뒤에 알았다.",
+          "note": "GDD 10.0 OF-23 선택 B 원문 '촬영 40분 지연 … 예산 변동 없음'"
+        },
+        {
+          "id": "expense_resolution",
+          "label": "이혜미가 지출결의로 즉시 처리",
+          "slot": "C",
+          "kind": "value",
+          "requires": {"dsl": "flag.assignedLeehyemi", "text": "이혜미 배치 필요"},
+          "effects": [
+            {"op": "resource", "target": "budget", "delta": -15, "unit": "만원"},
+            {"op": "char", "target": "leehyemi", "stat": "focus", "delta": -5},
+            {"op": "char", "target": "leehyemi", "stat": "bond", "delta": 3}
+          ],
+          "result": "이혜미가 현장에서 지출결의서를 띄웠다. 회사 돈은 회사 절차로 나가는 것이 제일 빠르다.",
+          "note": "GDD 10.0 OF-23 선택 C 원문 '무피해' — 촬영 산출에 감산 없음"
+        }
+      ]
+    },
+    {
+      "id": "OF-24",
+      "name": "이번 달 안에 끊어주세요",
+      "phase": "reality_event",
+      "days": [4, 5, 6],
+      "dayLabel": "D-4~D-2",
+      "weight": 25,
+      "condition": "",
+      "once": true,
+      "memeLayer": true,
+      "decayFromDay": 6,
+      "text": "발주처 경리 담당이 이번 달 마감이라며 납품 전에 세금계산서를 먼저 발행해 달라고 한다.",
+      "tags": ["돈"],
+      "note": "GDD 10.4 OF-24 — 제작 일정이 아니라 남의 회사 월 마감에 맞춰 움직이는 돈. 10.7-2에 따라 D-2 가중치는 감쇠 후 12",
+      "choices": [
+        {
+          "id": "issue_now",
+          "label": "즉시 선발행",
+          "slot": "A",
+          "kind": "gamble",
+          "effects": [
+            {"op": "resource", "target": "budget", "delta": 30, "unit": "만원"},
+            {"op": "resource", "target": "clientTrust", "delta": 2},
+            {"op": "resource", "target": "revisionDebt", "delta": 4}
+          ],
+          "result": "납품 전에 계산서를 끊었다. 규격이 한 번 더 바뀌면 이 서류부터 다시 끊어야 한다.",
+          "note": "GDD 10.0 OF-24 선택 A 원문 '수정 부채 +4(규격 변경 시 재발행 위험을 부채로 계상)'"
+        },
+        {
+          "id": "keep_principle",
+          "label": "납품 후 발행 원칙 유지",
+          "slot": "B",
+          "kind": "safe",
+          "effects": [
+            {"op": "resource", "target": "clientTrust", "delta": -3},
+            {"op": "resource", "target": "revisionDebt", "delta": -2}
+          ],
+          "result": "\"납품 확인 후에 발행합니다.\" 답장은 하루 늦게 왔고, 원칙은 문서로 남았다.",
+          "note": "GDD 10.0 OF-24 선택 B 원문 '예산 변동 없음'"
+        },
+        {
+          "id": "document_terms",
+          "label": "이혜미가 발행 조건과 정산 일정을 문서로 붙여 회신",
+          "slot": "C",
+          "kind": "value",
+          "requires": {"dsl": "flag.assignedLeehyemi", "text": "이혜미 배치 필요"},
+          "effects": [
+            {"op": "slot", "target": "deliveryQC", "mode": "consume", "value": 1, "note": "GDD 10.0 OF-24 선택 C 원문 '최종 납품 QC 슬롯 1회 소모'"},
+            {"op": "resource", "target": "budget", "delta": 25, "unit": "만원"},
+            {"op": "resource", "target": "clientTrust", "delta": 3},
+            {"op": "char", "target": "leehyemi", "stat": "bond", "delta": 3}
+          ],
+          "result": "발행 조건과 정산 일정을 한 장에 붙여 회신했다. 이번 달 마감은 저쪽 사정이고, 조건은 이쪽 문서다."
+        }
+      ]
+    },
+    {
+      "id": "OF-25",
+      "name": "공유기를 껐다 켭니다",
+      "phase": "reality_event",
+      "days": [2, 3, 4, 5, 6],
+      "dayLabel": "D-6~D-2",
+      "weight": 30,
+      "condition": "",
+      "once": true,
+      "memeLayer": true,
+      "decayFromDay": 6,
+      "text": "오후 3시에 사무실 인터넷이 끊긴다. NAS가 목록에서 사라지고 당일 원본 전송이 62%에서 멈춰 있다.",
+      "tags": ["인프라"],
+      "chain": "CH-04",
+      "note": "GDD 10.4 OF-25 — 모든 사무실 장애의 1차 대응은 재부팅이고, 그것이 실제로 60% 통한다. 10.7-2에 따라 D-2 가중치는 감쇠 후 15",
+      "choices": [
+        {
+          "id": "reboot_router",
+          "label": "공유기 재부팅",
+          "slot": "A",
+          "kind": "gamble",
+          "effects": [
+            {
+              "op": "random",
+              "chance": 60,
+              "onHit": [{"op": "flag", "target": "routerRecovered", "value": true, "note": "GDD 10.0 OF-25 선택 A 원문 '60% 즉시 복구·무피해' — 수치 미명시"}],
+              "onMiss": [
+                {"op": "track", "target": "post", "delta": -3},
+                {"op": "resource", "target": "sourceIntegrity", "delta": -4}
+              ]
+            },
+            {"op": "chain", "target": "OF-25-S2", "mode": "reserve", "delay": 1}
+          ],
+          "result": "코드를 뽑았다가 10초 뒤에 다시 꽂았다. 목록에 NAS가 돌아왔고, 전송은 62%부터 이어졌다.",
+          "resultOnFail": "재부팅 뒤에도 목록은 비어 있었다. 62%에서 멈춘 전송은 처음부터 다시다.",
+          "note": "GDD 10.5 — 선택 A 단독 전제로 CH-04 2단계가 다음 날 18:00 확정 발생한다. 야근 수행 여부는 전제가 아니다"
+        },
+        {
+          "id": "call_building",
+          "label": "건물 관리실 호출",
+          "slot": "B",
+          "kind": "safe",
+          "effects": [
+            {"op": "slot", "target": "editing", "mode": "outputPct", "value": -30, "note": "GDD 10.0 OF-25 선택 B 원문 '대기 40분. 당일 편집·모션 슬롯 산출 -30%'"}
+          ],
+          "result": "관리실에 전화했다. 40분 뒤에 온 사람이 제일 먼저 한 일도 공유기를 껐다 켜는 것이었다.",
+          "note": "GDD 10.0 OF-25 선택 B 원문 '원본 무결성 무피해'"
+        },
+        {
+          "id": "switch_to_ssd",
+          "label": "백업 SSD로 전환해 로컬 작업 계속",
+          "slot": "C",
+          "kind": "value",
+          "effects": [
+            {"op": "flag", "target": "noDamage", "value": true, "require": "flag.hasIT20", "note": "GDD 10.0 OF-25 선택 C 원문 'IT-20 보유 시 무피해' — 수치 미명시"},
+            {"op": "track", "target": "post", "delta": 2, "require": "!flag.hasIT20"},
+            {"op": "resource", "target": "sourceIntegrity", "delta": -6, "require": "!flag.hasIT20"}
+          ],
+          "result": "네트워크를 포기하고 로컬로 내려왔다. 3-2-1 백업 규칙은 다섯 명 전원이 외우고 있다."
+        }
+      ]
+    },
+    {
+      "id": "OF-26",
+      "name": "용지 걸림",
+      "phase": "reality_event",
+      "days": [2, 3, 4],
+      "dayLabel": "D-6~D-4",
+      "weight": 30,
+      "condition": "",
+      "once": true,
+      "memeLayer": true,
+      "decayFromDay": 6,
+      "text": "출연 동의서 12장과 콜시트를 뽑는 중 복합기가 멈춘다. 표시등은 용지 걸림이지만 실제로는 토너다. 여분은 없다.",
+      "tags": ["인프라", "권리"],
+      "note": "GDD 10.4 OF-26 — 종이 한 장이 안 나와서 촬영 권리가 흔들리는 연쇄를 재현한다",
+      "choices": [
+        {
+          "id": "print_shop",
+          "label": "근처 인쇄소에서 출력",
+          "slot": "A",
+          "kind": "safe",
+          "effects": [
+            {"op": "resource", "target": "budget", "delta": -8, "unit": "만원"},
+            {"op": "slot", "target": "preproduction", "mode": "outputPct", "value": -20, "note": "GDD 10.0 OF-26 선택 A 원문 '왕복 50분. 당일 프리프로덕션 슬롯 산출 -20%'"},
+            {"op": "flag", "target": "of26Handled", "value": true, "note": "GDD 11.3 GH-17 출현 전제 — 낮에 OF-26을 처리했거나 출력물을 1회 이상 뽑은 경우"},
+            {"op": "flag", "target": "printoutDoneOnce", "value": true, "note": "GDD 11.3 GH-17 출현 전제 — 프리프로덕션 슬롯에서 출력물(콜시트·출연 동의서)을 1회 이상 뽑음"}
+          ],
+          "result": "12장을 인쇄소에서 뽑아 왔다. 왕복 50분 동안 사무실의 복합기는 여전히 용지 걸림이라고 말하고 있었다."
+        },
+        {
+          "id": "tablet_signature",
+          "label": "태블릿 전자서명으로 대체",
+          "slot": "B",
+          "kind": "gamble",
+          "effects": [
+            {"op": "resource", "target": "sourceIntegrity", "delta": 3},
+            {
+              "op": "random",
+              "chance": 20,
+              "onHit": [{"op": "track", "target": "footage", "delta": -5}],
+              "onMiss": [],
+              "note": "GDD 10.0 OF-26 선택 B 원문 '현장 서명 거부 20% — 발생 시 촬영·원본 -5'"
+            },
+            {"op": "flag", "target": "of26Handled", "value": true, "note": "GDD 11.3 GH-17 출현 전제 — 낮에 OF-26을 처리한 경우"}
+          ],
+          "result": "화면에 손가락으로 받았다. 서명 이미지와 서명 시각이 같은 파일에 남는다.",
+          "resultOnFail": "\"종이로 주시면 안 될까요.\" 화면을 밀어낸 손이 그날의 컷 하나를 같이 밀어냈다."
+        },
+        {
+          "id": "handwritten_photo",
+          "label": "자필 동의 문구와 사진으로 기록",
+          "slot": "C",
+          "kind": "value",
+          "effects": [
+            {"op": "resource", "target": "sourceIntegrity", "delta": -5, "require": "!flag.hasIT07"},
+            {"op": "flag", "target": "noDamage", "value": true, "require": "flag.hasIT07", "note": "GDD 10.0 OF-26 선택 C 원문 'IT-07 보유 시 무피해' — 수치 미명시"},
+            {"op": "flag", "target": "of26Handled", "value": true, "note": "GDD 11.3 GH-17 출현 전제 — 낮에 OF-26을 처리한 경우"}
+          ],
+          "result": "빈 종이에 직접 쓰게 하고 사진으로 남겼다. 문구는 사람마다 조금씩 다르다.",
+          "note": "GDD 10.0 OF-26 선택 C 원문 '촬영·원본 무피해' — 촬영 트랙 감산 없음"
+        }
+      ]
+    },
+    {
+      "id": "OF-27",
+      "name": "전임자 계정",
+      "phase": "reality_event",
+      "days": [2],
+      "dayLabel": "D-6",
+      "weight": 30,
+      "condition": "day == 2",
+      "once": true,
+      "memeLayer": true,
+      "decayFromDay": 6,
+      "text": "플레이어 자리의 이전 AP 계정이 아직 살아 있다. 인수인계 문서는 없고 바탕화면에 폴더 40개와 '새 폴더 (3)'이 있다.",
+      "tags": ["사람", "인프라"],
+      "chain": "CH-05",
+      "note": "GDD 10.4 OF-27 — 게임 주제인 '이름 없는 원본'과 가장 직접 연결되는 사무실 밈. 선택 C의 원본·권리 목록 +2%는 80% 게이트에 밈 레이어가 대량 공급하지 않는다는 전제에 맞춘 폭이다",
+      "choices": [
+        {
+          "id": "keep_using",
+          "label": "계정을 그대로 이어 사용",
+          "slot": "A",
+          "kind": "gamble",
+          "effects": [
+            {"op": "track", "target": "post", "delta": 4, "note": "GDD 10.0 OF-27 선택 A 원문 '편집·후반 +4(프리셋·경로 승계)'"},
+            {"op": "resource", "target": "sourceIntegrity", "delta": -6},
+            {"op": "flag", "target": "of27Handled", "value": true, "note": "GDD 11.3 GH-19 출현 전제 — 낮에 OF-27을 처리(선택 무관)"},
+            {"op": "chain", "target": "OF-27-S2", "mode": "reserve", "delay": 1}
+          ],
+          "result": "프리셋도 경로도 그대로 살아 있었다. 이 자리에서 일한 사람의 이름만 어디에도 없다."
+        },
+        {
+          "id": "close_and_setup",
+          "label": "계정을 닫고 새로 세팅",
+          "slot": "B",
+          "kind": "safe",
+          "effects": [
+            {"op": "slot", "target": "any", "mode": "outputPct", "value": -25, "note": "GDD 10.0 OF-27 선택 B 원문 '당일 업무 슬롯 산출 -25%'"},
+            {"op": "resource", "target": "sourceIntegrity", "delta": 6},
+            {"op": "flag", "target": "of27Handled", "value": true, "note": "GDD 11.3 GH-19 출현 전제 — 낮에 OF-27을 처리(선택 무관)"},
+            {"op": "chain", "target": "OF-27-S2", "mode": "reserve", "delay": 1}
+          ],
+          "result": "계정을 닫고 처음부터 깔았다. 오늘 하루를 세팅에 쓴 대신, 이 자리의 기록은 오늘부터 시작한다."
+        },
+        {
+          "id": "reverse_handover_doc",
+          "label": "이혜미와 인수인계 문서를 역으로 작성",
+          "slot": "C",
+          "kind": "value",
+          "requires": {"dsl": "flag.assignedLeehyemi", "text": "이혜미 배치 필요"},
+          "effects": [
+            {"op": "flag", "target": "rightsManifest", "delta": 2, "note": "GDD 10.0 OF-27 선택 C 원문 '원본·권리 목록 +2%'"},
+            {"op": "char", "target": "player", "stat": "focus", "delta": -6},
+            {"op": "char", "target": "leehyemi", "stat": "bond", "delta": 3},
+            {"op": "flag", "target": "of27Handled", "value": true, "note": "GDD 11.3 GH-19 출현 전제 — 낮에 OF-27을 처리(선택 무관)"}
+          ],
+          "result": "없는 인수인계 문서를 지금 만들었다. 폴더 40개에 이름을 붙이는 데 오후가 다 갔다.",
+          "note": "GDD 10.6 — 선택 C를 고르면 그 문서가 방패가 되어 CH-05 2단계는 발생하지 않는다"
+        }
+      ]
+    },
+    {
+      "id": "OF-28",
+      "name": "오늘 하루만 사람",
+      "phase": "reality_event",
+      "days": [3, 4, 5],
+      "dayLabel": "D-5~D-3",
+      "weight": 20,
+      "condition": "",
+      "once": true,
+      "memeLayer": true,
+      "decayFromDay": 6,
+      "text": "손이 한 명 더 필요하다. 공고를 올려도 이번 주 안에는 아무도 오지 않는다.",
+      "tags": ["사람"],
+      "note": "GDD 10.4 OF-28 — 사람이 부족한 것이 사람의 잘못이 아니라는 점을 세 선택지 모두의 대가로 드러낸다",
+      "choices": [
+        {
+          "id": "hire_assistant",
+          "label": "단기 촬영 보조 1인 섭외",
+          "slot": "A",
+          "kind": "value",
+          "effects": [
+            {"op": "resource", "target": "budget", "delta": -45, "unit": "만원"},
+            {"op": "slot", "target": "shooting", "mode": "outputPct", "value": 30, "note": "GDD 10.0 OF-28 선택 A 원문 '당일 촬영·현장 슬롯 산출 +30%'"},
+            {"op": "resource", "target": "sourceIntegrity", "delta": -3, "note": "GDD 10.0 OF-28 선택 A 원문 '원본 무결성 -3(현장 명명 규칙 미숙)'"}
+          ],
+          "result": "하루짜리 계약으로 한 사람이 왔다. 파일명 규칙을 설명하는 데 20분, 다시 설명하는 데 20분이 들었다."
+        },
+        {
+          "id": "ask_acquaintance",
+          "label": "아는 사람에게 하루 부탁",
+          "slot": "B",
+          "kind": "gamble",
+          "effects": [
+            {"op": "resource", "target": "budget", "delta": -20, "unit": "만원"},
+            {
+              "op": "check",
+              "checkType": "task",
+              "note": "GDD 10.0 OF-28 선택 B 원문 '업무 판정 공식 적용. 성공 시 선택 A와 동일 산출, 실패 시 수정 부채 +4, 원본 무결성 -5'",
+              "onSuccess": [
+                {"op": "slot", "target": "shooting", "mode": "outputPct", "value": 30, "note": "GDD 10.0 OF-28 선택 B 원문 '성공 시 선택 A와 동일 산출'"},
+                {"op": "resource", "target": "sourceIntegrity", "delta": -3, "note": "GDD 10.0 OF-28 선택 B 원문 '성공 시 선택 A와 동일 산출' — 선택 A의 무결성 -3 포함"}
+              ],
+              "onFail": [
+                {"op": "resource", "target": "revisionDebt", "delta": 4},
+                {"op": "resource", "target": "sourceIntegrity", "delta": -5}
+              ]
+            }
+          ],
+          "result": "아는 사람이 하루를 비워 줬다. 밥값과 교통비만 받고 종일 짐을 들었다.",
+          "resultOnFail": "부탁한 사람도 오늘이 처음이었다. 파일이 어디에 들어갔는지는 밤에 찾았다."
+        },
+        {
+          "id": "no_extra_hands",
+          "label": "사람 없이 진행",
+          "slot": "C",
+          "kind": "safe",
+          "effects": [
+            {"op": "char", "target": "assigned", "stat": "hp", "delta": -6, "note": "GDD 10.0 OF-28 선택 C 원문 '당일 배치 인원 전원 체력 -6'"},
+            {"op": "resource", "target": "snack", "delta": -1}
+          ],
+          "result": "다섯 명이 여섯 명 몫을 나눠 들었다. 나눠 든 만큼 저녁에 남은 것이 없다."
+        }
+      ]
+    },
+    {
+      "id": "OF-29",
+      "name": "두 달 전에 승인된 반차",
+      "phase": "reality_event",
+      "days": [4, 5, 6],
+      "dayLabel": "D-4~D-2",
+      "weight": 20,
+      "condition": "",
+      "once": true,
+      "memeLayer": true,
+      "decayFromDay": 6,
+      "text": "두 달 전 승인된 반차가 오늘이다. 신청자는 아무 말 없이 자리에 앉아 있고 전자결재함에는 승인 도장이 그대로 있다.",
+      "tags": ["근태", "사람"],
+      "note": "GDD 10.4 OF-29 — 21장 원칙 6(야근은 최적해가 아니다)을 근태 밈으로 다시 쓴 이벤트. 10.7-2에 따라 D-2 가중치는 감쇠 후 10",
+      "choices": [
+        {
+          "id": "take_halfday",
+          "label": "반차 그대로 사용",
+          "slot": "A",
+          "kind": "value",
+          "effects": [
+            {"op": "slot", "target": "any", "mode": "dropAfternoon", "value": 1, "note": "GDD 10.0 OF-29 선택 A 원문 '해당 인물 오후 슬롯 이탈'"},
+            {"op": "char", "target": "subject", "stat": "focus", "delta": 12, "when": "nextDay"},
+            {"op": "char", "target": "subject", "stat": "hp", "delta": 10, "when": "nextDay"},
+            {"op": "char", "target": "subject", "stat": "bond", "delta": 5},
+            {"op": "flag", "target": "holidayFragments", "delta": 1, "note": "GDD 10.0 OF-29 선택 A 원문 '이후 GH-13 연차신청서 제시 휴일 조각 +1'"}
+          ],
+          "result": "결재된 반차를 결재된 대로 썼다. 오후의 그 자리는 비었고, 다음 날 아침의 그 자리는 제일 멀쩡했다."
+        },
+        {
+          "id": "convert_to_comp",
+          "label": "대체휴무로 전환",
+          "slot": "B",
+          "kind": "gamble",
+          "effects": [
+            {"op": "char", "target": "subject", "stat": "focus", "delta": -6},
+            {"op": "char", "target": "subject", "stat": "bond", "delta": -3},
+            {"op": "resource", "target": "revisionDebt", "delta": 2}
+          ],
+          "result": "\"오늘은 급하니까 나중에 쓰시죠.\" 나중은 아직 달력에 없다.",
+          "note": "GDD 10.0 OF-29 선택 B 원문 '당일 무피해' — 당일 산출 감산 없음"
+        },
+        {
+          "id": "morning_halfday",
+          "label": "오전 반차로 당겨 오후 복귀",
+          "slot": "C",
+          "kind": "safe",
+          "effects": [
+            {"op": "slot", "target": "any", "mode": "dropMorning", "value": 1, "note": "GDD 10.0 OF-29 선택 C 원문 '해당 인물 오전 슬롯만 이탈'"},
+            {"op": "char", "target": "subject", "stat": "focus", "delta": 5},
+            {"op": "char", "target": "subject", "stat": "hp", "delta": 3},
+            {"op": "char", "target": "subject", "stat": "bond", "delta": 2}
+          ],
+          "result": "오전을 비우고 점심에 돌아왔다. 반나절이라도 쓴 휴가는 쓰지 않은 휴가와 다르다."
+        }
+      ]
+    },
+    {
+      "id": "OF-30",
+      "name": "탕비실 재고 조사",
+      "phase": "reality_event",
+      "days": [2, 3, 4, 5],
+      "dayLabel": "D-6~D-3",
+      "weight": 25,
+      "weightModifiers": [
+        {"condition": "coffee <= 3 || snack <= 2", "delta": 15, "note": "GDD 10.0 OF-30 원문 '커피 3 이하 또는 간식 2 이하이면 +15%p'"}
+      ],
+      "condition": "",
+      "once": true,
+      "memeLayer": true,
+      "decayFromDay": 6,
+      "text": "믹스커피 박스가 비었고 정수기 물통도 마지막이다. 냉장고에는 이름이 적히지 않은 음식 세 개가 있다.",
+      "tags": ["탕비실"],
+      "note": "GDD 10.4 OF-30 — 표기상 최대 획득은 커피 +4 / 간식 +3이지만 밈 레이어 통산 상한(커피 +2 / 간식 +2)이 걸리므로 실제 반영은 자원별 최대 +2다. 상한 도달 후 획득은 0으로 처리하며 선택지 문구와 연출은 그대로 출력한다",
+      "choices": [
+        {
+          "id": "buy_at_mart",
+          "label": "근처 마트에서 한 번에 사 오기",
+          "slot": "A",
+          "kind": "safe",
+          "effects": [
+            {"op": "resource", "target": "budget", "delta": -18, "unit": "만원"},
+            {"op": "resource", "target": "coffee", "delta": 4, "cap": "memeLayer"},
+            {"op": "resource", "target": "snack", "delta": 3, "cap": "memeLayer"},
+            {"op": "char", "target": "actor", "stat": "hp", "delta": -4},
+            {"op": "flag", "target": "of30Handled", "value": true, "note": "GDD 11.3 GH-16 출현 전제 — 낮에 OF-30을 1회 처리(선택 무관)"}
+          ],
+          "result": "카트 하나를 채워 왔다. 무거운 쪽을 든 사람과 비었다고 말한 사람은 이번에도 달랐다."
+        },
+        {
+          "id": "delivery_order",
+          "label": "배달 최소주문금액을 맞춰 주문",
+          "slot": "B",
+          "kind": "value",
+          "effects": [
+            {"op": "resource", "target": "budget", "delta": -25, "unit": "만원"},
+            {"op": "resource", "target": "coffee", "delta": 4, "cap": "memeLayer"},
+            {"op": "resource", "target": "snack", "delta": 3, "cap": "memeLayer"},
+            {"op": "slot", "target": "any", "mode": "outputPct", "value": -10, "note": "GDD 10.0 OF-30 선택 B 원문 '도착까지 1시간 — 당일 업무 슬롯 1개 산출 -10%'"},
+            {"op": "flag", "target": "of30Handled", "value": true, "note": "GDD 11.3 GH-16 출현 전제 — 낮에 OF-30을 1회 처리(선택 무관)"}
+          ],
+          "result": "최소주문금액을 맞추느라 필요 없는 것을 두 개 더 담았다. 그 두 개는 다음 주에도 남아 있다."
+        },
+        {
+          "id": "clear_fridge",
+          "label": "냉장고를 정리하고 남은 것으로 버티기",
+          "slot": "C",
+          "kind": "gamble",
+          "effects": [
+            {"op": "resource", "target": "coffee", "delta": 2, "cap": "memeLayer"},
+            {"op": "resource", "target": "snack", "delta": 3, "cap": "memeLayer"},
+            {"op": "char", "target": "all", "stat": "focus", "delta": -3},
+            {"op": "flag", "target": "of30Handled", "value": true, "note": "GDD 11.3 GH-16 출현 전제 — 낮에 OF-30을 1회 처리(선택 무관)"},
+            {"op": "flag", "target": "of30DiscardedUnnamed", "value": true, "note": "GDD 10.0 OF-30 선택 C 원문 '이름 없는 음식 3개 폐기' — GH-16 개별 출현률 +5%p 전제"},
+            {"op": "spawnWeight", "target": "GH-16", "delta": 5, "scope": "tonight", "note": "GDD 10.0 OF-30 선택 C 원문 '그날 밤 GH-16 이름 없는 도시락 개별 출현률 +5%p(6.2 이면 조우율 식 불변, 밤 조우 총량 불변)'"}
+          ],
+          "result": "이름이 적히지 않은 세 개를 버렸다. 버리기 전에 누구 것인지 묻지 않았다."
+        }
+      ]
+    }
+  ],
+  "chains": [
+    {
+      "id": "CH-01",
+      "name": "조금 더 감성적으로",
+      "source": "10.1",
+      "root": "OF-01",
+      "stages": [
+        {
+          "id": "OF-01-S2",
+          "name": "이 느낌은 아닌데요",
+          "phase": "reality_event",
+          "trigger": {"event": "OF-01", "choices": ["full_recut"], "delay": 1, "forced": true},
+          "condition": "",
+          "text": "전면 재편집본을 보낸 다음 날, 같은 담당자에게서 답이 온다. \"이 느낌은 아닌데요.\"",
+          "next": "OF-01-S3",
+          "choices": [
+            {
+              "id": "revert_original",
+              "label": "원래 버전으로 돌아가기",
+              "slot": "A",
+              "kind": "safe",
+              "effects": [
+                {"op": "resource", "target": "revisionDebt", "delta": 5}
+              ],
+              "result": "어제 버린 버전을 다시 꺼냈다. 두 번 바뀐 것은 화면이고, 기준은 아직 한 번도 정해지지 않았다."
+            },
+            {
+              "id": "reference_table",
+              "label": "세 가지 레퍼런스 비교표",
+              "slot": "B",
+              "kind": "value",
+              "effects": [
+                {"op": "slot", "target": "planning", "mode": "consume", "value": 1, "note": "GDD 10.1 2단계 원문 '기획 슬롯 1회'"}
+              ],
+              "result": "레퍼런스 세 개를 나란히 놓고 어느 쪽인지 짚게 했다. 손가락이 가리킨 것은 두 번째였다."
+            },
+            {
+              "id": "fifteen_min_call",
+              "label": "담당자와 15분 통화",
+              "slot": "C",
+              "kind": "value",
+              "requires": {"dsl": "flag.assignedHeoparang || flag.assignedLeeyounglim", "text": "허파랑 또는 이영림 배치 필요"},
+              "effects": [],
+              "result": "메일 열 통 대신 15분을 썼다. 통화가 끝나고 남은 메모는 세 줄이다."
+            }
+          ]
+        },
+        {
+          "id": "OF-01-S3",
+          "name": "처음 버전이 제일 좋네요",
+          "phase": "reality_event",
+          "trigger": {"event": "OF-01-S2", "choices": ["revert_original", "reference_table", "fifteen_min_call"], "delay": 1, "forced": true},
+          "condition": "",
+          "text": "며칠 만에 답이 온다. \"역시 처음 버전이 제일 좋네요.\"",
+          "autoOutcomes": [
+            {
+              "order": 1,
+              "condition": "pack.PK_04",
+              "effects": [
+                {"op": "chain", "target": "CH-01", "mode": "end"}
+              ],
+              "result": "버전 이름이 규칙대로 붙어 있어 '처음 버전'이 어느 파일인지 바로 나왔다. 되돌릴 것이 없으니 이벤트는 여기서 끝난다.",
+              "note": "GDD 10.1 3단계 원문 '버전 잠금 메타 모듈이 있으면 이벤트 종료' — 13.2 PK-04 '버전 네이밍 규칙'"
+            },
+            {
+              "order": 2,
+              "condition": "flag.versionLogKept",
+              "effects": [
+                {"op": "flag", "target": "versionRestored", "value": true, "note": "GDD 10.1 3단계 원문 '버전 로그가 있으면: 원본 복원' — 수치 미명시"},
+                {"op": "resource", "target": "clientTrust", "delta": 5}
+              ],
+              "result": "버전 로그에서 첫 번째 파일을 그대로 꺼냈다. 되돌리는 데 걸린 시간은 4분이다."
+            },
+            {
+              "order": 3,
+              "condition": "",
+              "effects": [
+                {"op": "track", "target": "post", "delta": -8}
+              ],
+              "result": "'처음 버전'이 어느 파일인지 아무도 특정하지 못했다. 남은 방법은 기억으로 다시 만드는 것뿐이다."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "CH-02",
+      "name": "추가 버전도 오늘",
+      "source": "10.2",
+      "root": "OF-11",
+      "stages": [
+        {
+          "id": "OF-11-S2",
+          "name": "15초 버전도 오늘",
+          "phase": "reality_event",
+          "phaseFallback": {
+            "condition": "day == 7",
+            "phase": "overtime",
+            "note": "GDD 10.2 — 1단계를 D-1에 수락한 경우에는 다음 날이 없으므로 2단계가 당일 야근 페이즈에 즉시 발생한다"
+          },
+          "trigger": {"event": "OF-11", "choices": ["accept"], "delay": 1, "forced": true},
+          "condition": "",
+          "text": "같은 발주처가 이번에는 15초 세로형 버전을 오늘 안에 요구한다.",
+          "choices": [
+            {
+              "id": "accept_again",
+              "label": "다시 수락",
+              "slot": "A",
+              "kind": "gamble",
+              "effects": [
+                {"op": "resource", "target": "clientTrust", "delta": 4},
+                {"op": "resource", "target": "revisionDebt", "delta": 6},
+                {"op": "slot", "target": "editing", "mode": "consume", "value": 1, "note": "GDD 10.2 2단계 원문 '편집·모션 슬롯 1개 소모'"}
+              ],
+              "result": "가로를 세로로 잘랐다. 15초 안에 들어가지 못한 것은 인물의 이름 자막이다."
+            },
+            {
+              "id": "lock_scope_doc",
+              "label": "범위 문서 잠금 요청",
+              "slot": "B",
+              "kind": "value",
+              "effects": [
+                {
+                  "op": "check",
+                  "checkType": "confirm",
+                  "note": "GDD 10.2 2단계 원문 '컨펌 판정 공식 적용. 성공 시 추가 요구 체인 종료, 신뢰 +2. 실패 시 신뢰 -4, 수정 부채 +3'",
+                  "onSuccess": [
+                    {"op": "resource", "target": "clientTrust", "delta": 2},
+                    {"op": "flag", "target": "extraRequestChainClosed", "value": true, "note": "GDD 10.2 2단계 원문 '추가 요구 체인 종료' — 수치 미명시"},
+                    {"op": "chain", "target": "CH-02", "mode": "end"}
+                  ],
+                  "onFail": [
+                    {"op": "resource", "target": "clientTrust", "delta": -4},
+                    {"op": "resource", "target": "revisionDebt", "delta": 3}
+                  ]
+                }
+              ],
+              "result": "납품 항목 목록을 문서로 잠갔다. 다음 요청은 항목이 아니라 견적으로 온다.",
+              "resultOnFail": "\"그 정도는 원래 포함 아닌가요.\" 잠그려던 문서가 협상 대상이 되었다."
+            },
+            {
+              "id": "extra_quote",
+              "label": "추가 견적 제시",
+              "slot": "C",
+              "kind": "safe",
+              "requires": {"dsl": "flag.assignedLeehyemi", "text": "이혜미 배치 필요"},
+              "effects": [
+                {"op": "resource", "target": "budget", "delta": 30, "unit": "만원"},
+                {"op": "resource", "target": "clientTrust", "delta": -2},
+                {"op": "flag", "target": "extraRequestChainClosed", "value": true, "note": "GDD 10.2 2단계 원문 '추가 요구 체인 종료' — 수치 미명시"},
+                {"op": "chain", "target": "CH-02", "mode": "end"}
+              ],
+              "result": "이혜미가 항목과 금액을 적어 보냈다. 공짜로 늘어나던 범위에 처음으로 숫자가 붙었다."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "CH-03",
+      "name": "담당자 교체",
+      "source": "10.3",
+      "root": "OF-18",
+      "stages": [
+        {
+          "id": "OF-18-S2",
+          "name": "재컨펌을 요구합니다",
+          "phase": "reality_event",
+          "trigger": {"event": "OF-18", "choices": ["full_presentation", "one_page_summary"], "delay": 1, "forced": true},
+          "condition": "",
+          "text": "새 담당자가 이미 승인된 컷 3건의 재컨펌을 요구한다.",
+          "choices": [
+            {
+              "id": "accept_recheck",
+              "label": "재컨펌 전면 수용",
+              "slot": "A",
+              "kind": "safe",
+              "effects": [
+                {"op": "slot", "target": "any", "mode": "consume", "value": 1, "note": "GDD 10.3 2단계 원문 '업무 슬롯 1개 소모'"},
+                {"op": "resource", "target": "revisionDebt", "delta": 5},
+                {"op": "resource", "target": "clientTrust", "delta": 3}
+              ],
+              "result": "승인된 컷 3건을 다시 걸었다. 두 건은 그대로 통과했고, 한 건은 처음과 다른 이유로 통과했다."
+            },
+            {
+              "id": "submit_log_retroactively",
+              "label": "승인 로그 소급 제출",
+              "slot": "B",
+              "kind": "value",
+              "requires": {"dsl": "flag.assignedLeehyemi", "text": "이혜미 배치 필요"},
+              "effects": [
+                {"op": "resource", "target": "clientTrust", "delta": 2},
+                {"op": "char", "target": "leehyemi", "stat": "bond", "delta": 3}
+              ],
+              "result": "승인 일시와 발신자가 찍힌 로그를 그대로 붙여 보냈다. 기록은 설득보다 짧다.",
+              "note": "GDD 10.3 2단계 원문 '무피해' — 슬롯·부채 손실 없음"
+            },
+            {
+              "id": "assert_existing_approval",
+              "label": "기존 승인 유효 주장",
+              "slot": "C",
+              "kind": "gamble",
+              "effects": [
+                {
+                  "op": "check",
+                  "checkType": "confirm",
+                  "weighted": false,
+                  "note": "GDD 10.3 2단계 원문 '컨펌 판정 공식 적용(가중 없음). 성공 시 재컨펌 철회, 신뢰 +1. 실패 시 신뢰 -5, 수정 부채 +4, 컨펌 공포 연속 실패 카운트 1 누적'",
+                  "onSuccess": [
+                    {"op": "resource", "target": "clientTrust", "delta": 1},
+                    {"op": "flag", "target": "rechecksWithdrawn", "value": true, "note": "GDD 10.3 2단계 원문 '재컨펌 철회' — 수치 미명시"}
+                  ],
+                  "onFail": [
+                    {"op": "resource", "target": "clientTrust", "delta": -5},
+                    {"op": "resource", "target": "revisionDebt", "delta": 4},
+                    {"op": "flag", "target": "confirmFailStreak", "delta": 1, "note": "GDD 10.3 2단계 원문 \"'컨펌 공포' 연속 실패 카운트 1 누적\" — 18.6·18.7의 정수 카운터 confirmFailStreak를 1 올린다"}
+                  ]
+                }
+              ],
+              "result": "\"이미 승인된 건입니다.\" 앞 담당자의 승인은 회사의 승인이라는 문장이 통했다.",
+              "resultOnFail": "\"저는 그 승인을 못 봤습니다.\" 승인은 사람에게 붙어 있었지 회사에 붙어 있지 않았다."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "CH-04",
+      "name": "공유기를 껐다 켭니다",
+      "source": "10.5",
+      "root": "OF-25",
+      "note": "MM-068 단일 귀속 — 밈 MM-068 '공용 계정 비밀번호'의 21:57 마지막 로그인 소재는 이 체인 한 곳에서만 이벤트로 소비한다(밤 회수 2자리 중 나머지는 로딩 L-44)",
+      "stages": [
+        {
+          "id": "OF-25-S2",
+          "name": "누가 재부팅했습니까",
+          "phase": "reality_event",
+          "trigger": {"event": "OF-25", "choices": ["reboot_router"], "delay": 1, "forced": true},
+          "condition": "",
+          "text": "공유기 관리 화면의 재부팅 로그에 어제 21:57 항목이 하나 더 있다. 그 시각 사무실에는 아무도 없었다. 같은 시각 NAS 접속 계정이 하나 늘어 있고, 공유기 비밀번호는 회사 공용 계정 비밀번호와 같다.",
+          "choices": [
+            {
+              "id": "export_log",
+              "label": "로그를 통째로 내보내 원본·권리 목록에 첨부",
+              "slot": "A",
+              "kind": "value",
+              "effects": [
+                {"op": "resource", "target": "sourceIntegrity", "delta": 5},
+                {"op": "resource", "target": "fear", "delta": 6},
+                {"op": "flag", "target": "sourceLogClues", "delta": 1, "note": "GDD 10.5 2단계 원문 '원본 로그 단서 1건 획득'"}
+              ],
+              "result": "로그 전체를 내보내 목록에 붙였다. 21:57 줄의 접속 계정 칸에는 이름이 없다."
+            },
+            {
+              "id": "reset_router",
+              "label": "공유기를 초기화하고 비밀번호를 새로 발급",
+              "slot": "B",
+              "kind": "safe",
+              "effects": [
+                {"op": "track", "target": "post", "delta": -3},
+                {"op": "spawnWeight", "target": "GH-09", "delta": -10, "scope": "tonight", "delayDays": 1, "note": "GDD 10.5 2단계 원문 \"GH-09 'SOURCE_0000' 출현이 1일 지연되고 그날 밤 GH-09 개별 출현률 -10%p(6.2 이면 조우율 식 불변, 밤 조우 총량 불변)\""}
+              ],
+              "result": "초기화하고 새 비밀번호를 발급했다. 3년 만에 바뀐 문자열을 다섯 명이 각자 다른 곳에 적어 두었다."
+            },
+            {
+              "id": "leehyemi_crosscheck",
+              "label": "이혜미에게 접속 기록 대조를 요청",
+              "slot": "C",
+              "kind": "value",
+              "requires": {"dsl": "flag.assignedLeehyemi", "text": "이혜미 배치 필요"},
+              "effects": [
+                {"op": "resource", "target": "sourceIntegrity", "delta": 8},
+                {"op": "char", "target": "leehyemi", "stat": "focus", "delta": -7},
+                {"op": "char", "target": "leehyemi", "stat": "bond", "delta": 3}
+              ],
+              "result": "이혜미가 출입 기록과 접속 기록을 나란히 놓고 줄을 맞췄다. 맞지 않는 줄은 21:57 하나였다."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "CH-05",
+      "name": "전임자 계정",
+      "source": "10.6",
+      "root": "OF-27",
+      "note": "밤 회귀 설계 — 0바이트 첨부는 이름만 남은 미완성본의 낮 버전이고, 비어 있는 작성자 칸은 밤의 '이름 칸 공란' 오염축과 같은 물건이다. 시각(21:57) 소재는 이 체인에서 쓰지 않는다(10.5 단일 귀속)",
+      "stages": [
+        {
+          "id": "OF-27-S2",
+          "name": "인수인계_최종_진짜최종",
+          "phase": "reality_event",
+          "trigger": {"event": "OF-27", "choices": ["keep_using", "close_and_setup"], "delay": 1, "forced": true},
+          "condition": "",
+          "text": "전임 AP 계정으로 자동 회신이 한 통 도착한다. 제목은 '인수인계_최종_진짜최종'이고, 첨부 파일 크기는 0바이트다. 문서 속성의 작성자 칸과 마지막 수정자 칸이 모두 비어 있다.",
+          "choices": [
+            {
+              "id": "recover_attachment",
+              "label": "첨부를 복구해 열기",
+              "slot": "A",
+              "kind": "gamble",
+              "effects": [
+                {"op": "flag", "target": "sourceLogClues", "delta": 1, "note": "GDD 10.6 2단계 원문 '원본 로그 단서 1건 획득'"},
+                {"op": "resource", "target": "fear", "delta": 8},
+                {"op": "spawnWeight", "target": "GH-19", "delta": 10, "scope": "tonight", "note": "GDD 10.6 2단계 원문 \"그날 밤 GH-19 '전임자 자리' 개별 출현률 +10%p(6.2 이면 조우율 식 불변, 밤 조우 총량 불변)\""}
+              ],
+              "result": "0바이트 첨부를 복구했다. 복구된 문서의 본문은 한 줄이고, 그 한 줄은 오늘 플레이어가 쓴 문장이다."
+            },
+            {
+              "id": "contact_predecessor",
+              "label": "전임자에게 직접 연락",
+              "slot": "B",
+              "kind": "value",
+              "requires": {"dsl": "flag.assignedLeeyounglim || flag.assignedHeoparang", "text": "이영림 또는 허파랑 배치 필요"},
+              "effects": [
+                {"op": "flag", "target": "rightsManifest", "delta": 2, "note": "GDD 10.6 2단계 원문 '원본·권리 목록 +2%'"},
+                {"op": "track", "target": "story", "delta": 3},
+                {"op": "resource", "target": "fear", "delta": 2}
+              ],
+              "result": "전화가 연결됐다. \"그 폴더요, 제가 만든 거 아니에요.\""
+            },
+            {
+              "id": "deactivate_account",
+              "label": "계정을 즉시 비활성화하고 폴더만 인계",
+              "slot": "C",
+              "kind": "safe",
+              "effects": [
+                {"op": "resource", "target": "sourceIntegrity", "delta": 6},
+                {"op": "track", "target": "post", "delta": -3},
+                {"op": "checkMod", "checkType": "brave", "target": "GH-09", "delta": 10, "scope": "firstEncounter", "note": "GDD 10.6 2단계 원문 \"GH-09 최초 조우 시 '누구인지 묻기' 담력 판정 +10%p\" — 11.2 담력 판정식의 항을 신설하지 않고 해당 선택지 1회에만 붙는 개별 보정이다"}
+              ],
+              "result": "계정을 닫고 폴더만 넘겼다. 넘긴 폴더의 이름은 전부 우리가 다시 붙였다."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
