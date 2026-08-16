@@ -185,6 +185,11 @@ const ART = (() => {
      05_아트/plates/ 에 파일이 있으면 빌드 시 여기에 data URI로 실린다.
      실린 항목은 그 그림을 쓰고, 없는 항목만 아래 도형 렌더링으로 그린다.
      그래서 인물 한 명씩 교체해 넣어도 화면이 깨지지 않는다. */
+  /* 인물 플레이트는 extract.py가 공통 배율로 뽑아 상대 키가 보존돼 있다.
+     가장 큰 인물이 PLATE_BASE px이며, 도형 렌더링의 최대 높이(5.66u)와
+     같은 자리를 차지하도록 환산한다. 그래서 그림과 도형을 섞어 써도
+     인물 크기가 서로 어긋나지 않는다. */
+  const PLATE_BASE = 440, PLATE_MAX_U = 5.66;
   const PLATES = (typeof window !== 'undefined' && window.FFD7_PLATES) || {};
   const IMG = {};
   let platesReady = false;
@@ -360,18 +365,27 @@ const ART = (() => {
 
   /* 인물 1인을 (x, y) 바닥 기준으로 그린다.
      col을 주면 전 파츠를 그 한 색으로 칠한다 = 순흑 실루엣 판정 모드. */
-  function crew(cx, key, x, y, unit, col, load) {
+  /* col: 도형 렌더링용 단색(순흑 실루엣 판정 모드에서 지정). 지정하면 항상 도형을 쓴다.
+     fade: 0~1 농도. 그림에는 색을 덧입힐 수 없으므로 컨디션·미배치는 농도로 표현한다.
+     같은 상태를 도형은 색으로, 그림은 농도로 나타내되 읽히는 의미는 같다. */
+  function crew(cx, key, x, y, unit, col, load, fade, flat) {
     const c = CREW[key]; if (!c) return;
     const im = plate('crew-' + key);
-    if (im && !col) {                       // 실루엣 판정 모드(col 지정)에서는 도형을 쓴다
-      const hgt = c.tall * c.h * unit, wid = im.width / im.height * hgt;
+    if (im && !flat) {         // flat=true(실루엣 판정)만 도형을 쓴다 — 판정 대상이 그림이 아니라 설계이므로
+      const hgt = (im.height / PLATE_BASE) * PLATE_MAX_U * unit;
+      const wid = im.width / im.height * hgt;
+      const a = fade == null ? 1 : fade;
+      if (a < 1) { cx.save(); cx.globalAlpha = a; }
       cx.drawImage(im, x - wid / 2, y - hgt, wid, hgt);
+      if (a < 1) cx.restore();
       return;
     }
     const P = col
-      ? { cloth: col, cloth2: col, skin: col, hair: col, prop: col, flat: true }
+      ? { cloth: col, cloth2: col, skin: col, hair: col, prop: col, flat: !!flat }
       : Object.assign({ skin: SKIN, prop: '#8f95a3' }, c.pal);
-    cx.save(); cx.translate(x, y); cx.scale(c.h, c.h);
+    cx.save();
+    cx.translate(x, y - c.foot * c.h * unit);   // 발끝이 y(바닥선)에 닿게
+    cx.scale(c.h, c.h);
     c.draw(cx, unit, P, load);
     cx.restore();
   }
@@ -379,14 +393,14 @@ const ART = (() => {
   /* 작은 캔버스 하나에 인물 1인을 꽉 차게 — 배치 화면 카드·슬롯용
      세로 최대 점유는 이혜미(가장 큼) 기준 약 6.7u. 그 값으로 u를 잡으면
      5인의 키 차이(c.h)가 캔버스 안에서 그대로 유지된다. */
-  function crewChip(canvas, key, col) {
+  function crewChip(canvas, key, col, flat) {
     const cx = canvas.getContext('2d');
     const w = canvas.width, h = canvas.height;
     cx.clearRect(0, 0, w, h);
     const c = CREW[key]; if (!c) return;
     const MAX = 5.66;                       // 가장 큰 인물(이혜미)의 전체 높이 × h
     const u = h * 0.95 / MAX;
-    crew(cx, key, w / 2, h - c.foot * c.h * u - 1, u, col);
+    crew(cx, key, w / 2, h - 1, u, col, null, null, flat);
   }
 
 
@@ -425,7 +439,7 @@ const ART = (() => {
   /* overPlate=true 면 배경 그림 위이므로 집기는 건너뛰고 인물·이름표만 얹는다 */
   function drawCrewRow(cx, w, h, TL, FLOOR, st, night, overPlate) {
     /* 책상 5개 + 인물 */
-    const u = 21, POS = [.115, .295, .475, .655, .855];
+    const u = 31, POS = [.115, .295, .475, .655, .855];
     STAGE_POS.forEach((pos, i) => {
       const x = POS[i] * w, dw = 168, dy = FLOOR - 48;
       if (!overPlate) {
@@ -441,11 +455,13 @@ const ART = (() => {
 
       const o = (st.crew || []).find(z => z.k === pos.k) || {};
       const cond = o.cond == null ? 1 : clampf(o.cond, 0, 1);
-      let tone = null;
-      if (o.away) tone = night ? '#2b2645' : '#3d434e';
-      else if (cond < .55) tone = mix(night ? '#3d3a5c' : '#565b66', CREW[pos.k].tone, .3 + cond);
-      const cc = CREW[pos.k];
-      crew(cx, pos.k, x + 46, FLOOR - cc.foot * cc.h * u, u, tone, o.load);
+      let tone = null, fade = 1;
+      if (o.away) { tone = night ? '#2b2645' : '#3d434e'; fade = .42; }
+      else if (cond < .55) {
+        tone = mix(night ? '#3d3a5c' : '#565b66', CREW[pos.k].tone, .3 + cond);
+        fade = .68 + cond * .55;                  // 지칠수록 옅어지되 사라지지는 않게
+      }
+      crew(cx, pos.k, x + 46, FLOOR, u, tone, o.load, clampf(fade, .42, 1));
 
       if (o.label) {
         cx.font = '600 12px system-ui,sans-serif'; cx.textAlign = 'center';

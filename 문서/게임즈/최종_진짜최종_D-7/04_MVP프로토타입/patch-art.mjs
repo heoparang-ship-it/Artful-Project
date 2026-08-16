@@ -59,7 +59,7 @@ const NEW_DRAW = `    cx2.clearRect(0,0,cv.width,cv.height);
       ART.itemGlyph(cx2, o.x*CW, o.y*CH, ART.glyphKind(o.it.name), col, o.key ? beat : 0);
     });
     if(near && nd < 2.8) ART.label(cx2, near.it.name, near.x*CW, near.y*CH - 14);
-    ART.crew(cx2, 'you', SC.px*CW, SC.py*CH + 11, CH/13, '#e8e6df', Math.ceil(invUsed()/2));
+    ART.crew(cx2, 'you', SC.px*CW, SC.py*CH + 11, CH/13, '#e8e6df', Math.ceil(invUsed()/2), null, true);
     const tot = ($('optSlow').checked ? 90 : 60), frac = clamp(SC.t/tot, 0, 1);
     cx2.fillStyle = '#191c22'; cx2.fillRect(0, 0, cv.width, 4);
     cx2.fillStyle = SC.t < 10 ? ART.C.rec : ART.C.accent; cx2.fillRect(0, 0, cv.width*frac, 4);`;
@@ -76,7 +76,7 @@ const CREWMAP = `const CREW_ART = {heoparang:'heo', leeyounglim:'lyl', leehyemi:
 function paintCrew(){
   document.querySelectorAll('canvas.cwc').forEach(cv => {
     const k = CREW_ART[cv.dataset.crew]; if(!k) return;
-    ART.crewChip(cv, k, cv.closest('.chip')?.classList.contains('used') ? '#5b6068' : null);
+    ART.crewChip(cv, k, null);
   });
 }`;
 sub('paintCrew 정의', 'function renderBoard(){', `${CREWMAP}\nfunction renderBoard(){`);
@@ -134,6 +134,11 @@ sub('무대 표시 전환',
   "  $('stageCv').classList.toggle('on', STAGE_ON.includes(id));\n" +
   "  try{ if(STAGE_ON.includes(id)) paintStage(); }catch(e){}");
 
+/* 6. 토스트가 무대를 덮는 문제 — 무대 아래로 내리고 개수를 제한한다.
+      메신저는 분위기 장치이지 무대를 가릴 만큼 중요하지 않다. */
+sub('토스트 개수 제한', "  $('toasts').appendChild(el);",
+  "  $('toasts').appendChild(el);\n  while($('toasts').children.length > 3) $('toasts').firstChild.remove();");
+
 /* 4. CSS */
 /* 전역 canvas{width:100%}(위 34행)가 카드용 캔버스까지 늘린다.
    인물 캔버스는 픽셀 크기를 고정하고 배경·테두리도 지운다. */
@@ -151,6 +156,7 @@ canvas.cwc{width:auto!important;background:none;border:0;border-radius:0;flex:0 
 .slot .who .mini{display:inline-flex;flex-direction:column;align-items:center;gap:2px;font-size:.78em;color:var(--dim)}
 #scCv{border-radius:4px}
 #stageCv{display:none;width:100%;max-width:1120px;margin:0 auto;background:none;border:0;border-bottom:1px solid var(--line);border-radius:0}
+#toasts{top:auto!important;bottom:12px;opacity:.94}
 #stageCv.on{display:block}
 `;
 sub('CSS 추가', '</style>', `${CSS}</style>`);
