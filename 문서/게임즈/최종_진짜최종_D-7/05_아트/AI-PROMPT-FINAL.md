@@ -269,25 +269,31 @@ printer at the hip.
 CHARACTER: A Korean woman in her late 20s, visual director at a small video
 production company. Full body, standing, character sheet pose.
 
-Build: ordinary, slightly rounded compact outline, short stance.
+Build: small and compact with a rounded outline and a short stance. Do NOT
+state or imply a specific height in the sheet or in any label.
 Face: plain and ordinary with a gentle cast. Narrow heavy-lidded eyes,
 small flat pupils, NO catchlight, faint under-eye shadows. Neat chin-length
 bob. Deadpan, but the CORNERS OF HER MOUTH turn up very slightly. Any
 impression of cuteness must come only from the rounded silhouette and the
 mouth line, never from large or shiny eyes.
-CLOTHING — a hidden layer: she is THE ONLY ONE OF THE TEAM WHO IS PROPERLY
-DRESSED. A crisp well-fitted shirt with sleeves neatly rolled, tucked into
-clean tailored trousers, proper shoes. Everything pressed and coordinated
-while her coworkers are rumpled. UNDERNEATH, a black band tee is layered —
-only a SLIVER of its harsh graphic print shows at the open collar, easy to
-miss. Do NOT put a large visible logo on the outer shirt.
+CLOTHING — THE SILHOUETTE SPLITS: a fitted short-sleeve band tee on top,
+worn with VERY WIDE loose-cut trousers that fall straight and pool at the
+shoes. Narrow above, broad below. She is the only person on the team whose
+upper and lower halves read as different widths.
+The band tee graphic is a fictional monster illustration with NO text and NO
+readable logo. She wears it openly — nothing here is hidden.
 KEY PROPS: a compact camera in one hand, over-ear headphones resting around
 her neck, and a weekly planner ruled into fine time blocks with color tabs
 tucked under one arm. Safety pins on a lapel.
-Silhouette read: the only tidy fully-coordinated outline among scruffy ones.
+Silhouette read: the only figure that splits — narrow on top, wide below,
+short and compact. Reads as a T shape in pure black.
 ```
 
-> **주의**: '갖춰 입음'은 고급·화려함이 아니라 **정돈**이다. 옷의 종류는 나머지 넷과 같은 생활 의류이되 주름·구김·색 조합만 관리된 상태. 하이패션·광택 소재·혼자 다른 화면에서 온 듯한 채도는 불합격.
+> **주의 — '멀쩡해 보인다'를 옷이 아니라 질서로 전달한다.** 그녀는 5인 중 옷을 가장 편하게 입었지만, **자기 반경 1m가 자로 잰 듯 정돈되어 있다.** 15분 그리드 스케줄 보드, 색 라벨로 구획된 플래너, 색깔별로 감긴 케이블, 남의 옷깃을 정리해 주는 손. 옷은 느슨하고 주변은 정확하다 — 이 어긋남이 이 인물이다.
+>
+> 헤비메탈도 더 이상 숨기지 않는다. **대놓고 밴드 티를 입고 있는데 아무도 물어보지 않는다.** 원래 캐논의 *"본인은 숨기지 않지만 아무도 눈치채지 못한다"* 가 그대로 성립하며, 이유만 바뀐다 — 겉이 멀쩡해서가 아니라 **동료의 취향에 아무도 관심이 없어서**다.
+>
+> **이영림과 섞지 말 것.** 이영림도 상·하 대비를 갖지만 축이 다르다 — 이영림은 **격식 대비**(위는 촬영용 정돈, 아래는 편한 옷), 손미림은 **폭 대비**(위는 붙고 아래는 넓다). 그래서 흑백 실루엣에서는 손미림만 잡히고(격식은 실루엣에 안 나온다), 컬러 전신에서는 둘이 각각 다른 이유로 잡힌다. 이영림에게 통 넓은 하의를 입히면 두 인물의 식별 근거가 같이 무너진다.
 
 ### 4.5 김신입 — 신입 AP / 제작 코디네이터 (플레이어)
 
@@ -337,14 +343,14 @@ Left to right:
 3. Early-30s woman, tallest and leanest, raised shoulders, messy tied-up
    bun, all black tee and skinny jeans, one vertical crease between the
    brows, label printer at her hip, tab-covered clipboard.
-4. Late-20s woman, the ONLY properly dressed one — crisp shirt, tailored
-   trousers, neat bob, headphones around her neck, camera in hand, a fine
-   ruled planner under her arm, a sliver of black band tee at her collar.
+4. Late-20s woman, short and compact, neat bob, headphones around her neck,
+   camera in hand, a fine ruled planner under her arm. A FITTED band tee on
+   top with VERY WIDE loose trousers below — narrow above, broad below.
 5. Mid-20s newcomer, small and compact, oversized cheap jacket, buried under
    coiled cables and bags, a slate under one arm, the cleanest lanyard.
 
-The contrast between #4 (put together) and the other four (rumpled) must
-read at a glance, even in pure black silhouette.
+#4 must be the only figure whose upper and lower halves are different
+widths. That split must read at a glance, even in pure black silhouette.
 ```
 
 ---
@@ -424,7 +430,7 @@ carry. Plain transparent background, no shadow blob, no outline glow.
 | **허파랑** | 한 손엔 항상 화면, 다른 손은 넓은 제스처. 화면을 보지 않는 컷이 게임 전체에 없다 | 4분할 생성 그리드가 뜬 태블릿, 프롬프트 포스트잇, 상단에 늘 떠 있는 잔량 알림 배너 | 화면을 상대 쪽으로 돌려 보여준다. 질문받으면 사람이 아니라 화면을 먼저 본다 | 모니터 테두리에 프롬프트 포스트잇 도배, 미채택 생성 시안 출력물, 결제 알림 문자 | 4분할 그리드에 아무도 만들지 않은 다섯 번째 이미지 |
 | **이영림** | 가방 둘 + 사원증과 마이크. **5인 중 유일하게 자세가 무너지지 않는다** | 접이식 링라이트, 셀카봉, 보조배터리 2, 폰 2대, 팀원 책상의 간식과 응원 포스트잇 | 나쁜 소식을 듣고 **0.5초 멈췄다가** 웃으며 대안을 말한다 | 5인 중 그녀 자리에만 조명이 하나 더 켜져 있다 | 사무실 조명이 전부 꺼져도 그녀의 링라이트만 안 꺼진다. 비추는 자리에 아무도 없다 |
 | **이혜미** | 가장 길고 가는 실루엣. **어깨가 항상 조금 올라가 있다** | 라벨 프린터, 클립보드, 색인 탭 체크리스트 | 화나면 라벨 프린터 강타. 소리가 나면 **5인 중 가장 먼저 돌아본다** | 자리 주변 라벨 도배 | 그녀가 붙인 라벨에 아직 일어나지 않은 사고의 이름 |
-| **손미림** | 유일하게 갖춰 입은 실루엣. 셔츠 안 밴드 티가 목깃 사이로 아주 조금 | 카메라, 헤드폰, 분 단위 플래너, 옷핀 | 남의 옷깃을 정리해 준다. 편집 중 **발로 더블베이스 박자를 밟는다**(본인은 모른다) | 자리 뒤 15분 그리드 스케줄 보드. 모니터 뒤편 앉은 사람 시선에서만 보이는 밴드 스티커 | 헤드폰이 책상에 놓인 채 소리가 샌다. 다가가면 음악이 아니라 룸톤이다 |
+| **손미림** | 5인 중 유일하게 상·하 실루엣 폭이 갈린다 — 붙는 밴드 티 + 통 넓은 바지, 작고 둥근 윤곽 | 카메라, 헤드폰, 분 단위 플래너, 옷핀 | 남의 옷깃을 정리해 준다. 편집 중 **발로 더블베이스 박자를 밟는다**(본인은 모른다) | **옷은 가장 편하게 입었는데 자기 반경 1m만 자로 잰 듯 정돈돼 있다** — 15분 그리드 스케줄 보드, 색 라벨 플래너, 색깔별로 감긴 케이블. 모니터 뒤편 앉은 사람 시선에서만 보이는 밴드 스티커 | 헤드폰이 책상에 놓인 채 소리가 샌다. 다가가면 음악이 아니라 룸톤이다 |
 | **김신입** | 늘어나는 케이블에 파묻힌 작은 형체 | 케이블, 토트백, 숄더백, 슬레이트, SSD와 카드리더 | 받은 것을 계속 받는다 | 자리가 없다. 남의 자리 모서리를 빌려 쓴다 | 유일하게 본다 |
 
 ### 7.2 인물 한 줄 요약
@@ -434,7 +440,7 @@ carry. Plain transparent background, no shadow blob, no outline glow.
 | 허파랑 | 기술적 낙관 — 사소한 것까지 전부 AI에게 시킨다 | 내민 화면 | 혼자서는 결정하지 못한다 |
 | 이영림 | 정서적 낙관 — 온에어 상태가 기본값인 사람 | 꺼지지 않는 조명 | 언제 힘든지 아무도 모른다 |
 | 이혜미 | 먼저 아는 사람 — 예민함이 결함이 아니라 직업 능력 | 라벨과 긴장한 어깨 | 혼자 감당하다 터진다 |
-| 손미림 | 다 받아주는 계획주의자 | 유일하게 갖춰 입은 실루엣 | 전부 헤비메탈이다 |
+| 손미림 | 다 받아주는 계획주의자 | 혼자만 갈라지는 실루엣 | 전부 헤비메탈이다 — 숨기지도 않는데 아무도 안 묻는다 |
 | 김신입 | 연결자 | 늘어나는 케이블 | 유일하게 본다 |
 
 **설계 원칙 — 다섯 사람 모두 겉과 속이 다르다.** 다만 어긋남의 방향이 전부 다르다: 허파랑은 확신 뒤에 공백, 이영림은 밝음 뒤에 소진, 이혜미는 예민함 뒤에 고립, 손미림은 단정함 뒤에 소음. 이 게임의 공포가 "출처 없는 것"에 관한 것이므로 인물 설계도 같은 문법을 따른다 — **낮에 보이는 것은 전부 출처가 있고, 밤에 돌아오는 것에는 없다.**
@@ -494,11 +500,11 @@ carry. Plain transparent background, no shadow blob, no outline glow.
 ### 9.2 캐릭터
 
 - [ ] 5인을 **흑백 실루엣으로 변환해도 서로 구분된다**
-- [ ] 흑백 실루엣에서 손미림이 "유일하게 갖춰 입은 인물"로 지목된다
+- [ ] 흑백 실루엣에서 손미림이 "상·하 폭 대비가 가장 큰 인물"로 지목된다
 - [ ] 인물별 상시 소품이 전부 들어 있다 (허파랑=태블릿+포스트잇+알림배너 / 이영림=링라이트+가방2+마이크 / 이혜미=라벨프린터+클립보드 / 손미림=카메라+헤드폰+플래너 / 김신입=케이블+가방+슬레이트)
 - [ ] 이영림의 앉은 컷과 선 컷을 나란히 놓으면 상·하반신 격차가 지목된다
 - [ ] 이혜미가 화난 얼굴이 아니라 **무표정 + 눈썹 사이 세로 주름 1줄**이다
-- [ ] 손미림의 밴드 티가 겉옷에 큰 로고로 드러나 있지 않다 (목깃 사이 슬라이버만)
+- [ ] 손미림의 밴드 티 그래픽에 판독 가능한 글자·로고가 없다 (가상 몬스터 도안만)
 - [ ] 김신입의 장비 더미가 **설계된 기어가 아니라 하루 동안 쌓인 짐**으로 보인다
 
 ### 9.3 금지 사항
