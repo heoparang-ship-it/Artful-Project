@@ -181,6 +181,35 @@ const ART = (() => {
      가는 눈·작고 평평한 동공·캐치라이트 없음·눈 밑 그늘·입은 단선 1획. */
   const SKIN = '#d8bda6', SKIN_S = '#b2907f', INK = '#241f1c';
 
+  /* ---- 이미지 슬롯 ----
+     05_아트/plates/ 에 파일이 있으면 빌드 시 여기에 data URI로 실린다.
+     실린 항목은 그 그림을 쓰고, 없는 항목만 아래 도형 렌더링으로 그린다.
+     그래서 인물 한 명씩 교체해 넣어도 화면이 깨지지 않는다. */
+  const PLATES = (typeof window !== 'undefined' && window.FFD7_PLATES) || {};
+  const IMG = {};
+  let platesReady = false;
+  function loadPlates(done) {
+    const keys = Object.keys(PLATES);
+    if (!keys.length) { platesReady = true; done && done(); return; }
+    let left = keys.length;
+    keys.forEach(k => {
+      const im = new Image();
+      im.onload = () => { IMG[k] = im; if (!--left) { platesReady = true; done && done(); } };
+      im.onerror = () => { if (!--left) { platesReady = true; done && done(); } };
+      im.src = PLATES[k];
+    });
+  }
+  const plate = k => IMG[k] || null;
+
+  /* 이미지를 영역에 꽉 채우되 비율 유지 (cover) */
+  function drawCover(cx, im, x, y, w, h) {
+    const r = Math.max(w / im.width, h / im.height);
+    const dw = im.width * r, dh = im.height * r;
+    cx.save(); cx.beginPath(); cx.rect(x, y, w, h); cx.clip();
+    cx.drawImage(im, x + (w - dw) / 2, y + (h - dh) / 2, dw, dh);
+    cx.restore();
+  }
+
   function face(cx, u, P, opt) {
     if (u < 15 || P.flat) return;                       // 작을 땐 생략, 실루엣 모드는 그리지 않는다
     const e = opt.eyeY == null ? -0.15 * u : opt.eyeY;
@@ -333,6 +362,12 @@ const ART = (() => {
      col을 주면 전 파츠를 그 한 색으로 칠한다 = 순흑 실루엣 판정 모드. */
   function crew(cx, key, x, y, unit, col, load) {
     const c = CREW[key]; if (!c) return;
+    const im = plate('crew-' + key);
+    if (im && !col) {                       // 실루엣 판정 모드(col 지정)에서는 도형을 쓴다
+      const hgt = c.tall * c.h * unit, wid = im.width / im.height * hgt;
+      cx.drawImage(im, x - wid / 2, y - hgt, wid, hgt);
+      return;
+    }
     const P = col
       ? { cloth: col, cloth2: col, skin: col, hair: col, prop: col, flat: true }
       : Object.assign({ skin: SKIN, prop: '#8f95a3' }, c.pal);
@@ -371,20 +406,7 @@ const ART = (() => {
     return `rgb(${r},${g},${bl})`;
   }
 
-  function stage(cx, w, h, st) {
-    st = st || {};
-    const night = !!st.night;
-    const TL = 22, FLOOR = h - 88;
-    const wall  = night ? '#1a1830' : '#262a33';
-    const wallD = night ? '#151327' : '#20242c';
-    const floor = night ? '#100e1e' : '#191c23';
-
-    cx.clearRect(0, 0, w, h);
-    cx.fillStyle = wall; cx.fillRect(0, TL, w, FLOOR - TL);
-    cx.fillStyle = wallD; cx.fillRect(0, TL, w, 26);                 // 천장 그림자
-    cx.fillStyle = floor; cx.fillRect(0, FLOOR, w, h - FLOOR);
-    cx.fillStyle = night ? '#2a2740' : '#333844'; cx.fillRect(0, FLOOR, w, 3);
-
+  function drawTimeline(cx, w, TL, st, night) {
     /* D-카운터 — 편집 타임라인 모티프 */
     cx.fillStyle = night ? '#0c0a16' : '#15181d'; cx.fillRect(0, 0, w, TL);
     const cw = w / 8;
@@ -397,6 +419,73 @@ const ART = (() => {
       cx.fillText('D-' + (7 - i), i * cw + cw / 2, TL - 6);
     }
     cx.textAlign = 'left';
+
+  }
+
+  /* overPlate=true 면 배경 그림 위이므로 집기는 건너뛰고 인물·이름표만 얹는다 */
+  function drawCrewRow(cx, w, h, TL, FLOOR, st, night, overPlate) {
+    /* 책상 5개 + 인물 */
+    const u = 21, POS = [.115, .295, .475, .655, .855];
+    STAGE_POS.forEach((pos, i) => {
+      const x = POS[i] * w, dw = 168, dy = FLOOR - 48;
+      if (!overPlate) {
+      cx.fillStyle = night ? '#221f38' : '#2b3039'; cx.fillRect(x - dw / 2, dy, dw, 48);
+      cx.fillStyle = night ? '#2e2a4c' : '#353b46'; cx.fillRect(x - dw / 2, dy, dw, 7);
+      const mw = 62, mh = 42, mx = x - dw / 2 + 12, my = dy - mh - 3;
+      cx.fillStyle = night ? '#0c0a16' : '#1f232a'; cx.fillRect(mx, my, mw, mh);
+      cx.fillStyle = night ? '#5570a8' : '#39414f'; cx.fillRect(mx + 4, my + 4, mw - 8, mh - 8);
+      if (night) { cx.fillStyle = 'rgba(90,120,180,.09)';
+        cx.beginPath(); cx.moveTo(mx - 26, my + mh); cx.lineTo(mx + mw + 26, my + mh);
+        cx.lineTo(mx + mw + 70, FLOOR); cx.lineTo(mx - 70, FLOOR); cx.closePath(); cx.fill(); }
+      }
+
+      const o = (st.crew || []).find(z => z.k === pos.k) || {};
+      const cond = o.cond == null ? 1 : clampf(o.cond, 0, 1);
+      let tone = null;
+      if (o.away) tone = night ? '#2b2645' : '#3d434e';
+      else if (cond < .55) tone = mix(night ? '#3d3a5c' : '#565b66', CREW[pos.k].tone, .3 + cond);
+      const cc = CREW[pos.k];
+      crew(cx, pos.k, x + 46, FLOOR - cc.foot * cc.h * u, u, tone, o.load);
+
+      if (o.label) {
+        cx.font = '600 12px system-ui,sans-serif'; cx.textAlign = 'center';
+        const lw = cx.measureText(o.label).width;
+        cx.fillStyle = night ? 'rgba(74,68,112,.6)' : 'rgba(232,179,75,.18)';
+        cx.beginPath(); cx.roundRect(x - lw / 2 - 7, h - 44, lw + 14, 17, 4); cx.fill();
+        cx.fillStyle = night ? '#b3a9e0' : C.accent; cx.fillText(o.label, x, h - 32);
+        cx.textAlign = 'left';
+      }
+      if (o.name) {
+        cx.font = '600 13px system-ui,sans-serif'; cx.textAlign = 'center';
+        cx.fillStyle = o.away ? (night ? '#4a4470' : '#5f6672') : (night ? '#a49ed0' : '#d5d2c9');
+        cx.fillText(o.name, x, h - 12); cx.textAlign = 'left';
+      }
+    });
+
+  }
+
+  function stage(cx, w, h, st) {
+    st = st || {};
+    const night = !!st.night;
+    const TL = 22, FLOOR = h - 88;
+    const wall  = night ? '#1a1830' : '#262a33';
+    const wallD = night ? '#151327' : '#20242c';
+    const floor = night ? '#100e1e' : '#191c23';
+
+    cx.clearRect(0, 0, w, h);
+    const bg = plate(night ? 'office-night' : 'office-day');
+    if (bg) {                                // 배경판이 있으면 그림이 방을 대신한다
+      drawCover(cx, bg, 0, TL, w, h - TL);
+      drawTimeline(cx, w, TL, st, night);
+      drawCrewRow(cx, w, h, TL, FLOOR, st, night, true);
+      return;
+    }
+    cx.fillStyle = wall; cx.fillRect(0, TL, w, FLOOR - TL);
+    cx.fillStyle = wallD; cx.fillRect(0, TL, w, 26);                 // 천장 그림자
+    cx.fillStyle = floor; cx.fillRect(0, FLOOR, w, h - FLOOR);
+    cx.fillStyle = night ? '#2a2740' : '#333844'; cx.fillRect(0, FLOOR, w, 3);
+
+    drawTimeline(cx, w, TL, st, night);
 
     /* 형광등 — 밤에는 꺼진다 */
     for (let i = 0; i < 4; i++) {
@@ -452,41 +541,7 @@ const ART = (() => {
       cx.fillRect(534 + (i % 6) * 26, TL + 40 + Math.floor(i / 6) * 26, 18, 18);
     }
 
-    /* 책상 5개 + 인물 */
-    const u = 21, POS = [.115, .295, .475, .655, .855];
-    STAGE_POS.forEach((pos, i) => {
-      const x = POS[i] * w, dw = 168, dy = FLOOR - 48;
-      cx.fillStyle = night ? '#221f38' : '#2b3039'; cx.fillRect(x - dw / 2, dy, dw, 48);
-      cx.fillStyle = night ? '#2e2a4c' : '#353b46'; cx.fillRect(x - dw / 2, dy, dw, 7);
-      const mw = 62, mh = 42, mx = x - dw / 2 + 12, my = dy - mh - 3;
-      cx.fillStyle = night ? '#0c0a16' : '#1f232a'; cx.fillRect(mx, my, mw, mh);
-      cx.fillStyle = night ? '#5570a8' : '#39414f'; cx.fillRect(mx + 4, my + 4, mw - 8, mh - 8);
-      if (night) { cx.fillStyle = 'rgba(90,120,180,.09)';
-        cx.beginPath(); cx.moveTo(mx - 26, my + mh); cx.lineTo(mx + mw + 26, my + mh);
-        cx.lineTo(mx + mw + 70, FLOOR); cx.lineTo(mx - 70, FLOOR); cx.closePath(); cx.fill(); }
-
-      const o = (st.crew || []).find(z => z.k === pos.k) || {};
-      const cond = o.cond == null ? 1 : clampf(o.cond, 0, 1);
-      let tone = null;
-      if (o.away) tone = night ? '#2b2645' : '#3d434e';
-      else if (cond < .55) tone = mix(night ? '#3d3a5c' : '#565b66', CREW[pos.k].tone, .3 + cond);
-      const cc = CREW[pos.k];
-      crew(cx, pos.k, x + 46, FLOOR - cc.foot * cc.h * u, u, tone, o.load);
-
-      if (o.label) {
-        cx.font = '600 12px system-ui,sans-serif'; cx.textAlign = 'center';
-        const lw = cx.measureText(o.label).width;
-        cx.fillStyle = night ? 'rgba(74,68,112,.6)' : 'rgba(232,179,75,.18)';
-        cx.beginPath(); cx.roundRect(x - lw / 2 - 7, h - 44, lw + 14, 17, 4); cx.fill();
-        cx.fillStyle = night ? '#b3a9e0' : C.accent; cx.fillText(o.label, x, h - 32);
-        cx.textAlign = 'left';
-      }
-      if (o.name) {
-        cx.font = '600 13px system-ui,sans-serif'; cx.textAlign = 'center';
-        cx.fillStyle = o.away ? (night ? '#4a4470' : '#5f6672') : (night ? '#a49ed0' : '#d5d2c9');
-        cx.fillText(o.name, x, h - 12); cx.textAlign = 'left';
-      }
-    });
+    drawCrewRow(cx, w, h, TL, FLOOR, st, night, false);
 
     /* 커피잔 — 남은 잔 수만큼 책상 위에 */
     for (let i = 0; i < Math.min(10, st.coffee || 0); i++) {
@@ -518,5 +573,5 @@ const ART = (() => {
     cx.textAlign = 'left';
   }
 
-  return { C, furniture, glyphKind, itemGlyph, crew, crewChip, label, stage, CREW };
+  return { C, furniture, glyphKind, itemGlyph, crew, crewChip, label, stage, loadPlates, plate, CREW };
 })();

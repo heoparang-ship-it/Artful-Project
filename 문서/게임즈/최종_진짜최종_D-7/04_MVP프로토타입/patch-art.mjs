@@ -95,6 +95,7 @@ sub('무대 캔버스 삽입', '<div id="hud"></div>',
   '<div id="hud"></div>\n<canvas id="stageCv" width="1120" height="430"></canvas>');
 
 const STAGE_FN = `
+try{ ART.loadPlates(() => { try{ paintStage(); }catch(e){} }); }catch(e){}
 /* 화면별 시각 — 하루의 진행을 벽시계로 읽게 한다 */
 const STAGE_CLOCK = {board:[9,0], event:[14,20], overtime:[19,0], night:[21,57], log:[23,10], ending:[18,0]};
 const STAGE_ON = ['board','event','overtime','night','log'];
